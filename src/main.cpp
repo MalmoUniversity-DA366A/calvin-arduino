@@ -30,7 +30,7 @@ int main() {
     analogWrite(A0,155);
     lcd.write("Hello World");
     lcd.setCursor(0,1);
-    lcd.write("Snopp");
+    lcd.write("Calvin");
 
     while(1){				//Run loop
     	digitalWrite(13,HIGH);
