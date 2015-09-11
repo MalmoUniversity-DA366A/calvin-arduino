@@ -9,6 +9,9 @@
 #include "Arduino.h"
 #include "diag/Trace.h"
 #include <LiquidCrystal.h>
+#include "ArduinoJson.h"
+
+void testJson();
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
@@ -24,6 +27,9 @@ int main() {
 	digitalWrite(0, HIGH); // Enable pullup for RX0
 
 	Serial.begin(9600);
+
+	testJson();
+
 	lcd.begin(16,2);
     pinMode(A0,OUTPUT);
     pinMode(13,OUTPUT);
@@ -40,4 +46,23 @@ int main() {
     	Serial.write(55);
     }
 
+}
+
+void testJson()
+{
+	StaticJsonBuffer<200> jsonBuffer;
+	char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
+	JsonObject &root = jsonBuffer.parseObject(json);
+	if (!root.success())
+	{
+	    Serial.println("parseObject() failed");
+	}
+	const char* sensor = root["sensor"];
+	long time = root["time"];
+	double latitude = root["data"][0];
+	double longitude = root["data"][1];
+	Serial.println(sensor);
+	Serial.println(time);
+	Serial.println(latitude, 6); // Number of decimals (6)
+	Serial.println(longitude, 6);
 }
