@@ -21,3 +21,7 @@ Code for the unit testing will be separated from the src folder by being placed 
 ####Unity Example
 
 To get things started an Unity exampel can be found in <https://github.com/jesperhansen17/UnityExampel.git> 
+
+####Test documentation
+
+A link to out test documentation <https://onedrive.live.com/redir?resid=5546A4196DE3A96C!334764&authkey=!AKSEN0zjymWxiZw&ithint=file%2cxlsx>
