@@ -12,9 +12,11 @@
 #include "ArduinoJson.h"
 
 void testJson();
-
+void printJson(String str);
+String jsonSerialize(char *temp);
 LiquidCrystal lcd(8,9,4,5,6,7);
-
+#define MAX_LENGTH 255
+#define TERMINATOR 0x0A // $0A in Terminal.exe
 int main() {
 
 	WDT->WDT_MR = WDT_MR_WDDIS; 		//Disable watchdog
@@ -26,10 +28,25 @@ int main() {
 		g_APinDescription[PINS_UART].ulPinConfiguration);
 	digitalWrite(0, HIGH); // Enable pullup for RX0
 
-	Serial.begin(9600);
+	Serial.begin(115200);
+	char temp[MAX_LENGTH+1]; // Make room for NULL terminator
+	String str = "";
 
-	testJson();
+	int size = Serial.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
+	temp[size] = '\0';
+	Serial.println(temp); // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
+	if(size)
+	{
+		str = jsonSerialize(temp);
+		printJson(str); // Prints: {"sensor":"gps","time":"flies"}
+	}
+	else
+		testJson();
 
+	// Test for equality between predefined and user input
+	char json[] = "{\"sensor\":\"gps\",\"time\":\"flies\"}";
+	printJson(json); // Prints: {"sensor":"gps","time":"flies"}
+/*
 	lcd.begin(16,2);
     pinMode(A0,OUTPUT);
     pinMode(13,OUTPUT);
@@ -44,7 +61,7 @@ int main() {
     	digitalWrite(13,LOW);
     	delay(1000);
     	Serial.write(55);
-    }
+    }*/
 
 }
 
@@ -65,4 +82,32 @@ void testJson()
 	Serial.println(time);
 	Serial.println(latitude, 6); // Number of decimals (6)
 	Serial.println(longitude, 6);
+}
+
+void printJson(String str)
+{
+	StaticJsonBuffer<200> jsonBuffer;
+	JsonObject &root = jsonBuffer.parseObject(str);
+	if(!root.success())
+	{
+		Serial.println("parseObject() failed");
+	}
+	root.printTo(Serial);
+	Serial.println();
+}
+
+String jsonSerialize(char *temp)
+{
+	String str = "";
+	int count = 0;
+	while(temp[count] != '\0')
+	{
+		if(temp[count+1] == '\"')
+		{
+			count++;
+		}
+		str += temp[count];
+		count++;
+	}
+	return str;
 }
