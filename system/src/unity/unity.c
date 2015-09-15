@@ -3,8 +3,12 @@
     Copyright (c) 2007-14 Mike Karlesky, Mark VanderVoord, Greg Williams
     [Released under MIT License. Please refer to license.txt for details]
 ============================================================================ */
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
-#include "unity.h"
+
+#include "../unity/unity.h"
 
 #define UNITY_FAIL_AND_BAIL   { Unity.CurrentTestFailed  = 1; longjmp(Unity.AbortFrame, 1); }
 #define UNITY_IGNORE_AND_BAIL { Unity.CurrentTestIgnored = 1; longjmp(Unity.AbortFrame, 1); }
@@ -1174,4 +1178,8 @@ int UnityEnd(void)
     return (int)(Unity.TestFailures);
 }
 
+
+#ifdef __cplusplus
+}
+#endif
 //-----------------------------------------------

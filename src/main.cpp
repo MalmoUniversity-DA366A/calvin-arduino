@@ -8,12 +8,18 @@
 #include <stdio.h>
 #include "Arduino.h"
 #include "diag/Trace.h"
-#include <LiquidCrystal.h>
 #include "../system/include/blinkLED/blinkLED.h"
+#include "../system/include/unity/unity.h"
+#include "../system/include/test/test_hej.h"
 
-LiquidCrystal lcd(8,9,4,5,6,7);
 
 int main() {
+
+	UnityBegin("..system/include/test/test_hej.h");
+
+	RUN_TEST(test_hej);
+
+	UnityEnd();
 
 	WDT->WDT_MR = WDT_MR_WDDIS; 		//Disable watchdog
 	SystemInit();						//Set up cpu clock
@@ -25,13 +31,9 @@ int main() {
 	digitalWrite(0, HIGH); // Enable pullup for RX0
 
 	Serial.begin(9600);
-	lcd.begin(16,2);
     pinMode(A0,OUTPUT);
     pinMode(13,OUTPUT);
     analogWrite(A0,155);
-    lcd.write("Hello World");
-    lcd.setCursor(0,1);
-    lcd.write("Calvin mini");
 
     blinkLED();
 

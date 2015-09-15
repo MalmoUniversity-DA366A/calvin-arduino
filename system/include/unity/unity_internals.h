@@ -3,6 +3,11 @@
     Copyright (c) 2007-14 Mike Karlesky, Mark VanderVoord, Greg Williams
     [Released under MIT License. Please refer to license.txt for details]
 ========================================== */
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
+
 
 #ifndef UNITY_INTERNALS_H
 #define UNITY_INTERNALS_H
@@ -689,4 +694,9 @@ extern const char UnityStrErr64[];
 #endif
 
 //End of UNITY_INTERNALS_H
+#endif
+
+
+#ifdef __cplusplus
+}
 #endif

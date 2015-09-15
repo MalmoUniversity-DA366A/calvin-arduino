@@ -3,6 +3,11 @@
     Copyright (c) 2007-14 Mike Karlesky, Mark VanderVoord, Greg Williams
     [Released under MIT License. Please refer to license.txt for details]
 ========================================== */
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
+
 
 #ifndef UNITY_FRAMEWORK_H
 #define UNITY_FRAMEWORK_H
@@ -269,4 +274,9 @@
 #define TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE_MESSAGE(actual, message)                             UNITY_TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE(actual, __LINE__, message)
 
 //end of UNITY_FRAMEWORK_H
+#endif
+
+
+#ifdef __cplusplus
+}
 #endif
