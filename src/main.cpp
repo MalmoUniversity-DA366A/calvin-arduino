@@ -9,6 +9,7 @@
 #include "Arduino.h"
 #include "diag/Trace.h"
 #include <LiquidCrystal.h>
+#include "../system/include/blinkLED/blinkLED.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
@@ -32,12 +33,6 @@ int main() {
     lcd.setCursor(0,1);
     lcd.write("Calvin mini");
 
-    while(1){				//Run loop
-    	digitalWrite(13,HIGH);
-    	delayMicroseconds(1000000);
-    	digitalWrite(13,LOW);
-    	delay(1000);
-    	Serial.write(55);
-    }
+    blinkLED();
 
 }
