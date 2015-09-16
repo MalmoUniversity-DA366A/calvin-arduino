@@ -12,6 +12,7 @@
 #include "blinkLED.h"
 #include "unity.h"
 #include "uart.h"
+#include "Test.h"
 
 void testRunner(void);
 void init_board(void);
@@ -22,6 +23,7 @@ void init_board(void);
 
 void testRunner(void)
 {
+	Test test;
 
 	// Start unit test
 	UnityBegin("");
@@ -30,6 +32,7 @@ void testRunner(void)
 	Unity.TestFile = "..system/include/test/test_ExampelCode.h";
 	RUN_TEST(test_ExampelCode);
 	RUN_TEST(test_ExampelCode2);
+
 
 	// End unit test
 	UnityEnd();
@@ -57,7 +60,6 @@ int main() {
 	init_board();
 
 	testRunner();
-
 
 	Serial.begin(9600);
     pinMode(A0,OUTPUT);
