@@ -1,5 +1,5 @@
-#include "unity/unity.h"
-#include "../include/test/test_hej.h"
+#include "unity.h"
+#include "test_hej.h"
 
 #ifdef __cplusplus
  extern "C" {
