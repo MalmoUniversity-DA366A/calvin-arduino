@@ -7,6 +7,11 @@
 
 void test_ExampelCode(void)
 {
+	TEST_ASSERT_EQUAL(1, 1);
+}
+
+void test_ExampelCode2(void)
+{
 	TEST_ASSERT_EQUAL(1, 0);
 }
 

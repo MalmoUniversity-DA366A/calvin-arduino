@@ -277,6 +277,8 @@ typedef UNITY_DOUBLE_TYPE _UD;
 	while (!uart_tx_ready());	\
 	uart_write_char(a);			\
 }
+#define HORIZONTAL_LINE_BREAK()	\
+	uart_write_str("\n\r");
 #else
 //If defined as something else, make sure we declare it here so it's ready for use
 extern int UNITY_OUTPUT_CHAR(int);

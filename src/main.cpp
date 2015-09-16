@@ -9,27 +9,55 @@
 #include <test_exampel.h>
 #include "Arduino.h"
 #include "diag/Trace.h"
-#include "../system/include/blinkLED/blinkLED.h"
-#include "../system/include/unity/unity.h"
+#include "blinkLED.h"
+#include "unity.h"
+#include "uart.h"
 
+void testRunner(void);
+void init_board(void);
+
+/**
+ * Test runnner function add new tests here.
+ */
+
+void testRunner(void)
+{
+
+	// Start unit test
+	UnityBegin("");
+
+	// Run ExampelCode tests
+	Unity.TestFile = "..system/include/test/test_ExampelCode.h";
+	RUN_TEST(test_ExampelCode);
+	RUN_TEST(test_ExampelCode2);
+
+	// End unit test
+	UnityEnd();
+}
+
+/**
+ * Sets up Arduino Due
+ */
+void init_board(){
+
+	WDT->WDT_MR = WDT_MR_WDDIS; 		//Disable watchdog
+	SystemInit();						// Initiate Due Card
+
+	PIO_Configure(
+		g_APinDescription[PINS_UART].pPort,
+		g_APinDescription[PINS_UART].ulPinType,
+		g_APinDescription[PINS_UART].ulPin,
+		g_APinDescription[PINS_UART].ulPinConfiguration);
+	digitalWrite(0, HIGH); // Enable pullup for RX0
+}
 
 int main() {
 
-	WDT->WDT_MR = WDT_MR_WDDIS; 		//Disable watchdog
-	SystemInit();
 
-	PIO_Configure(
-	    g_APinDescription[PINS_UART].pPort,
-	    g_APinDescription[PINS_UART].ulPinType,
-	    g_APinDescription[PINS_UART].ulPin,
-	    g_APinDescription[PINS_UART].ulPinConfiguration);
-	digitalWrite(0, HIGH); // Enable pullup for RX0
+	init_board();
 
-	UnityBegin("..system/include/test/test_ExampelCode.h");
+	testRunner();
 
-	RUN_TEST(test_ExampelCode);
-
-	UnityEnd();
 
 	Serial.begin(9600);
     pinMode(A0,OUTPUT);
@@ -37,5 +65,6 @@ int main() {
 
     analogWrite(A0,155);
 
+    // Test function for blink L LED on Due connected to pin 13
     blinkLED();
 }
