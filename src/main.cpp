@@ -12,7 +12,7 @@
 #include "blinkLED.h"
 #include "unity.h"
 #include "uart.h"
-#include "Test.h"
+
 
 void testRunner(void);
 void init_board(void);
@@ -23,7 +23,6 @@ void init_board(void);
 
 void testRunner(void)
 {
-	Test test;
 
 	// Start unit test
 	UnityBegin("");
