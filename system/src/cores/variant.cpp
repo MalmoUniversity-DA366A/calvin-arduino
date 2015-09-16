@@ -378,7 +378,7 @@ void init( void )
   }
 
   // Initialize C library
-  __libc_init_array();
+  //__libc_init_array();
 
   // Disable pull-up on every pin
   for (unsigned i = 0; i < PINS_COUNT; i++)
