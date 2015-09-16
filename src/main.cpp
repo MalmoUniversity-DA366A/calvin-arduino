@@ -6,35 +6,36 @@
  */
 
 #include <stdio.h>
+#include <test_exampel.h>
 #include "Arduino.h"
 #include "diag/Trace.h"
 #include "../system/include/blinkLED/blinkLED.h"
 #include "../system/include/unity/unity.h"
-#include "../system/include/test/test_hej.h"
 
 
 int main() {
 
-	UnityBegin("..system/include/test/test_hej.h");
-
-	RUN_TEST(test_hej);
-
-	UnityEnd();
-
 	WDT->WDT_MR = WDT_MR_WDDIS; 		//Disable watchdog
-	SystemInit();						//Set up cpu clock
-	PIO_Configure(						// Enable UART
+	SystemInit();
+
+	PIO_Configure(
 	    g_APinDescription[PINS_UART].pPort,
 	    g_APinDescription[PINS_UART].ulPinType,
 	    g_APinDescription[PINS_UART].ulPin,
-		g_APinDescription[PINS_UART].ulPinConfiguration);
+	    g_APinDescription[PINS_UART].ulPinConfiguration);
 	digitalWrite(0, HIGH); // Enable pullup for RX0
+
+	UnityBegin("..system/include/test/test_ExampelCode.h");
+
+	RUN_TEST(test_ExampelCode);
+
+	UnityEnd();
 
 	Serial.begin(9600);
     pinMode(A0,OUTPUT);
     pinMode(13,OUTPUT);
+
     analogWrite(A0,155);
 
     blinkLED();
-
 }

@@ -4,8 +4,7 @@
  extern "C" {
 #endif
 
-void test_hej(void);
-
+void test_ExampelCode(void);
 
 #ifdef __cplusplus
 }

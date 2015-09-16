@@ -1,13 +1,13 @@
+#include <test_exampel.h>
 #include "unity.h"
-#include "test_hej.h"
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
-void test_hej(void)
+void test_ExampelCode(void)
 {
-	TEST_ASSERT_EQUAL(1, 1);
+	TEST_ASSERT_EQUAL(1, 0);
 }
 
 #ifdef __cplusplus

@@ -7,8 +7,9 @@
  extern "C" {
 #endif
 
-
+#include "sam3x/chip.h"
 #include "../unity/unity.h"
+#include "sam3x/uart.h"
 
 #define UNITY_FAIL_AND_BAIL   { Unity.CurrentTestFailed  = 1; longjmp(Unity.AbortFrame, 1); }
 #define UNITY_IGNORE_AND_BAIL { Unity.CurrentTestIgnored = 1; longjmp(Unity.AbortFrame, 1); }
@@ -1140,6 +1141,15 @@ void UnityDefaultTestRun(UnityTestFunction Func, const char* FuncName, const int
 //-----------------------------------------------
 void UnityBegin(const char* filename)
 {
+	const uart_settings_t uart_settings = {
+			.baud_rate = 115200,
+			.parity = UART_PARITY_NO,
+			.ch_mode = UART_CHMODE_NORMAL
+		};
+
+
+	pmc_enable_periph_clk(ID_UART);
+	uart_init(&uart_settings);
     Unity.TestFile = filename;
     Unity.CurrentTestName = NULL;
     Unity.CurrentTestLineNumber = 0;
