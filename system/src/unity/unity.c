@@ -9,6 +9,10 @@
 
 #ifdef ARDUINO
 #include "sam3x/chip.h"
+<<<<<<< HEAD
+=======
+#include "unity.h"
+>>>>>>> 0a08b04af4cac0204412e125389fc0dbe5a16355
 #include "sam3x/uart.h"
 #endif
 

@@ -31,7 +31,7 @@
 #include <pgmspace.h>
 //#include <avr/interrupt.h>
 
-//#include "binary.h"
+#include "binary.h"
 #include "itoa.h"
 
 #ifdef __cplusplus
@@ -179,7 +179,7 @@ extern const PinDescription g_APinDescription[] ;
 //#include "WCharacter.h"
 #include "WString.h"
 //#include "Tone.h"
-//#include "WMath.h"
+#include "WMath.h"
 #include "HardwareSerial.h"
 //#include "wiring_pulse.h"
 
@@ -187,7 +187,6 @@ extern const PinDescription g_APinDescription[] ;
 
 // Include board variant
 #include "variant.h"
-
 #include "wiring.h"
 #include "wiring_digital.h"
 #include "wiring_analog.h"
