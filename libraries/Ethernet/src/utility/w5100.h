@@ -15,9 +15,7 @@
 #define ETHERNET_SHIELD_SPI_CS 10
 //FIXME OBS! detta är tillagt själv. för att SPI_CS inte finns deklarerat någonstans:
 //avmarkera eller ta bort för att återställa till standard.
-#define SPI_CS 					74		//MISO
-//#define SPI_CS 					75		//MOSI
-//#define SPI_CS 					76		//SLCK
+#define SPI_CS 					10		//
 //--------------------------------------------------------------------
 
 #define MAX_SOCK_NUM 4

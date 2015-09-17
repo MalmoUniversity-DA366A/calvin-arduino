@@ -10,7 +10,12 @@
 #include "diag/Trace.h"
 #include <LiquidCrystal.h>
 #include <SPI.h>
+#include <Dhcp.h>
+#include <Dns.h>
 #include <Ethernet.h>
+#include <EthernetClient.h>
+#include <EthernetServer.h>
+#include <EthernetUdp.h>
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
@@ -27,12 +32,12 @@ int main() {
 
 	// Enter a MAC address for your controller below.
 	EthernetClient client;
+	//client.setTimeout(5000);				//set timout to 5 seconds
 	byte mac[] = {
-	  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02
+	  0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93
 	};
 
 	Serial.begin(115200);
-	/*
 	lcd.begin(16,2);
     pinMode(A0,OUTPUT);
     pinMode(13,OUTPUT);
@@ -40,25 +45,17 @@ int main() {
     lcd.write("Hello World");
     lcd.setCursor(0,1);
     lcd.write("Calvin mini");
-	 */
+
     //-------------------TEST ETHERNET----------------------------------------
     // start the Ethernet connection:
-     if (Ethernet.begin(mac) == 0)
-     {
-    	 Serial.println("Failed to configure Ethernet using DHCP");
-       // no point in carrying on, so do nothing forevermore:
-       //for (;;)
-       //  ;
-     }
+	Serial.println("here");
 
-     // print your local IP address:
-     Serial.print("My IP address: ");
-     for (byte thisByte = 0; thisByte < 4; thisByte++) {
-       // print the value of each byte of the IP address:
-       Serial.print(Ethernet.localIP()[thisByte], DEC);
-       Serial.print(".");
-     }
-     Serial.println();
+	// DHCP:
+
+	if (Ethernet.begin(mac) == 0) {
+		Serial.println("Failed to configure Ethernet using DHCP");
+	    // no point in carrying on, so do nothing forevermore:
+	  }
 
      //------------------------------------------------------
 
@@ -69,6 +66,14 @@ int main() {
     	delay(1000);
     	Serial.write(55);
     	Serial.println();
+
+    	Serial.print("My IP address: ");
+    	     for (byte thisByte = 0; thisByte < 4; thisByte++) {
+    	       // print the value of each byte of the IP address:
+    	       Serial.print(Ethernet.localIP()[thisByte], DEC);
+    	       Serial.print(".");
+    	     }
+    	     Serial.println();
 
     }
 
