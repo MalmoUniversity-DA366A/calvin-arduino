@@ -26,7 +26,7 @@ The command git clone which gives the user a full copy of the data from the remo
 
 ####Calvin-Mini
 * git clone https://github.com/MalmoUniversity-DA366A/calvin-mini.git
-* 
+
 #### Step into calvin-arduino folder
 * cd calvin-arduino
 

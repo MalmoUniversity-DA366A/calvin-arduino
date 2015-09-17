@@ -3,14 +3,19 @@
     Copyright (c) 2007-14 Mike Karlesky, Mark VanderVoord, Greg Williams
     [Released under MIT License. Please refer to license.txt for details]
 ============================================================================ */
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
-#include "unity.h"
+#include "sam3x/chip.h"
+#include "../unity/unity.h"
+#include "sam3x/uart.h"
 
 #define UNITY_FAIL_AND_BAIL   { Unity.CurrentTestFailed  = 1; longjmp(Unity.AbortFrame, 1); }
 #define UNITY_IGNORE_AND_BAIL { Unity.CurrentTestIgnored = 1; longjmp(Unity.AbortFrame, 1); }
 /// return prematurely if we are already in failure or ignore state
 #define UNITY_SKIP_EXECUTION  { if ((Unity.CurrentTestFailed != 0) || (Unity.CurrentTestIgnored != 0)) {return;} }
-#define UNITY_PRINT_EOL       { UNITY_OUTPUT_CHAR('\n'); }
+#define UNITY_PRINT_EOL       { HORIZONTAL_LINE_BREAK() }
 
 struct _Unity Unity;
 
@@ -1136,7 +1141,16 @@ void UnityDefaultTestRun(UnityTestFunction Func, const char* FuncName, const int
 //-----------------------------------------------
 void UnityBegin(const char* filename)
 {
-    Unity.TestFile = filename;
+	const uart_settings_t uart_settings = {
+			.baud_rate = 115200,
+			.parity = UART_PARITY_NO,
+			.ch_mode = UART_CHMODE_NORMAL
+		};
+
+
+	pmc_enable_periph_clk(ID_UART);
+	uart_init(&uart_settings);
+    //Unity.TestFile = filename;
     Unity.CurrentTestName = NULL;
     Unity.CurrentTestLineNumber = 0;
     Unity.NumberOfTests = 0;
@@ -1174,4 +1188,8 @@ int UnityEnd(void)
     return (int)(Unity.TestFailures);
 }
 
+
+#ifdef __cplusplus
+}
+#endif
 //-----------------------------------------------
