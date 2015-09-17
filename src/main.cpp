@@ -19,7 +19,6 @@
 #include "unity.h"
 #include "uart.h"
 
-
 LiquidCrystal lcd(8,9,4,5,6,7);
 EthernetClient client;
 // Enter a MAC address for your controller below.
