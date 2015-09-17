@@ -16,6 +16,7 @@
 void testRunner(void);
 void init_board(void);
 
+
 /**
  * Test runnner function add new tests here.
  */
@@ -39,8 +40,8 @@ void testRunner(void)
 /**
  * Sets up Arduino Due
  */
-void init_board(){
 
+void init_board(){
 	WDT->WDT_MR = WDT_MR_WDDIS; 		//Disable watchdog
 	SystemInit();						// Initiate Due Card
 
@@ -51,25 +52,20 @@ void init_board(){
 		g_APinDescription[PINS_UART].ulPinConfiguration);
 	digitalWrite(0, HIGH); // Enable pullup for RX0
 }
-<<<<<<< HEAD
-*/
 
-=======
->>>>>>> 4ad84f3c5c0266d78b8c83b622aa6d5cb8cdfe04
+
 int main(void) {
+
 
 	init_board();
 	testRunner();
 	Serial.begin(9600);
     pinMode(A0,OUTPUT);
     pinMode(13,OUTPUT);
-
     analogWrite(A0,155);
 
     // Test function for blink L LED on Due connected to pin 13
     blinkLED();
-
-
 
 	return 0;
 }
