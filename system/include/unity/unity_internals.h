@@ -3,6 +3,11 @@
     Copyright (c) 2007-14 Mike Karlesky, Mark VanderVoord, Greg Williams
     [Released under MIT License. Please refer to license.txt for details]
 ========================================== */
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
+
 
 #ifndef UNITY_INTERNALS_H
 #define UNITY_INTERNALS_H
@@ -12,6 +17,7 @@
 #endif
 
 #include <setjmp.h>
+#include "sam3x/uart.h"
 
 // Unity Attempts to Auto-Detect Integer Types
 // Attempt 1: UINT_MAX, ULONG_MAX, etc in <stdint.h>
@@ -261,9 +267,18 @@ typedef UNITY_DOUBLE_TYPE _UD;
 // Output Method: stdout (DEFAULT)
 //-------------------------------------------------------
 #ifndef UNITY_OUTPUT_CHAR
-//Default to using putchar, which is defined in stdio.h
+/*
+ * Originally this macro function was using 'putchar()',
+ * which is defined in stdio.h
+ * Modified by Jesper Hansen, Daniel Nordahl 2015-09-16
+ */
 #include <stdio.h>
-#define UNITY_OUTPUT_CHAR(a) putchar(a)
+#define UNITY_OUTPUT_CHAR(a) {	\
+	while (!uart_tx_ready());	\
+	uart_write_char(a);			\
+}
+#define HORIZONTAL_LINE_BREAK()	\
+	uart_write_str("\n\r");
 #else
 //If defined as something else, make sure we declare it here so it's ready for use
 extern int UNITY_OUTPUT_CHAR(int);
@@ -689,4 +704,9 @@ extern const char UnityStrErr64[];
 #endif
 
 //End of UNITY_INTERNALS_H
+#endif
+
+
+#ifdef __cplusplus
+}
 #endif
