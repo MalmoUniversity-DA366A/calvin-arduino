@@ -5,23 +5,20 @@
  * @author Daniel Nordahl
  */
 
-#include <stdio.h>
 #include <test_exampel.h>
 #include "Arduino.h"
 #include "diag/Trace.h"
 #include <LiquidCrystal.h>
 #include "ArduinoJson.h"
 #include "testJson.h"
+#include "blinkLED.h"
+#include "unity.h"
+#include "uart.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
 #define MAX_LENGTH 255
 #define TERMINATOR 0x0A // $0A in Terminal.exe
-int main() {
-#include "blinkLED.h"
-#include "unity.h"
-#include "uart.h"
-
 
 void testRunner(void);
 void init_board(void);
