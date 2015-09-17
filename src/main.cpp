@@ -11,11 +11,8 @@
 #include "diag/Trace.h"
 #include <LiquidCrystal.h>
 #include "ArduinoJson.h"
+#include "testJson.h"
 
-void testJson();
-void printJson(String str);
-String jsonUnserialize(char *temp);
-String jsonSerialize(char *str);
 LiquidCrystal lcd(8,9,4,5,6,7);
 
 #define MAX_LENGTH 255
@@ -117,6 +114,7 @@ int main() {
     }*/
 
 }
+<<<<<<< HEAD
 
 void testJson()
 {
@@ -187,3 +185,5 @@ String jsonSerialize(char *str) // {\"sensor\":\"gps\",\"time\":\"flies\"}
     // Test function for blink L LED on Due connected to pin 13
     blinkLED();
 }
+=======
+>>>>>>> json-arduino
