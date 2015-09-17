@@ -2,7 +2,7 @@
 // This file is part of the µOS++ III distribution.
 // Copyright (c) 2014 Liviu Ionescu.
 //
-
+#ifdef ARDUINO
 #include <assert.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -53,3 +53,4 @@ assert_failed (uint8_t* file, uint32_t line)
 #endif // defined(USE_FULL_ASSERT)
 
 // ----------------------------------------------------------------------------
+#endif

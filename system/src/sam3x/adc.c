@@ -26,7 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
-
+#ifdef ARDUINO
 #include "chip.h"
 
 /// @cond 0
@@ -960,3 +960,4 @@ Pdc *adc_get_pdc_base(const Adc *p_adc)
 #endif
 /**INDENT-ON**/
 /// @endcond
+#endif

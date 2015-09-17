@@ -1,3 +1,4 @@
+#ifdef ARDUINO
 #include "Arduino.h"
 #include "blinkLED.h"
 #ifdef __cplusplus
@@ -5,6 +6,7 @@
 #endif
 	void blinkLED(void)
 	{
+	  pinMode(13,OUTPUT);
 		while(1)	//Run loop
 		{
 	    	delayMicroseconds(1000000);
@@ -15,4 +17,5 @@
 	}
 #ifdef __cplusplus
 }
+#endif
 #endif

@@ -37,7 +37,7 @@
 /*------------------------------------------------------------------------------
  *         Headers
  *------------------------------------------------------------------------------*/
-
+#ifdef ARDUINO
 #include "chip.h"
 
 #include <assert.h>
@@ -234,3 +234,4 @@ void TC_SetRC(Tc *tc, uint32_t chan, uint32_t v) {
 	tc->TC_CHANNEL[chan].TC_RC = v;
 }
 
+#endif

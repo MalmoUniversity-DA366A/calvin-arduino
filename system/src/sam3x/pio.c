@@ -28,7 +28,7 @@
  */
 
 /** \file */
-
+#ifdef ARDUINO
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -365,3 +365,4 @@ extern uint32_t PIO_GetOutputDataStatus( const Pio* pPio, const uint32_t dwMask 
   return 0 ;
 }
 
+#endif

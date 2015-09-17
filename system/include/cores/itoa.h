@@ -32,6 +32,9 @@ extern void itoa( int n, char s[] ) ;
 extern char* itoa( int value, char *string, int radix ) ;
 extern char* ltoa( long value, char *string, int radix ) ;
 extern char* utoa( unsigned long value, char *string, int radix ) ;
+#ifdef ARDUINO
+extern char* utoa( unsigned long value, char *string, int radix ) ;
+#endif
 extern char* ultoa( unsigned long value, char *string, int radix ) ;
 #endif /* 0 */
 

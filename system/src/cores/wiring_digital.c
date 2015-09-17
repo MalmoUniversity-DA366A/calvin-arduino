@@ -15,7 +15,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
+#ifdef ARDUINO
 #include "Arduino.h"
 
 #ifdef __cplusplus
@@ -106,4 +106,4 @@ extern int digitalRead( uint32_t ulPin )
 #ifdef __cplusplus
 }
 #endif
-
+#endif

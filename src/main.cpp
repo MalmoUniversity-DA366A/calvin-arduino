@@ -5,8 +5,10 @@
  * @author Daniel Nordahl
  */
 
+#include <stdio.h>
 #include "test_exampel.h"
 #include "Arduino.h"
+#include <test_exampel.h>
 #include "diag/Trace.h"
 #include <LiquidCrystal.h>
 #include <SPI.h>
@@ -22,6 +24,7 @@
 #include "unity.h"
 #include "uart.h"
 
+
 LiquidCrystal lcd(8,9,4,5,6,7);
 EthernetClient client;
 // Enter a MAC address for your controller below.
@@ -35,6 +38,8 @@ byte mac[] = {
 void testRunner(void);
 void init_board(void);
 void testJsonCode(void);
+void initEthernet(void);
+void printMyIp(void);
 void initEthernet(void);
 void printMyIp(void);
 
@@ -61,8 +66,8 @@ void testRunner(void)
 /**
  * Sets up Arduino Due
  */
-void init_board(){
 
+void init_board(){
 	WDT->WDT_MR = WDT_MR_WDDIS; 		//Disable watchdog
 	SystemInit();						// Initiate Due Card
 
@@ -81,8 +86,8 @@ void init_board(){
 void testJsonCode(void)
 {
   char temp[MAX_LENGTH+1]; // Make room for NULL terminator
-  while(true)
-  {
+  //while(true)
+  //{
       String str = "";
 
       int size = Serial.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
@@ -98,7 +103,7 @@ void testJsonCode(void)
           str = jsonSerialize(temp);
           Serial.println(str);  // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
       }
-    }
+    //}
 }
 
  /**
@@ -128,30 +133,13 @@ void printMyIp()
     Serial.println();
 }
 
-int main() {
+int main(void) {
 
 	init_board();
-	initEthernet();
 	testRunner();
 	Serial.begin(115200);
 	testJsonCode();
 
-	/*lcd.begin(16,2);
-  pinMode(A0,OUTPUT);
-  pinMode(13,OUTPUT);
-
-  analogWrite(A0,155);
-  lcd.write("Hello World");
-  lcd.setCursor(0,1);
-  lcd.write("Calvin mini");
-
-  while(1){				//Run loop
-      digitalWrite(13,HIGH);
-    	delayMicroseconds(1000000);
-    	digitalWrite(13,LOW);
-    	delay(1000);
-    	Serial.write(55);
-    }*/
-
-
+  // Test function for blink L LED on Due connected to pin 13
+  blinkLED();
 }
