@@ -6,7 +6,7 @@
  *
  * Date:	29 September, 2014
  */ 
-
+#ifdef ARDUINO
 #include "uart.h"
 
 
@@ -49,3 +49,4 @@ char uart_read_char(void) {
 	char chr = (char) UART->UART_RHR;
 	return chr;
 }
+#endif

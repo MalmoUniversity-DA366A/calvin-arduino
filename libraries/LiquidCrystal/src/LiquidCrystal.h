@@ -1,3 +1,4 @@
+#ifdef ARDUINO
 #ifndef LiquidCrystal_h
 #define LiquidCrystal_h
 
@@ -105,4 +106,5 @@ private:
   uint8_t _row_offsets[4];
 };
 
+#endif
 #endif

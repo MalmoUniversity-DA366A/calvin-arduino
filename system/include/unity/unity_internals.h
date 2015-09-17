@@ -17,7 +17,9 @@
 #endif
 
 #include <setjmp.h>
+#ifdef ARDUINO
 #include "sam3x/uart.h"
+#endif
 
 // Unity Attempts to Auto-Detect Integer Types
 // Attempt 1: UINT_MAX, ULONG_MAX, etc in <stdint.h>
@@ -273,12 +275,17 @@ typedef UNITY_DOUBLE_TYPE _UD;
  * Modified by Jesper Hansen, Daniel Nordahl 2015-09-16
  */
 #include <stdio.h>
+#ifdef ARDUINO
 #define UNITY_OUTPUT_CHAR(a) {	\
 	while (!uart_tx_ready());	\
 	uart_write_char(a);			\
 }
 #define HORIZONTAL_LINE_BREAK()	\
 	uart_write_str("\n\r");
+#else
+#define UNITY_OUTPUT_CHAR(a) putchar(a)
+#define HORIZONTAL_LINE_BREAK() putchar("\n")
+#endif
 #else
 //If defined as something else, make sure we declare it here so it's ready for use
 extern int UNITY_OUTPUT_CHAR(int);

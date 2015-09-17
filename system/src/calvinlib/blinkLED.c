@@ -1,3 +1,4 @@
+#ifdef ARDUINO
 #include "Arduino.h"
 #include "blinkLED.h"
 #ifdef __cplusplus
@@ -15,4 +16,5 @@
 	}
 #ifdef __cplusplus
 }
+#endif
 #endif

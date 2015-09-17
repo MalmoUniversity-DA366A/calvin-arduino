@@ -9,7 +9,7 @@
 // heavy implementations in the standard C++ library.
 
 // ----------------------------------------------------------------------------
-
+#ifdef ARDUINO
 #include <cstdlib>
 #include <sys/types.h>
 #include "diag/Trace.h"
@@ -48,3 +48,4 @@ extern "C"
 
 // ----------------------------------------------------------------------------
 
+#endif

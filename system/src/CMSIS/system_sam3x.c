@@ -41,7 +41,7 @@
  * \asf_license_stop
  *
  */
-
+#ifdef ARDUINO
 #include "system_sam3x.h"
 #include "sam3xa.h"
 
@@ -220,3 +220,4 @@ void system_init_flash(uint32_t ul_clk)
 #endif
 /**INDENT-ON**/
 /* @endcond */
+#endif

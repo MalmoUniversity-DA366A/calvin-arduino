@@ -27,7 +27,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-
+#ifdef ARDUINO
 #include "syscalls.h"
 
 #include <stdio.h>
@@ -148,3 +148,4 @@ extern int _getpid ( void )
 {
     return -1 ;
 }
+#endif

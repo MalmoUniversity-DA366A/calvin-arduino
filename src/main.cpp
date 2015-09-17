@@ -6,14 +6,13 @@
  */
 
 #include <stdio.h>
-#include <test_exampel.h>
 #include "Arduino.h"
+#include <test_exampel.h>
 #include "diag/Trace.h"
 #include "blinkLED.h"
 #include "unity.h"
 #include "uart.h"
-#include "Test.h"
-
+/*
 void testRunner(void);
 void init_board(void);
 
@@ -23,7 +22,6 @@ void init_board(void);
 
 void testRunner(void)
 {
-	Test test;
 
 	// Start unit test
 	UnityBegin("");
@@ -41,6 +39,7 @@ void testRunner(void)
 /**
  * Sets up Arduino Due
  */
+/*
 void init_board(){
 
 	WDT->WDT_MR = WDT_MR_WDDIS; 		//Disable watchdog
@@ -53,14 +52,14 @@ void init_board(){
 		g_APinDescription[PINS_UART].ulPinConfiguration);
 	digitalWrite(0, HIGH); // Enable pullup for RX0
 }
+*/
+int main(void) {
 
-int main() {
-
-
+/*
 	init_board();
-
+*/
 	testRunner();
-
+/*
 	Serial.begin(9600);
     pinMode(A0,OUTPUT);
     pinMode(13,OUTPUT);
@@ -69,4 +68,8 @@ int main() {
 
     // Test function for blink L LED on Due connected to pin 13
     blinkLED();
+
+   */
+
+	return 0;
 }

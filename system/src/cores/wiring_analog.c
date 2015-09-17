@@ -15,7 +15,7 @@
  License along with this library; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
+#ifdef ARDUINO
 #include "Arduino.h"
 
 #ifdef __cplusplus
@@ -353,4 +353,5 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue) {
 
 #ifdef __cplusplus
 }
+#endif
 #endif
