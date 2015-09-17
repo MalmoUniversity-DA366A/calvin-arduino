@@ -12,12 +12,7 @@
 #include "diag/Trace.h"
 #include <LiquidCrystal.h>
 #include <SPI.h>
-#include <Dhcp.h>
-#include <Dns.h>
 #include <Ethernet.h>
-#include <EthernetClient.h>
-#include <EthernetServer.h>
-#include <EthernetUdp.h>
 #include "ArduinoJson.h"
 #include "testJson.h"
 #include "blinkLED.h"
