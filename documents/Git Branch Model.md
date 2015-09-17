@@ -59,5 +59,5 @@ The command git clone which gives the user a full copy of the data from the remo
 * Add the line .DS_Store to the .gitignore file
 * find . -name .DS_Store -print0 | xargs -0 git rm -f --ignore-unmatch (Removes DS_Store file if already committed)
 * git add .gitignore 
-* git commit -m '.DS_Store banished!'
+* git commit -m ".DS_Store banished!"
 * defaults write com.apple.finder AppleShowAllFiles -bool NO (Hide hidden files/folders)
