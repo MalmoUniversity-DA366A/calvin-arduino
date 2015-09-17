@@ -1,4 +1,4 @@
-**Source code comments**
+###Source code comments
 
 Doxygen can automate the documenting export process from source code to
 a Markdown document. To make this possible the comments must follow
@@ -18,7 +18,7 @@ function*
 
 \*/
 
-**Source code to MarkDown**
+###Source code to MarkDown
 
 Doxygen can be set to include all functions, even those without
 comments. This is done by choosing *Mode -&gt; all entities*. Doxygen
@@ -31,7 +31,7 @@ uses cmd/terminal code. To convert from .html to .md, write:
 *pandoc -f html -t markdown\_strict filenameToReadFrom.html -s -o
 fileNameToWriteTo.md*
 
-**Word to MarkDown**
+###Word to MarkDown
 
 Pandoc supports a wide variety of formats and can even be used to
 convert a Word file to Markdown. To convert from .docx to .md, write:
