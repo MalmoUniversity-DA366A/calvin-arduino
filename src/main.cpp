@@ -5,11 +5,8 @@
  * @author Daniel Nordahl
  */
 
-<<<<<<< HEAD
 #include <stdio.h>
-=======
 #include "test_exampel.h"
->>>>>>> 0a08b04af4cac0204412e125389fc0dbe5a16355
 #include "Arduino.h"
 #include <test_exampel.h>
 #include "diag/Trace.h"
@@ -26,9 +23,6 @@
 #include "blinkLED.h"
 #include "unity.h"
 #include "uart.h"
-<<<<<<< HEAD
-/*
-=======
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 EthernetClient client;
@@ -40,9 +34,11 @@ byte mac[] = {
 #define MAX_LENGTH 255
 #define TERMINATOR 0x0A // $0A in Terminal.exe
 
->>>>>>> 0a08b04af4cac0204412e125389fc0dbe5a16355
+
 void testRunner(void);
 void init_board(void);
+void initEthernet(void);
+void printMyIp(void);
 
 /**
  * Test runnner function add new tests here.
@@ -67,7 +63,7 @@ void testRunner(void)
 /**
  * Sets up Arduino Due
  */
-/*
+
 void init_board(){
 
 	WDT->WDT_MR = WDT_MR_WDDIS; 		//Disable watchdog
@@ -80,16 +76,7 @@ void init_board(){
 		g_APinDescription[PINS_UART].ulPinConfiguration);
 	digitalWrite(0, HIGH); // Enable pullup for RX0
 }
-*/
-int main(void) {
 
-<<<<<<< HEAD
-/*
-	init_board();
-*/
-	testRunner();
-/*
-=======
 /**
  * Sets up Ethernet connection with DHCP
  */
@@ -118,6 +105,8 @@ void printMyIp()
     Serial.println();
 }
 
+
+
 int main() {
 
 
@@ -126,34 +115,8 @@ int main() {
 	testRunner();
 	Serial.begin(115200);
 
-  char temp[MAX_LENGTH+1]; // Make room for NULL terminator
-
-  while(true)
-  {
-	  String str = "";
-
-	  int size = Serial.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
-	  temp[size-1] = '\0';
-	  Serial.println(temp); // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
-	  if(size)              // or      {"sensor":"gps","time":"flies"}
-	  {
-		  //Json to String
-		  //str = jsonUnserialize(temp);
-		  //printJson(str);     // Prints: {"sensor":"gps","time":"flies"}
-
-		  // String to Json
-		  str = jsonSerialize(temp);
-		  Serial.println(str);  // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
-	  }
-  }
-
-	// Test for equality between predefined and user input
-	/*char json[] = "{\"sensor\":\"gps\",\"time\":\"flies\"}";
-	printJson(json); // Prints: {"sensor":"gps","time":"flies"}*/
-/*
 
 	lcd.begin(16,2);
->>>>>>> 0a08b04af4cac0204412e125389fc0dbe5a16355
 	Serial.begin(9600);
     pinMode(A0,OUTPUT);
     pinMode(13,OUTPUT);
@@ -163,28 +126,7 @@ int main() {
     lcd.setCursor(0,1);
     lcd.write("Calvin mini");
 
-    while(1){				//Run loop
-    	digitalWrite(13,HIGH);
-    	delayMicroseconds(1000000);
-    	digitalWrite(13,LOW);
-    	delay(1000);
-    	Serial.write(55);
-
-
-
-
-    }
-
-    }*/
-
-
-<<<<<<< HEAD
     // Test function for blink L LED on Due connected to pin 13
     blinkLED();
 
-   */
-
-	return 0;
-=======
->>>>>>> 0a08b04af4cac0204412e125389fc0dbe5a16355
 }
