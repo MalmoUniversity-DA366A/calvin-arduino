@@ -5,7 +5,6 @@
  * @author Daniel Nordahl
  */
 
-#include <stdio.h>
 #include "test_exampel.h"
 #include "Arduino.h"
 #include <test_exampel.h>
