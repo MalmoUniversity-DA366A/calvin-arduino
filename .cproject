@@ -62,14 +62,11 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.604103481" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.454313312" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libraries/LiquidCrystal/src}&quot;"/>
-<<<<<<< HEAD
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libraries/ArduinoJson/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/cores}&quot;"/>
-=======
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/calvinlib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/unity}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/test}&quot;"/>
->>>>>>> eb26e2b0dde29aaab4e2f9a2bf183b702a268322
 									<listOptionValue builtIn="false" value="&quot;../system/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/CMSIS&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/sam3x&quot;"/>
@@ -90,12 +87,6 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.2083959823" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/calvinlib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libraries/LiquidCrystal/src}&quot;"/>
-<<<<<<< HEAD
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libraries/ArduinoJson/src}&quot;"/>
-=======
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/unity}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/test}&quot;"/>
->>>>>>> eb26e2b0dde29aaab4e2f9a2bf183b702a268322
 									<listOptionValue builtIn="false" value="&quot;../system/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/CMSIS&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/sam3x&quot;"/>
@@ -120,13 +111,6 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.1019394642" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/calvinlib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libraries/LiquidCrystal/src}&quot;"/>
-<<<<<<< HEAD
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libraries/ArduinoJson/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/cores}&quot;"/>
-=======
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/unity}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/test}&quot;"/>
->>>>>>> eb26e2b0dde29aaab4e2f9a2bf183b702a268322
 									<listOptionValue builtIn="false" value="&quot;../system/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/CMSIS&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/sam3x&quot;"/>
