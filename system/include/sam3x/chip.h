@@ -43,8 +43,6 @@
  * Peripherals
  */
 #include "adc.h"
-/*
-*/
 #include "interrupt_sam_nvic.h"
 /*
 #include "include/efc.h"
@@ -52,14 +50,14 @@
 */
 #include "pio.h"
 #include "pmc.h"
-/*
- */
 #include "pwmc.h"
 /*
 #include "include/rstc.h"
 #include "include/rtc.h"
 #include "include/rtt.h"
-#include "include/spi.h"
+*/
+#include "spi.h"
+/*
 #include "include/ssc.h"
 */
 #include "tc.h"

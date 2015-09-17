@@ -5,10 +5,17 @@
  * @author Daniel Nordahl
  */
 
-#include <test_exampel.h>
+#include "test_exampel.h"
 #include "Arduino.h"
 #include "diag/Trace.h"
 #include <LiquidCrystal.h>
+#include <SPI.h>
+#include <Dhcp.h>
+#include <Dns.h>
+#include <Ethernet.h>
+#include <EthernetClient.h>
+#include <EthernetServer.h>
+#include <EthernetUdp.h>
 #include "ArduinoJson.h"
 #include "testJson.h"
 #include "blinkLED.h"
@@ -16,6 +23,11 @@
 #include "uart.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
+EthernetClient client;
+// Enter a MAC address for your controller below.
+byte mac[] = {
+		  0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93
+		};
 
 #define MAX_LENGTH 255
 #define TERMINATOR 0x0A // $0A in Terminal.exe
@@ -23,6 +35,8 @@ LiquidCrystal lcd(8,9,4,5,6,7);
 void testRunner(void);
 void init_board(void);
 void testJsonCode(void);
+void initEthernet(void);
+void printMyIp(void);
 
 /**
  * Test runnner function add new tests here.
@@ -87,18 +101,42 @@ void testJsonCode(void)
     }
 }
 
+ /**
+ * Sets up Ethernet connection with DHCP
+ */
+void initEthernet()
+{
+	if (Ethernet.begin(mac) == 0)
+	{
+		Serial.println("Failed to configure Ethernet using DHCP");
+	}
+}
+
+/**
+ * Prints the IP-addres assigned to the Ethernet shield.
+ */
+void printMyIp()
+{
+	Serial.println();
+	Serial.print("My IP address: ");
+	for (byte thisByte = 0; thisByte < 4; thisByte++)
+	{
+		// print the value of each byte of the IP address:
+    	Serial.print(Ethernet.localIP()[thisByte], DEC);
+    	Serial.print(".");
+    }
+    Serial.println();
+}
+
 int main() {
 
-
 	init_board();
-
+	initEthernet();
 	testRunner();
-
 	Serial.begin(115200);
 	testJsonCode();
 
-	/*
-	lcd.begin(16,2);
+	/*lcd.begin(16,2);
 	Serial.begin(9600);
     pinMode(A0,OUTPUT);
     pinMode(13,OUTPUT);
@@ -113,7 +151,7 @@ int main() {
     	delayMicroseconds(1000000);
     	digitalWrite(13,LOW);
     	delay(1000);
-    	Serial.write(55);
-    }*/
+    	Serial.write(55);*/
+
 
 }

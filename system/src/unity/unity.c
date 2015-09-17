@@ -8,7 +8,7 @@
 #endif
 
 #include "sam3x/chip.h"
-#include "../unity/unity.h"
+#include "unity.h"
 #include "sam3x/uart.h"
 
 #define UNITY_FAIL_AND_BAIL   { Unity.CurrentTestFailed  = 1; longjmp(Unity.AbortFrame, 1); }
