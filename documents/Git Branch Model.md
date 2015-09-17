@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ##Why Github?
 
 We chose Github as version control so that all the members are able to work on the same project at the same time on different machines. With Github we will be synchronized to the remote repository on all machines.
@@ -54,7 +53,7 @@ The command git clone which gives the user a full copy of the data from the remo
 
 ####Kill an obsolete merged feature branch
 * git branch –d myNewBranchName
-=======
+
 **Why Github?**
 
 We chose Github as version control so that all the members are able to
@@ -151,4 +150,3 @@ from the remote repository on Github.
 **Kill an obsolete merged feature branch**
 
 -   *git branch –d myNewBranchName*
->>>>>>> json-arduino
