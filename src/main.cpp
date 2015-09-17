@@ -12,7 +12,7 @@
 #include "blinkLED.h"
 #include "unity.h"
 #include "uart.h"
-/*
+
 void testRunner(void);
 void init_board(void);
 
@@ -39,7 +39,6 @@ void testRunner(void)
 /**
  * Sets up Arduino Due
  */
-/*
 void init_board(){
 
 	WDT->WDT_MR = WDT_MR_WDDIS; 		//Disable watchdog
@@ -52,15 +51,15 @@ void init_board(){
 		g_APinDescription[PINS_UART].ulPinConfiguration);
 	digitalWrite(0, HIGH); // Enable pullup for RX0
 }
+<<<<<<< HEAD
 */
 
+=======
+>>>>>>> 4ad84f3c5c0266d78b8c83b622aa6d5cb8cdfe04
 int main(void) {
 
-/*
 	init_board();
-*/
 	testRunner();
-/*
 	Serial.begin(9600);
     pinMode(A0,OUTPUT);
     pinMode(13,OUTPUT);
@@ -70,7 +69,7 @@ int main(void) {
     // Test function for blink L LED on Due connected to pin 13
     blinkLED();
 
-   */
+
 
 	return 0;
 }
