@@ -16,6 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "stdbool.h"
+
 #ifndef _WIRING_CONSTANTS_
 #define _WIRING_CONSTANTS_
 
@@ -92,7 +94,7 @@ typedef unsigned int word;
 
 #define bit(b) (1UL << (b))
 
-//typedef bool boolean ;
+typedef bool boolean ;
 typedef uint8_t byte ;
 
 #ifdef __cplusplus
