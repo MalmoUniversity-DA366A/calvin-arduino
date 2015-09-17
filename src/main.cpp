@@ -71,45 +71,62 @@ void init_board(){
 	digitalWrite(0, HIGH); // Enable pullup for RX0
 }
 
+/**
+ * Sets up Ethernet connection with DHCP
+ */
 void initEthernet()
 {
 	if (Ethernet.begin(mac) == 0)
 	{
 		Serial.println("Failed to configure Ethernet using DHCP");
-	    // no point in carrying on, so do nothing forevermore:
 	}
 }
 
+/**
+ * Prints the IP-addres assigned to the Ethernet shield.
+ */
 
+void printMyIp()
+{
+	Serial.println();
+	Serial.print("My IP address: ");
+	for (byte thisByte = 0; thisByte < 4; thisByte++)
+	{
+		// print the value of each byte of the IP address:
+    	Serial.print(Ethernet.localIP()[thisByte], DEC);
+    	Serial.print(".");
+    }
+    Serial.println();
+}
 
 int main() {
 
 
 	init_board();
-
+	initEthernet();
 	testRunner();
-
 	Serial.begin(115200);
+
   char temp[MAX_LENGTH+1]; // Make room for NULL terminator
 
   while(true)
   {
-    String str = "";
+	  String str = "";
 
-    int size = Serial.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
-    temp[size-1] = '\0';
-    Serial.println(temp); // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
-    if(size)              // or      {"sensor":"gps","time":"flies"}
-    {
-        //Json to String
-        //str = jsonUnserialize(temp);
-        //printJson(str);     // Prints: {"sensor":"gps","time":"flies"}
+	  int size = Serial.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
+	  temp[size-1] = '\0';
+	  Serial.println(temp); // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
+	  if(size)              // or      {"sensor":"gps","time":"flies"}
+	  {
+		  //Json to String
+		  //str = jsonUnserialize(temp);
+		  //printJson(str);     // Prints: {"sensor":"gps","time":"flies"}
 
-        // String to Json
-        str = jsonSerialize(temp);
-        Serial.println(str);  // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
-    }
-	}
+		  // String to Json
+		  str = jsonSerialize(temp);
+		  Serial.println(str);  // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
+	  }
+  }
 
 	// Test for equality between predefined and user input
 	/*char json[] = "{\"sensor\":\"gps\",\"time\":\"flies\"}";
@@ -133,15 +150,8 @@ int main() {
     	delay(1000);
     	Serial.write(55);
 
-    	Serial.println();
 
-    	Serial.print("My IP address: ");
-    	     for (byte thisByte = 0; thisByte < 4; thisByte++) {
-    	       // print the value of each byte of the IP address:
-    	       Serial.print(Ethernet.localIP()[thisByte], DEC);
-    	       Serial.print(".");
-    	     }
-    	     Serial.println();
+
 
     }
 
