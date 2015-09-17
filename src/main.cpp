@@ -24,6 +24,7 @@
 #include "unity.h"
 #include "uart.h"
 
+<<<<<<< HEAD
 LiquidCrystal lcd(8,9,4,5,6,7);
 EthernetClient client;
 // Enter a MAC address for your controller below.
@@ -35,10 +36,13 @@ byte mac[] = {
 #define TERMINATOR 0x0A // $0A in Terminal.exe
 
 
+=======
+>>>>>>> mock
 void testRunner(void);
 void init_board(void);
 void initEthernet(void);
 void printMyIp(void);
+
 
 /**
  * Test runnner function add new tests here.
@@ -63,9 +67,13 @@ void testRunner(void)
 /**
  * Sets up Arduino Due
  */
+<<<<<<< HEAD
 
 void init_board(){
+=======
+>>>>>>> mock
 
+void init_board(){
 	WDT->WDT_MR = WDT_MR_WDDIS; 		//Disable watchdog
 	SystemInit();						// Initiate Due Card
 
@@ -76,6 +84,7 @@ void init_board(){
 		g_APinDescription[PINS_UART].ulPinConfiguration);
 	digitalWrite(0, HIGH); // Enable pullup for RX0
 }
+<<<<<<< HEAD
 
 /**
  * Sets up Ethernet connection with DHCP
@@ -117,10 +126,18 @@ int main() {
 
 
 	lcd.begin(16,2);
+=======
+
+
+int main(void) {
+
+
+	init_board();
+	testRunner();
+>>>>>>> mock
 	Serial.begin(9600);
     pinMode(A0,OUTPUT);
     pinMode(13,OUTPUT);
-
     analogWrite(A0,155);
     lcd.write("Hello World");
     lcd.setCursor(0,1);
@@ -129,4 +146,8 @@ int main() {
     // Test function for blink L LED on Due connected to pin 13
     blinkLED();
 
+<<<<<<< HEAD
+=======
+	return 0;
+>>>>>>> mock
 }
