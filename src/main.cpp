@@ -22,6 +22,7 @@ LiquidCrystal lcd(8,9,4,5,6,7);
 
 void testRunner(void);
 void init_board(void);
+void testJsonCode(void);
 
 /**
  * Test runnner function add new tests here.
@@ -59,6 +60,33 @@ void init_board(){
 	digitalWrite(0, HIGH); // Enable pullup for RX0
 }
 
+/**
+ * Test Json serialize and unserialize
+ * functions from user terminal input
+ */
+void testJsonCode(void)
+{
+  char temp[MAX_LENGTH+1]; // Make room for NULL terminator
+  while(true)
+  {
+      String str = "";
+
+      int size = Serial.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
+      temp[size-1] = '\0';
+      Serial.println(temp); // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
+      if(size)              // or      {"sensor":"gps","time":"flies"}
+      {
+          // Json to String
+          //str = jsonUnserialize(temp);
+          //printJson(str);     // Prints: {"sensor":"gps","time":"flies"}
+
+          // String to Json
+          str = jsonSerialize(temp);
+          Serial.println(str);  // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
+      }
+    }
+}
+
 int main() {
 
 
@@ -67,31 +95,9 @@ int main() {
 	testRunner();
 
 	Serial.begin(115200);
-  char temp[MAX_LENGTH+1]; // Make room for NULL terminator
+	testJsonCode();
 
-  while(true)
-  {
-    String str = "";
-
-    int size = Serial.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
-    temp[size-1] = '\0';
-    Serial.println(temp); // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
-    if(size)              // or      {"sensor":"gps","time":"flies"}
-    {
-        //Json to String
-        //str = jsonUnserialize(temp);
-        //printJson(str);     // Prints: {"sensor":"gps","time":"flies"}
-
-        // String to Json
-        str = jsonSerialize(temp);
-        Serial.println(str);  // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
-    }
-	}
-
-	// Test for equality between predefined and user input
-	/*char json[] = "{\"sensor\":\"gps\",\"time\":\"flies\"}";
-	printJson(json); // Prints: {"sensor":"gps","time":"flies"}*/
-/*
+	/*
 	lcd.begin(16,2);
 	Serial.begin(9600);
     pinMode(A0,OUTPUT);
