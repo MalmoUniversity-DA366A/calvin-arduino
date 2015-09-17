@@ -137,21 +137,21 @@ int main() {
 	testJsonCode();
 
 	/*lcd.begin(16,2);
-	Serial.begin(9600);
-    pinMode(A0,OUTPUT);
-    pinMode(13,OUTPUT);
+  pinMode(A0,OUTPUT);
+  pinMode(13,OUTPUT);
 
-    analogWrite(A0,155);
-    lcd.write("Hello World");
-    lcd.setCursor(0,1);
-    lcd.write("Calvin mini");
+  analogWrite(A0,155);
+  lcd.write("Hello World");
+  lcd.setCursor(0,1);
+  lcd.write("Calvin mini");
 
-    while(1){				//Run loop
-    	digitalWrite(13,HIGH);
+  while(1){				//Run loop
+      digitalWrite(13,HIGH);
     	delayMicroseconds(1000000);
     	digitalWrite(13,LOW);
     	delay(1000);
-    	Serial.write(55);*/
+    	Serial.write(55);
+    }*/
 
 
 }
