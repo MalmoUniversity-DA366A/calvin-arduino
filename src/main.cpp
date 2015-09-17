@@ -13,8 +13,10 @@
 
 void testJson();
 void printJson(String str);
-String jsonSerialize(char *temp);
+String jsonUnserialize(char *temp);
+String jsonSerialize(char *str);
 LiquidCrystal lcd(8,9,4,5,6,7);
+
 #define MAX_LENGTH 255
 #define TERMINATOR 0x0A // $0A in Terminal.exe
 int main() {
@@ -29,23 +31,30 @@ int main() {
 	digitalWrite(0, HIGH); // Enable pullup for RX0
 
 	Serial.begin(115200);
-	char temp[MAX_LENGTH+1]; // Make room for NULL terminator
-	String str = "";
+  char temp[MAX_LENGTH+1]; // Make room for NULL terminator
 
-	int size = Serial.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
-	temp[size] = '\0';
-	Serial.println(temp); // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
-	if(size)
-	{
-		str = jsonSerialize(temp);
-		printJson(str); // Prints: {"sensor":"gps","time":"flies"}
+  while(true)
+  {
+    String str = "";
+
+    int size = Serial.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
+    temp[size-1] = '\0';
+    Serial.println(temp); // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
+    if(size)              // or      {"sensor":"gps","time":"flies"}
+    {
+        //Json to String
+        //str = jsonUnserialize(temp);
+        //printJson(str);     // Prints: {"sensor":"gps","time":"flies"}
+
+        // String to Json
+        str = jsonSerialize(temp);
+        Serial.println(str);  // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
+    }
 	}
-	else
-		testJson();
 
 	// Test for equality between predefined and user input
-	char json[] = "{\"sensor\":\"gps\",\"time\":\"flies\"}";
-	printJson(json); // Prints: {"sensor":"gps","time":"flies"}
+	/*char json[] = "{\"sensor\":\"gps\",\"time\":\"flies\"}";
+	printJson(json); // Prints: {"sensor":"gps","time":"flies"}*/
 /*
 	lcd.begin(16,2);
     pinMode(A0,OUTPUT);
@@ -92,11 +101,15 @@ void printJson(String str)
 	{
 		Serial.println("parseObject() failed");
 	}
+	else
+	{
+	    Serial.println("parseObject() success");
+	}
 	root.printTo(Serial);
 	Serial.println();
 }
 
-String jsonSerialize(char *temp)
+String jsonUnserialize(char *temp)
 {
 	String str = "";
 	int count = 0;
@@ -110,4 +123,20 @@ String jsonSerialize(char *temp)
 		count++;
 	}
 	return str;
+}
+
+String jsonSerialize(char *str) // {\"sensor\":\"gps\",\"time\":\"flies\"}
+{                               //  {"sensor":"gps","time":"flies"}
+  String temp = "";
+  int count = 0;
+  while(str[count] != '\0')
+  {
+      if(str[count] == '\"')
+      {
+          temp += '\\';
+      }
+      temp += str[count];
+      count++;
+    }
+  return temp;
 }
