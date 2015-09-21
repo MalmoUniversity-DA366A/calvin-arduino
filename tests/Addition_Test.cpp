@@ -5,9 +5,9 @@
  *      Author: Daniel
  */
 #ifdef _MOCK_
-#include <limits.h>
+
 #include "gtest/gtest.h"
-#include "Addition.hpp"
+#include "../src/Addition.hpp"
 
 class AdditionTest : public ::testing::Test {
  protected:
@@ -25,10 +25,12 @@ TEST(AdditionTest,twoValues){
     const int y = 5;
     Addition addition;
     EXPECT_EQ(9,addition.twoValues(x,y));
+    EXPECT_EQ(42,addition.twoValues(21,21));
 }
 
 TEST(AdditonTest,twoValues){
 	Addition addition;
 	EXPECT_EQ(2,addition.twoValues(1,1));
 }
+
 #endif
