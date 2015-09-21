@@ -1,4 +1,4 @@
-**How to install Json for Arduino**
+###How to install Json for Arduino
 
 -   Download Json for Arduino
     (<https://github.com/bblanchon/ArduinoJson.git>)
@@ -25,7 +25,7 @@
     ArduinoJson* -&gt; *src* folder to *Includes* under the compiler for
     C, C++ and under Assembler. Click Apply and OK when done
 
-**Json on Arduino**
+###Json on Arduino
 
 Json will be used as communication between Arduino and Calvin-base. A
 Json object contains strings and numbers as identifiers and values
