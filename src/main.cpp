@@ -5,6 +5,7 @@
  * @author Daniel Nordahl
  */
 #include "test_exampel.h"
+#include "test_stdout.h"
 #include "Arduino.h"
 #include <test_exampel.h>
 #include "diag/Trace.h"
@@ -16,6 +17,7 @@
 #include "blinkLED.h"
 #include "unity.h"
 #include "uart.h"
+
 
 
 
@@ -47,11 +49,13 @@ void testRunner(void)
 	// Start unit test
 	UnityBegin("");
 
-	// Run ExampelCode tests
+	//Run ExampelCode tests
 	Unity.TestFile = "..system/include/test/test_ExampelCode.h";
 	RUN_TEST(test_ExampelCode);
 	RUN_TEST(test_ExampelCode2);
 
+	Unity.TestFile = "..system/include/test/test_stdout.h";
+	RUN_TEST(testStdPrint);
 
 	// End unit test
 	UnityEnd();
