@@ -17,13 +17,14 @@
 #include "blinkLED.h"
 #include "unity.h"
 #include "uart.h"
+#include "calvinRuntime.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
-EthernetClient client;
+//EthernetClient client;
 // Enter a MAC address for your controller below.
-byte mac[] = {
-		  0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93
-		};
+//byte mac[] = {
+//		  0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93
+//		};
 
 #define MAX_LENGTH 255
 #define TERMINATOR 0x0A // $0A in Terminal.exe
@@ -34,7 +35,6 @@ void testJsonCode(void);
 void initEthernet(void);
 void printMyIp(void);
 void initEthernet(void);
-void printMyIp(void);
 
 /**
  * Test runnner function add new tests here.
@@ -104,7 +104,7 @@ void testJsonCode(void)
  */
 void initEthernet()
 {
-	if (Ethernet.begin(mac) == 0)
+	//if (Ethernet.begin(mac) == 0)
 	{
 		Serial.println("Failed to configure Ethernet using DHCP");
 	}
@@ -130,9 +130,10 @@ int main(void) {
 
 	init_board();
 	testRunner();
-	Serial.begin(115200);
-	testJsonCode();
+	//Serial.begin(115200);
+	//testJsonCode();
+	setupConnection();
 
   // Test function for blink L LED on Due connected to pin 13
-  blinkLED();
+  //blinkLED();
 }
