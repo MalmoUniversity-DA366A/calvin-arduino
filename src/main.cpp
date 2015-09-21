@@ -4,8 +4,6 @@
  * library.
  * @author Daniel Nordahl
  */
-
-#include <stdio.h>
 #include "test_exampel.h"
 #include "Arduino.h"
 #include <test_exampel.h>
@@ -18,6 +16,7 @@
 #include "blinkLED.h"
 #include "unity.h"
 #include "uart.h"
+
 
 
 LiquidCrystal lcd(8,9,4,5,6,7);

@@ -451,6 +451,7 @@
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/hello world cortex arduino due"/>
 		</configuration>
+		<configuration configurationName="Mock"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>
