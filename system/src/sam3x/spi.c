@@ -67,7 +67,7 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-
+#ifdef ARDUINO
 #include "chip.h"
 
 #include <stdint.h>
@@ -349,4 +349,4 @@ extern uint32_t SPI_ReadBuffer( Spi* spi, void *pvBuffer, uint32_t dwLength )
 }
 
 #endif /* (defined _SAM3S_) || (defined _SAM3S8_) || (defined _SAM3N_) */
-
+#endif

@@ -6,15 +6,15 @@
  * or the GNU Lesser General Public License version 2.1, both as
  * published by the Free Software Foundation.
  */
-
+#ifdef ARDUINO
 #ifndef	W5100_H_INCLUDED
 #define	W5100_H_INCLUDED
 
 #include "SPI.h"
 
 #define ETHERNET_SHIELD_SPI_CS 10
-//FIXME OBS! detta är tillagt själv. för att SPI_CS inte finns deklarerat någonstans:
-//avmarkera eller ta bort för att återställa till standard.
+//FIXME OBS! detta ï¿½r tillagt sjï¿½lv. fï¿½r att SPI_CS inte finns deklarerat nï¿½gonstans:
+//avmarkera eller ta bort fï¿½r att ï¿½terstï¿½lla till standard.
 #define SPI_CS 					10		//
 //--------------------------------------------------------------------
 
@@ -423,4 +423,5 @@ void W5100Class::setRetransmissionCount(uint8_t _retry) {
   writeRCR(_retry);
 }
 
+#endif
 #endif

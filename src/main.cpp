@@ -4,6 +4,7 @@
  * library.
  * @author Daniel Nordahl
  */
+#ifdef ARDUINO
 #include "test_exampel.h"
 #include "Arduino.h"
 #include <test_exampel.h>
@@ -16,8 +17,6 @@
 #include "blinkLED.h"
 #include "unity.h"
 #include "uart.h"
-
-
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 EthernetClient client;
@@ -137,3 +136,15 @@ int main(void) {
   // Test function for blink L LED on Due connected to pin 13
   blinkLED();
 }
+
+#else
+#include <limits.h>
+#include "gtest/gtest.h"
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
+#endif
+
+

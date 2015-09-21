@@ -8,7 +8,7 @@
  * or the GNU Lesser General Public License version 2.1, both as
  * published by the Free Software Foundation.
  */
-
+#ifdef ARDUINO
 #include "SPI.h"
 
 SPIClass::SPIClass(Spi *_spi, uint32_t _id, void(*_initCb)(void)) :
@@ -278,3 +278,4 @@ static void SPI_0_Init(void) {
 SPIClass SPI(SPI_INTERFACE, SPI_INTERFACE_ID, SPI_0_Init);
 #endif
 
+#endif

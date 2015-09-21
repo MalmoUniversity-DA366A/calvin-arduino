@@ -1,3 +1,4 @@
+#ifdef ARDUINO
 #include "w5100.h"
 #include "socket.h"
 
@@ -175,3 +176,4 @@ bool EthernetClient::operator==(const EthernetClient& rhs) {
 uint8_t EthernetClient::getSocketNumber() {
   return _sock;
 }
+#endif

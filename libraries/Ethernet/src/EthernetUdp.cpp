@@ -25,7 +25,7 @@
  *
  * bjoern@cs.stanford.edu 12/30/2008
  */
-
+#ifdef ARDUINO
 #include "w5100.h"
 #include "socket.h"
 #include "Ethernet.h"
@@ -249,4 +249,4 @@ uint8_t EthernetUDP::beginMulticast(IPAddress ip, uint16_t port)
   return 1;
 }
 
-
+#endif

@@ -6,7 +6,7 @@
  * or the GNU Lesser General Public License version 2.1, both as
  * published by the Free Software Foundation.
  */
-
+#ifdef ARDUINO
 #include <stdio.h>
 #include <string.h>
 
@@ -223,3 +223,4 @@ void W5100Class::execCmdSn(SOCKET s, SockCMD _cmd) {
   while (readSnCR(s))
     ;
 }
+#endif

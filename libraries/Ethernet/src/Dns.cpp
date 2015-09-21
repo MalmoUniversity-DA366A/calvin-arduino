@@ -1,7 +1,7 @@
 // Arduino DNS client for WizNet5100-based Ethernet shield
 // (c) Copyright 2009-2010 MCQN Ltd.
 // Released under Apache License, version 2.0
-
+#ifdef ARDUINO
 #include "w5100.h"
 #include "EthernetUdp.h"
 #include "util.h"
@@ -421,3 +421,4 @@ uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress& aAddress)
     return -10;//INVALID_RESPONSE;
 }
 
+#endif

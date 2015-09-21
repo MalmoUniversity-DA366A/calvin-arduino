@@ -8,7 +8,7 @@
  * or the GNU Lesser General Public License version 2.1, both as
  * published by the Free Software Foundation.
  */
-
+#ifdef ARDUINO
 #ifndef _SPI_H_INCLUDED
 #define _SPI_H_INCLUDED
 
@@ -143,4 +143,5 @@ extern SPIClass SPI;
 #define SPI_CLOCK_DIV64	 255
 #define SPI_CLOCK_DIV128 255
 
+#endif
 #endif
