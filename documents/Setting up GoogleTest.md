@@ -41,7 +41,7 @@ Under the Cygwin C++ linker folder select Miscellaneous and add libgtest.a that 
 ### Step 6 Configure runtools.
 Build the project in Mock mode
 In Eclipse Run->Run Configurations.. 
-[logo]: http://i.stack.imgur.com/oah6Y.png "Logo Title Text 1"
+Right click C/C++ Unit and select new.
 All the filed in the main tab should now be filled. If not choose a name.
 Under C/C++ application enter: Mock\Calvin.exe
 Project should be Calvin. Click on the C/C++ Testing tap and choose Google Test Runner.
