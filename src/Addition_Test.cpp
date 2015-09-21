@@ -29,6 +29,6 @@ TEST(AdditionTest,twoValues){
 
 TEST(AdditonTest,twoValues){
 	Addition addition;
-	EXPECT_EQ(1,addition.twoValues(1,1));
+	EXPECT_EQ(2,addition.twoValues(1,1));
 }
 #endif
