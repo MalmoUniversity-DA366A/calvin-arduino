@@ -4,8 +4,8 @@
  * library.
  * @author Daniel Nordahl
  */
+#ifdef ARDUINO
 #include "test_exampel.h"
-#include "test_stdout.h"
 #include "Arduino.h"
 #include <test_exampel.h>
 #include "diag/Trace.h"
@@ -17,9 +17,6 @@
 #include "blinkLED.h"
 #include "unity.h"
 #include "uart.h"
-
-
-
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 EthernetClient client;
@@ -49,13 +46,11 @@ void testRunner(void)
 	// Start unit test
 	UnityBegin("");
 
-	//Run ExampelCode tests
+	// Run ExampelCode tests
 	Unity.TestFile = "..system/include/test/test_ExampelCode.h";
 	RUN_TEST(test_ExampelCode);
 	RUN_TEST(test_ExampelCode2);
 
-	Unity.TestFile = "..system/include/test/test_stdout.h";
-	RUN_TEST(testStdPrint);
 
 	// End unit test
 	UnityEnd();
@@ -141,3 +136,15 @@ int main(void) {
   // Test function for blink L LED on Due connected to pin 13
   blinkLED();
 }
+
+#else
+#include <limits.h>
+#include "gtest/gtest.h"
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
+#endif
+
+

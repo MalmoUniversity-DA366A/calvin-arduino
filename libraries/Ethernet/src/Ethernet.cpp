@@ -1,3 +1,4 @@
+#ifdef ARDUINO
 #include "w5100.h"
 #include "Ethernet.h"
 #include "Dhcp.h"
@@ -134,3 +135,4 @@ IPAddress EthernetClass::dnsServerIP()
 }
 
 EthernetClass Ethernet;
+#endif

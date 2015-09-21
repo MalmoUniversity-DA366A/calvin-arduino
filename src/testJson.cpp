@@ -1,3 +1,4 @@
+#ifdef ARDUINO
 #include "testJson.h"
 #include "ArduinoJson.h"
 
@@ -67,3 +68,4 @@ String jsonSerialize(char *str) // {\"sensor\":\"gps\",\"time\":\"flies\"}
     }
   return temp;
 }
+#endif

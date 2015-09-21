@@ -1,3 +1,4 @@
+#ifdef ARDUINO
 #include "w5100.h"
 #include "socket.h"
 
@@ -467,3 +468,4 @@ int sendUDP(SOCKET s)
   return 1;
 }
 
+#endif

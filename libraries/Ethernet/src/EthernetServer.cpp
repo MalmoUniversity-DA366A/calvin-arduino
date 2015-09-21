@@ -1,3 +1,4 @@
+#ifdef ARDUINO
 #include "w5100.h"
 #include "socket.h"
 extern "C" {
@@ -90,3 +91,4 @@ size_t EthernetServer::write(const uint8_t *buffer, size_t size)
   
   return n;
 }
+#endif
