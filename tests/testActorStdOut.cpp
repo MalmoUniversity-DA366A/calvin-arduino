@@ -34,6 +34,11 @@ TEST(ActorTest,NULL){
 	EXPECT_EQ("1337",newActor.inport);
 }
 
+TEST(ActorTest,createActor){
+	ActorStdOut actorstd;
+	EXPECT_EQ(1,actorstd.createActor());
+}
+
 
 
 
