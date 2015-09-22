@@ -386,7 +386,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.archiver.cygwin.base.1297289073" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.cygwin.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base.1137970267" name="Cygwin C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base">
 								<option id="gnu.cpp.compiler.option.include.paths.274661241" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;A:\Development\gtest-1.7.0\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Development\gtest-1.7.0\include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/calvinlib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/unity}&quot;"/>
@@ -422,8 +422,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.cygwin.base.653010082" name="Cygwin C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.cygwin.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.base.463499301" name="Cygwin C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.base">
 								<option id="gnu.cpp.link.option.userobjs.887280450" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
-									<listOptionValue builtIn="false" value="&quot;A:\Development\gtest-1.7.0\make\libgtest.a&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;A:\Development\gtest-1.7.0\make\gtest_main.a&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Development\gtest-1.7.0\make\libgtest.a&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.600660352" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
