@@ -7,7 +7,11 @@
 
 #ifndef SRC_ACTORSTDOUT_H_
 #define SRC_ACTORSTDOUT_H_
+#include <iostream>
+#include <string>
 
+
+using namespace std;
 class ActorStdOut
 {
 public:
@@ -15,11 +19,11 @@ public:
 };
 
 struct actor{
-	char type;
-	char name;
-	char id;
-	char inport;
-	char outport;
+	string type;
+	string name;
+	string id;
+	string inport;
+	string outport;
 };
 
 

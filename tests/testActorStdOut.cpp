@@ -22,14 +22,16 @@ class ActorTest : public ::testing::Test {
 TEST(ActorTest,NULL){
 	ActorStdOut actorstd;
 	actor newActor;
-	newActor.name = 'D';
-	newActor.id = '1';
-	newActor.outport = '3';
-	newActor.inport = '4';
-	EXPECT_EQ('D',newActor.name);
-	EXPECT_EQ('1',newActor.id);
-	EXPECT_EQ('3',newActor.outport);
-	EXPECT_EQ('4',newActor.inport);
+	newActor.type = "Daniel";
+	newActor.name = "Hej";
+	newActor.id = "1";
+	newActor.outport = "7411";
+	newActor.inport = "1337";
+	EXPECT_EQ("Daniel",newActor.type);
+	EXPECT_EQ("Hej",newActor.name);
+	EXPECT_EQ("1",newActor.id);
+	EXPECT_EQ("7411",newActor.outport);
+	EXPECT_EQ("1337",newActor.inport);
 }
 
 
