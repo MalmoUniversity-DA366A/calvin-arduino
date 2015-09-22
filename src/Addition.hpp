@@ -2,7 +2,7 @@
  * Addition.hpp
  *
  *  Created on: 21 sep. 2015
- *      Author: Daniel
+ *      Author: Daniel Nordahl
  */
 
 #ifndef SRC_ADDITION_HPP_
