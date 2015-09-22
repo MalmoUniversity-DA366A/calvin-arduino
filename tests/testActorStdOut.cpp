@@ -19,7 +19,7 @@ class ActorTest : public ::testing::Test {
 /**
  * Testing the actor struct.
  */
-TEST(ActorTest,NULL){
+TEST(ActorTest,structTest){
 	ActorStdOut actorstd;
 	actor newActor;
 	newActor.type = "Daniel";
@@ -37,6 +37,12 @@ TEST(ActorTest,NULL){
 TEST(ActorTest,createActor){
 	ActorStdOut actorstd;
 	EXPECT_EQ(1,actorstd.createActor());
+}
+
+TEST(ActorTest,actorStdOut){
+	ActorStdOut actorstd;
+	int testValue = actorstd.StdOut();
+	EXPECT_EQ(3,testValue);
 }
 
 

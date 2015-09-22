@@ -7,8 +7,17 @@
 
 #include "actorStdOut.h"
 
+actor globalActor;
 
+int ActorStdOut::StdOut(){
+	return standardOut("Hej");
+}
 
+/**
+ * Create an new actor.
+ * @param msg json list
+ * @return return 1 if successful.
+ */
 int ActorStdOut::createActor(){
 	int allOk = 0;
 	actor newActor;
@@ -19,10 +28,13 @@ int ActorStdOut::createActor(){
 	newActor.inport = "NULL";
 	newActor.outport = "NULL";
 
+	globalActor = newActor;
+
 	allOk = 1;
 
 	return allOk;
 }
+
 
 
 
