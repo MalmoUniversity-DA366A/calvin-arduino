@@ -13,12 +13,17 @@ EthernetClient client;
 String messages_in[] = {};
 String messages_out[] = {};
 
+/**
+ * Setup TCP connection and
+ * test Json serialize and unserialize
+ * functions from calvin base
+ */
 void calvinRuntime::setupConnection()
 {
   getIPFromRouter();
   printIp();
   server.begin();
-  testJson json = new testJson; // delete later ??
+  testJson *json = new testJson; // delete later ??
   while(true)
   {
       client = server.available();
@@ -30,62 +35,41 @@ void calvinRuntime::setupConnection()
           temp[size-1] = '\0';  // Null terminate char
           if(size)
           {
+              // Jsonobject that holds all values
               StaticJsonBuffer<200> jsonBuffer;
-              JsonObject &root = jsonBuffer.parseObject(json.jsonUnserialize(temp));
-              json.checkJson(root);
+              JsonObject &msg = jsonBuffer.parseObject(json->jsonUnserialize(temp));
+              json->checkJson(msg); // Test purpose
 
-              char reply[] = {};
-              handleJoin(temp,reply);
+              // JsonObject for replying a fixed message
+              JsonObject &reply = jsonBuffer.parseObject("");
+              handleJoin(msg,reply);
               Serial.println(temp); // Print content for test purpose
               delay(1000);
 
+              // Print JsonObject to a string
               String str = "";
-              char test[] = json.jsonSerialize(reply);
+              reply.printTo(str);
+
+              // Serialize Json message from string
+              char jsonChar[] = {};
+              json->jsonSerialize(jsonChar, str.c_str());
+
               Serial.println("Sending...");
-              for(int i = 0; reply[i] != '\0'; i++)
-              {
-                 // str += ;
-              }
-              server.write(test); // Replay to base
+              server.write(jsonChar); // Replay to calvin base
               delay(1000);
           }
       }
   }
 }
-
-void calvinRuntime::handleJoin(char *msg, char *reply)
-{
-  reply['cmd'] = 'JOIN_REPLAY';
-  reply['id'] = 'calvin-miniscule';
-  reply['sid'] = msg['sid'];
-  reply['serializer'] = 'json';
-  reply[4] = '\0';
-}
 /**
- * Test Json serialize and unserialize
- * functions from user terminal input
+ * Reply message to calvin base
  */
-String calvinRuntime::jsonToString(void)
+void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
 {
-  testJson json = new testJson;
-  EthernetClient client;
-  char temp[MAX_LENGTH+1]; // Make room for NULL terminator
-  String str = "";
-
-  int size = client.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
-  temp[size-1] = '\0';
-  Serial.println(temp); // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
-  if(size)              // or      {"sensor":"gps","time":"flies"}
-  {
-          // Json to String
-      str = json.jsonUnserialize(temp);
-      json.loadJson(str);     // Prints: {"sensor":"gps","time":"flies"}
-
-          // String to Json
-      //str = jsonSerialize(temp);
-      //Serial.println(str);  // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
-   }
-  return str;
+  reply["cmd"] = 'JOIN_REPLAY';
+  reply["id"] = 'calvin-miniscule';
+  reply["sid"] = *msg["sid"];
+  reply["serializer"] = 'json';
 }
 
 /**

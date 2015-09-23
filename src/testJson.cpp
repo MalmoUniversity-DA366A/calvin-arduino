@@ -21,8 +21,8 @@ void testJson::test()
 }
 
 void testJson::checkJson(JsonObject &root)
-{
-	if(!root.success()) // For test purpose
+{ // For test purpose
+	if(!root.success())
 	{
 		Serial.println("parseObject() failed");
 	}
@@ -34,9 +34,16 @@ void testJson::checkJson(JsonObject &root)
 	Serial.println();
 }
 
+/**
+ * Unserializes Json to a String.
+ * From this: {\"sensor\":\"gps\",\"time\":\"flies\"}
+ * To this: {"sensor":"gps","time":"flies"}
+ * @param temp
+ * @return str
+ */
 String testJson::jsonUnserialize(char *temp)
-{
-	String str = "";
+{                     // From this: {\"sensor\":\"gps\",\"time\":\"flies\"}
+	String str = "";    // To this: {"sensor":"gps","time":"flies"}
 	int count = 0;
 	while(temp[count] != '\0')
 	{
@@ -50,18 +57,23 @@ String testJson::jsonUnserialize(char *temp)
 	return str;
 }
 
-String testJson::jsonSerialize(char *str) // {\"sensor\":\"gps\",\"time\":\"flies\"}
-{                               //  {"sensor":"gps","time":"flies"}
-  String temp = "";
+/**
+ * Serializes a String to Json.
+ * From this: {"sensor":"gps","time":"flies"}
+ * To this: {\"sensor\":\"gps\",\"time\":\"flies\"}
+ * @param temp
+ * @param str
+ */
+void testJson::jsonSerialize(char* temp, const char *str)
+{
   int count = 0;
   while(str[count] != '\0')
   {
       if(str[count] == '\"')
       {
-          temp += '\\';
+          temp[count] = '\\';
       }
-      temp += str[count];
+      temp[count] = str[count];
       count++;
     }
-  return temp;
 }

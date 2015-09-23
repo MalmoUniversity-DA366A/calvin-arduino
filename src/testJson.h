@@ -6,6 +6,6 @@ public:
   void test();
   void checkJson(JsonObject &root);
   String jsonUnserialize(char *temp);
-  String jsonSerialize(char *str);
+  void jsonSerialize(char *temp, const char *str);
 private:
 };

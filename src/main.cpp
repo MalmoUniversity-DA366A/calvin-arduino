@@ -67,5 +67,6 @@ int main(void) {
 
 	init_board();
 	Serial.begin(115200);
-	setupConnection();
+	calvinRuntime *json = new calvinRuntime;
+	json->setupConnection();
 }
