@@ -22,7 +22,9 @@ make
 Download the latest relase of GoogleTest from [here](https://code.google.com/p/googletest/downloads/list) extract the files into C:\Development
 (if u choose a diffrent directory don't forget to change the compiler include path in Eclipse )
 Open the Cygwin terminal, cd to GoogleTest make directory on your drive (c:/<<yourpath>>/gtest-1.7.0/make/)
-Type make to build the project. Then create an archived library out of the gtest-all.o file:ar -rv libgtest.a gtest-all.o
+Type "make" to build the project. Then create an archived library out of the gtest-all.o file.
+Type the following in the terminal:
+ar -rv libgtest.a gtest-all.o
 
 
 ###Step 4 Add the Cygwin bin directory to the computers PATH
