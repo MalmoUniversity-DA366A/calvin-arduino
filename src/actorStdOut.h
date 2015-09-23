@@ -11,23 +11,30 @@
 #include <iostream>
 #include <string>
 #include <string.h>
+#include "ArduinoJson.h"
 
 #define standardOut(x)		strlen(x)
+
+struct actor{
+	const char* type;
+	const char* name;
+	const char* id;
+	const char* inport;
+	const char* outport;
+	const char* fifo;
+};
 
 using namespace std;
 class ActorStdOut
 {
 public:
-	int createActor(void);
-	int StdOut(void);
+	int actorInit();
+	int createActor(JsonObject &msg);
+	int StdOut(actor inComming);
+	int createJson(void);
+	actor getGlobalStruct(void);
 };
-struct actor{
-	string type;
-	string name;
-	string id;
-	string inport;
-	string outport;
-};
+
 
 
 #endif /* SRC_ACTORSTDOUT_H_ */

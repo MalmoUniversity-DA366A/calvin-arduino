@@ -7,10 +7,16 @@
 
 #include "actorStdOut.h"
 
+
 actor globalActor;
 
-int ActorStdOut::StdOut(){
-	return standardOut("Hej");
+int ActorStdOut::StdOut(actor inComming){
+
+	return standardOut(inComming.fifo);
+}
+
+int ActorStdOut::actorInit(){
+
 }
 
 /**
@@ -18,21 +24,39 @@ int ActorStdOut::StdOut(){
  * @param msg json list
  * @return return 1 if successful.
  */
-int ActorStdOut::createActor(){
+int ActorStdOut::createActor(JsonObject &msg){
 	int allOk = 0;
-	actor newActor;
-
-	newActor.type = "NULL";
-	newActor.name = "NULL";
-	newActor.id = "NULL";
-	newActor.inport = "NULL";
-	newActor.outport = "NULL";
-
-	globalActor = newActor;
-
+	globalActor.type = msg["type"];
+	globalActor.name = msg["type1"];
+	globalActor.id = msg["id"];
+	globalActor.fifo = "Test me";
+	globalActor.outport = msg["port"];
 	allOk = 1;
 
 	return allOk;
+}
+
+int ActorStdOut::createJson(){
+	int allOk = 0;
+
+	StaticJsonBuffer<2000> jsonBuffer;
+	char str[] = "{\"type\":\"actor\",\"type1\":\"actor1\",\"id\":\"actor2\",\"port\":\"12\"}";
+	JsonObject &root = jsonBuffer.parseObject(str);
+
+	if (root.success())
+	{
+			    allOk = 1;
+	}
+
+	JsonObject &p_json = root;
+	ActorStdOut::createActor(p_json);
+
+	return allOk;
+
+}
+
+actor ActorStdOut::getGlobalStruct(){
+	return globalActor;
 }
 
 
