@@ -7,6 +7,7 @@ public:
   String jsonToString(void);
   void printIp(void);
   void getIPFromRouter(void);
+  void handleJoin(char *msg, char *reply);
 
 private:
 };

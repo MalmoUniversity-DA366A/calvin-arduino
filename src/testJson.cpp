@@ -20,11 +20,9 @@ void testJson::test()
 	Serial.println(longitude, 6);
 }
 
-void testJson::loadJson(String str)
+void testJson::checkJson(JsonObject &root)
 {
-	StaticJsonBuffer<200> jsonBuffer;
-	JsonObject &root = jsonBuffer.parseObject(str);
-	if(!root.success())
+	if(!root.success()) // For test purpose
 	{
 		Serial.println("parseObject() failed");
 	}

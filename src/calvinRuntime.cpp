@@ -30,18 +30,37 @@ void calvinRuntime::setupConnection()
           temp[size-1] = '\0';  // Null terminate char
           if(size)
           {
-              json.loadJson(json.jsonUnserialize(temp));
+              StaticJsonBuffer<200> jsonBuffer;
+              JsonObject &root = jsonBuffer.parseObject(json.jsonUnserialize(temp));
+              json.checkJson(root);
+
+              char reply[] = {};
+              handleJoin(temp,reply);
               Serial.println(temp); // Print content for test purpose
               delay(1000);
 
+              String str = "";
+              char test[] = json.jsonSerialize(reply);
               Serial.println("Sending...");
-              server.write("ACK"); // Replay to base
+              for(int i = 0; reply[i] != '\0'; i++)
+              {
+                 // str += ;
+              }
+              server.write(test); // Replay to base
               delay(1000);
           }
       }
   }
 }
 
+void calvinRuntime::handleJoin(char *msg, char *reply)
+{
+  reply['cmd'] = 'JOIN_REPLAY';
+  reply['id'] = 'calvin-miniscule';
+  reply['sid'] = msg['sid'];
+  reply['serializer'] = 'json';
+  reply[4] = '\0';
+}
 /**
  * Test Json serialize and unserialize
  * functions from user terminal input
