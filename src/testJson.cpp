@@ -1,7 +1,7 @@
 #include "testJson.h"
 #include "ArduinoJson.h"
 
-void testJson()
+void testJson::test()
 {
 	StaticJsonBuffer<200> jsonBuffer;
 	char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
@@ -20,7 +20,7 @@ void testJson()
 	Serial.println(longitude, 6);
 }
 
-void printJson(String str)
+void testJson::loadJson(String str)
 {
 	StaticJsonBuffer<200> jsonBuffer;
 	JsonObject &root = jsonBuffer.parseObject(str);
@@ -36,7 +36,7 @@ void printJson(String str)
 	Serial.println();
 }
 
-String jsonUnserialize(char *temp)
+String testJson::jsonUnserialize(char *temp)
 {
 	String str = "";
 	int count = 0;
@@ -52,7 +52,7 @@ String jsonUnserialize(char *temp)
 	return str;
 }
 
-String jsonSerialize(char *str) // {\"sensor\":\"gps\",\"time\":\"flies\"}
+String testJson::jsonSerialize(char *str) // {\"sensor\":\"gps\",\"time\":\"flies\"}
 {                               //  {"sensor":"gps","time":"flies"}
   String temp = "";
   int count = 0;

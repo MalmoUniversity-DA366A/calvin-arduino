@@ -1,6 +1,10 @@
 #include "Arduino.h"
 
-void testJson();
-void printJson(String str);
-String jsonUnserialize(char *temp);
-String jsonSerialize(char *str);
+class testJson {
+public:
+  void test();
+  void loadJson(String str);
+  String jsonUnserialize(char *temp);
+  String jsonSerialize(char *str);
+private:
+};
