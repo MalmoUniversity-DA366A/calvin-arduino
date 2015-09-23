@@ -29,7 +29,7 @@ int ActorStdOut::createActor(JsonObject &msg){
 	globalActor.type = msg["type"];
 	globalActor.name = msg["type1"];
 	globalActor.id = msg["id"];
-	globalActor.fifo = "Test me";
+	globalActor.fifo = msg["port"];
 	globalActor.outport = msg["port"];
 	allOk = 1;
 

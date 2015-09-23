@@ -45,7 +45,7 @@ TEST(ActorTest,structTest){
 	EXPECT_STREQ("actor",globalActor.type);
 	EXPECT_STREQ("actor1",globalActor.name);
 	EXPECT_STREQ("actor2",globalActor.id);
-	EXPECT_STREQ("Test me",globalActor.fifo);
+	EXPECT_STREQ("12",globalActor.fifo);
 	EXPECT_STREQ("12",globalActor.outport);
 
 
@@ -62,7 +62,7 @@ TEST(ActorTest,actorStdOut){
 	actor globalActor;
 	globalActor = actorstd.getGlobalStruct();
 	int testValue = actorstd.StdOut(globalActor);
-	EXPECT_EQ(3,testValue);
+	EXPECT_EQ(2,testValue);
 }
 
 
