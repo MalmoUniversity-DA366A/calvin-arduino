@@ -4,3 +4,6 @@ language.settings.xml
 
 /Mock2/
 /Mock/
+/.settings/
+.cproject
+.project
