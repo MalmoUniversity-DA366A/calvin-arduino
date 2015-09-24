@@ -18,6 +18,7 @@
 #include "unity.h"
 #include "uart.h"
 #include "calvinRuntime.h"
+//#include "telnet.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
@@ -67,6 +68,10 @@ int main(void) {
 
 	init_board();
 	Serial.begin(115200);
+/*
+	telnet tel;
+	tel.setupSocket();
+	tel.loopSocket();*/
 	calvinRuntime json;
 	json.setupConnection();
 /*

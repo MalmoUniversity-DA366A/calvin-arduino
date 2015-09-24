@@ -4,14 +4,17 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/calvinRuntime.cpp \
 ../src/main.cpp \
 ../src/testJson.cpp 
 
 OBJS += \
+./src/calvinRuntime.o \
 ./src/main.o \
 ./src/testJson.o 
 
 CPP_DEPS += \
+./src/calvinRuntime.d \
 ./src/main.d \
 ./src/testJson.d 
 

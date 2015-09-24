@@ -5,9 +5,9 @@
 #include <socket.h>
 
 byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
-byte gateway[] = { 192,168,1,1 };
-byte subnet[] = { 255,255,255,0 };
-IPAddress ip(192,168,1,202);
+/*IPAddress ip(192,168,1,202);
+IPAddress gateway( 192,168,1,1 );
+IPAddress subnet( 255,255,255,0 );*/
 uint16_t slaveport = 5001;
 EthernetServer server(slaveport);
 EthernetClient client;
@@ -15,15 +15,14 @@ String messages_in[] = {};
 String messages_out[] = {};
 
 /**
- * Setup TCP connection and
- * test Json serialize and unserialize
- * functions from calvin base
+ * Setup TCP connection and receive
+ * Json message from calvin base
  */
 void calvinRuntime::setupConnection()
 {
   //getIPFromRouter(); // Doesn't work with shield
   //Ethernet.begin(mac, ip, gateway, gateway, subnet);
-  Ethernet.begin(mac, ip);
+  //Ethernet.begin(mac, ip);
   printIp(); // Test purpose
   server.begin();
   testJson json;
@@ -40,13 +39,13 @@ void calvinRuntime::setupConnection()
           {
               Serial.println(temp); // Print content for test purpose
               // Jsonobject that holds all values
-              StaticJsonBuffer<200> jsonBuffer;
-              JsonObject &msg = jsonBuffer.parseObject(temp);
+              StaticJsonBuffer<200> jsonBufferMsg;
+              JsonObject &msg = jsonBufferMsg.parseObject(temp);
               json.checkJson(msg); // Test purpose
 
               // JsonObject for replying a fixed message
-              StaticJsonBuffer<200> jsonBuffer2;
-              JsonObject &reply = jsonBuffer2.createObject();
+              StaticJsonBuffer<200> jsonBufferReply;
+              JsonObject &reply = jsonBufferReply.createObject();
               handleJoin(msg,reply);
 
               // Print JsonObject to a string
@@ -54,14 +53,14 @@ void calvinRuntime::setupConnection()
 
               // Serialize Json message from string
               char *jsonChar = json.jsonSerialize(str.c_str());
-              delay(1000);
+              delay(100);
 
               // Replay to calvin base
               Serial.println("Sending..."); // Test purpose
               server.write(jsonChar);
               delete[] jsonChar;
               jsonChar = 0;
-              delay(1000);
+              delay(100);
           }
       }
   }
@@ -94,10 +93,13 @@ void calvinRuntime::printIp()
  */
 void calvinRuntime::getIPFromRouter()
 {
+    // Disable SD
+    pinMode(4,OUTPUT);
+    digitalWrite(4,HIGH);
     if (Ethernet.begin(mac) == 0)
     {
         Serial.println("Failed to configure Ethernet using DHCP");
         // Set static IP-address if fail
-        Ethernet.begin(mac, ip, gateway, gateway, subnet);
+        //Ethernet.begin(mac, ip, gateway, gateway, subnet);
     }
 }
