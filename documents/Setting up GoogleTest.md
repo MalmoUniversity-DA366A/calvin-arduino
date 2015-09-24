@@ -55,8 +55,9 @@ This guide will describe how to install gtest for eclipse under Max OS,
 for develop Arduino library. It will focus on a already existing project
 and the Arduino Due board.
 
+This guide is based on [Ole Bakstad](http://dibon.net/2013/04/getting-started-with-gtest-in-eclipse-juno-under-mac-os/) guide. 
+
 ###Step 1 
-The guide is based on [Ole Bakstad](https://github.com/jgm/pandoc/releases/tag/1.15.0.6) guide. 
 
 First install the test runner as explained above.
 
