@@ -22,6 +22,7 @@ struct actor{
 	const char* inport;
 	const char* outport;
 	const char* fifo;
+	int (*function)();
 };
 
 using namespace std;
@@ -30,10 +31,12 @@ class ActorStdOut
 public:
 	int actorInit();
 	int createActor(JsonObject &msg);
-	int StdOut(actor inComming);
+	int StdOut();
 	int createJson(void);
 	actor getGlobalStruct(void);
+	int actorFire(void);
 };
+
 
 
 

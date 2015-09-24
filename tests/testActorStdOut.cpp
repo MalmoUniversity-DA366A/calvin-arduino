@@ -31,6 +31,8 @@ TEST(ActorTest,structTest){
 	actor newActor;
 	actor globalActor;
 	globalActor = actorstd.getGlobalStruct();
+
+	//Test struct
 	newActor.type = "Daniel";
 	newActor.name = "Hej";
 	newActor.id = "1";
@@ -42,12 +44,12 @@ TEST(ActorTest,structTest){
 	EXPECT_EQ("7411",newActor.outport);
 	EXPECT_EQ("1337",newActor.inport);
 
+	//Test struct with json string
 	EXPECT_STREQ("actor",globalActor.type);
 	EXPECT_STREQ("actor1",globalActor.name);
-	EXPECT_STREQ("actor2",globalActor.id);
+	EXPECT_STREQ("89",globalActor.id);
 	EXPECT_STREQ("12",globalActor.fifo);
-	EXPECT_STREQ("12",globalActor.outport);
-
+	EXPECT_STREQ("NULL",globalActor.outport);
 
 
 }
@@ -61,8 +63,13 @@ TEST(ActorTest,actorStdOut){
 	ActorStdOut actorstd;
 	actor globalActor;
 	globalActor = actorstd.getGlobalStruct();
-	int testValue = actorstd.StdOut(globalActor);
+	int testValue = actorstd.StdOut();
 	EXPECT_EQ(2,testValue);
+}
+
+TEST(ActorTest,actorFire){
+	ActorStdOut actorstd;
+	EXPECT_EQ(1,actorstd.actorFire());
 }
 
 

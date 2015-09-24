@@ -8,15 +8,33 @@
 #include "actorStdOut.h"
 
 
+
 actor globalActor;
 
-int ActorStdOut::StdOut(actor inComming){
-
-	return standardOut(inComming.fifo);
+int ActorStdOut::StdOut(){
+	const char* fifo;
+	fifo = globalActor.fifo;
+	return standardOut(fifo);
 }
 
+/**
+ * In the current version this function has no use
+ * If problem with function pointer gets resolved
+ * this version of the function will be used.
+ */
 int ActorStdOut::actorInit(){
-
+	//globalActor.function = &StdOut;
+}
+/**
+ * Fires the actor with, since there is only one actor
+ * with one standard out, this function will call StdOut
+ * and the actor token will be printed.
+ */
+int ActorStdOut::actorFire(){
+	int allOk = 0;
+	ActorStdOut::StdOut();
+	allOk = 1;
+	return allOk;
 }
 
 /**
@@ -27,20 +45,23 @@ int ActorStdOut::actorInit(){
 int ActorStdOut::createActor(JsonObject &msg){
 	int allOk = 0;
 	globalActor.type = msg["type"];
-	globalActor.name = msg["type1"];
+	globalActor.name = msg["name"];
 	globalActor.id = msg["id"];
-	globalActor.fifo = msg["port"];
-	globalActor.outport = msg["port"];
+	globalActor.fifo = msg["fifo"];
+	globalActor.outport = "NULL";
 	allOk = 1;
 
 	return allOk;
 }
 
+/**
+ * Construct a json-object used in testing
+ */
 int ActorStdOut::createJson(){
 	int allOk = 0;
 
 	StaticJsonBuffer<2000> jsonBuffer;
-	char str[] = "{\"type\":\"actor\",\"type1\":\"actor1\",\"id\":\"actor2\",\"port\":\"12\"}";
+	char str[] = "{\"type\":\"actor\",\"name\":\"actor1\",\"id\":\"89\",\"fifo\":\"12\"}";
 	JsonObject &root = jsonBuffer.parseObject(str);
 
 	if (root.success())
