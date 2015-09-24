@@ -7,15 +7,12 @@
  */
 void testJson::test(JsonObject &root)
 {
-	char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
-
 	root["sensor"] = "gps";
 	root["time"] = 1351824120;
 	JsonArray &data = root.createNestedArray("data");
-	data.add(48.756080,3);
-	data.add(2.302038,3);
+	data.add(48.756080, 6);
+	data.add(2.302038, 6);
 
-	root.printTo(Serial);
 	Serial.println();
 	if (checkJson(root))
 	{
@@ -50,9 +47,9 @@ int testJson::checkJson(JsonObject &root)
 }
 
 /**
- * Unserializes Json to a String.
- * From this: {\"sensor\":\"gps\",\"time\":\"flies\"}
- * To this: {"sensor":"gps","time":"flies"}
+ * Deserializes Json to a String.
+ * From this: {\"sensor\":\"gps\",\"time\":1351824120}
+ * To this: {"sensor":"gps","time":1351824120}
  * @param temp char* pointer
  * @return String
  */
@@ -74,8 +71,8 @@ String testJson::jsonDeserialize(char *temp)
 
 /**
  * Serializes a String to Json syntax.
- * From this: {"sensor":"gps","time":"flies"}
- * To this: {\"sensor\":\"gps\",\"time\":\"flies\"}
+ * From this: {"sensor":"gps","time":1351824120}
+ * To this: {\"sensor\":\"gps\",\"time\":1351824120}
  * @param str char* pointer
  * @return char* pointer
  */
@@ -120,11 +117,21 @@ String testJson::createStringFromObject(JsonObject &reply)
       }
       else if(it->value.is<JsonArray&>())
       {
+          JsonArray &array = it->value.asArray();
           str += "[";
-          for(int i = 0; i < it->value.size(); i++)
+          for(int i = 0; i < array.size(); i++)
           {
-              str += it->value.as<int>();
-              if(i != it->value.size()-1)
+              if(array.get(i).operator int())
+              {
+                  str += array.get(i).as<int>();
+              }
+              else
+              {
+                  str += "\"";
+                  str += array.get(i).asString();
+                  str += "\"";
+              }
+              if(i != array.size() - 1)
               {
                   str += ",";
               }
