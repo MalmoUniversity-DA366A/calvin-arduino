@@ -1,6 +1,6 @@
 /*
- * Addition_Test.cpp
- *
+ * This is an example test to show how GoogleTest
+ * work.
  *  Created on: 21 sep. 2015
  *      Author: Daniel
  */
