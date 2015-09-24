@@ -69,4 +69,5 @@ int main(void) {
 	Serial.begin(115200);
 	calvinRuntime *json = new calvinRuntime;
 	json->setupConnection();
+	delete[] json;
 }

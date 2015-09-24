@@ -3,9 +3,10 @@
 
 class testJson {
 public:
-  void test();
-  void checkJson(JsonObject &root);
-  String jsonUnserialize(char *temp);
-  void jsonSerialize(char *temp, const char *str);
+  JsonObject& test();
+  int checkJson(JsonObject &root);
+  String jsonDeserialize(char *temp);
+  char* jsonSerialize(const char *str);
+  String createStringFromObject(JsonObject &reply);
 private:
 };

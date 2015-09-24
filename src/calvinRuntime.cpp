@@ -20,56 +20,61 @@ String messages_out[] = {};
  */
 void calvinRuntime::setupConnection()
 {
-  getIPFromRouter();
-  printIp();
+  getIPFromRouter(); // Doesn't work with shield
+  //Ethernet.begin(mac, ip, gateway, gateway, subnet);
+  //printIp(); // Test purpose
   server.begin();
-  testJson *json = new testJson; // delete later ??
+  testJson *json = new testJson;
   while(true)
   {
       client = server.available();
       if(client) // Wait for client
       {
-          Serial.println("Reading...");
+          Serial.println("Reading..."); // Test purpose
           char temp[MAX_LENGTH+1];
           int size = client.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
           temp[size-1] = '\0';  // Null terminate char
           if(size)
           {
+              Serial.println(temp); // Print content for test purpose
               // Jsonobject that holds all values
               StaticJsonBuffer<200> jsonBuffer;
-              JsonObject &msg = jsonBuffer.parseObject(json->jsonUnserialize(temp));
+              JsonObject &msg = jsonBuffer.parseObject(temp);
               json->checkJson(msg); // Test purpose
 
               // JsonObject for replying a fixed message
-              JsonObject &reply = jsonBuffer.parseObject("");
+              StaticJsonBuffer<200> jsonBuffer2;
+              JsonObject &reply = jsonBuffer2.createObject();
               handleJoin(msg,reply);
-              Serial.println(temp); // Print content for test purpose
-              delay(1000);
 
               // Print JsonObject to a string
-              String str = "";
-              reply.printTo(str);
+              String str = json->createStringFromObject(reply);
 
               // Serialize Json message from string
-              char jsonChar[] = {};
-              json->jsonSerialize(jsonChar, str.c_str());
+              char *jsonChar = json->jsonSerialize(str.c_str());
+              delay(1000);
 
-              Serial.println("Sending...");
-              server.write(jsonChar); // Replay to calvin base
+              // Replay to calvin base
+              Serial.println("Sending..."); // Test purpose
+              server.write(jsonChar);
+              delete[] jsonChar;
+              jsonChar = 0;
               delay(1000);
           }
       }
   }
+  delete[] json;
 }
+
 /**
  * Reply message to calvin base
  */
 void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
 {
-  reply["cmd"] = 'JOIN_REPLAY';
-  reply["id"] = 'calvin-miniscule';
+  reply["cmd"] = "JOIN_REPLAY";
+  reply["id"] = "calvin-miniscule";
   reply["sid"] = *msg["sid"];
-  reply["serializer"] = 'json';
+  reply["serializer"] = "json";
 }
 
 /**
