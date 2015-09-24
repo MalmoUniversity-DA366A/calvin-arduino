@@ -16,21 +16,15 @@ int StdOut(){
 }
 
 /**
- *  What'sup with the external C you might wonder,
+ *  What's up with the external C you might wonder,
  *  well thats the only way i could ad a function pointer to a strut,
- * Apparently c++ handles this different from c.
+ *  Apparently c++ handles this different from c.
  */
 extern "C"{
 int actorInit(){
 	globalActor.function = &StdOut;
 }
 }
-
-/**
- * Fires the actor with, since there is only one actor
- * with one standard out, this function will call StdOut
- * and the actor token will be printed.
- */
 
 /**
  * Create an new actor.
@@ -44,7 +38,7 @@ int ActorStdOut::createActor(JsonObject &msg){
 	globalActor.id = msg["id"];
 	globalActor.fifo = msg["fifo"];
 	globalActor.outport = "NULL";
-
+	globalActor.doj.fi.fif;
 	actorInit();
 	allOk = 1;
 	return allOk;
@@ -67,7 +61,6 @@ int ActorStdOut::createJson(){
 
 	JsonObject &p_json = root;
 	ActorStdOut::createActor(p_json);
-	//actorInit();
 	return allOk;
 
 }

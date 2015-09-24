@@ -25,6 +25,11 @@ typedef struct actors{
 	const char* outport;
 	const char* fifo;
 	int (*function)();
+	struct date{
+		struct fifo{
+			int fif;
+		}fi;
+	}doj;
 }actor;
 
 }
@@ -32,8 +37,8 @@ typedef struct actors{
 using namespace std;
 class ActorStdOut
 {
+
 public:
-	//int actorInit();
 	int createActor(JsonObject &msg);
 	int createJson(void);
 	actor getGlobalStruct(void);
