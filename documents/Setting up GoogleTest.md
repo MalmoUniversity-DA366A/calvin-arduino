@@ -80,23 +80,28 @@ From terminal navigate to the download location
 ###Step 2
 
 Right click on your project and click *Properties* and navigate to
-*“C/C++ Build” &gt; “Settings”. Under “Cross G++ Compiler” &gt;
+*“C/C++ Build” &gt; “Settings”. Under “GCC C++ Compiler” &gt;
 “Includes”* add *”/usr/local/include”* as an include.
 
 ![Include](http://i.imgur.com/Lo2vV0K.jpg)
 
+In the preprocessor there is also necessary to remove *ARDUINO* and add *\_MOCK\_*. 
 
-Under *“Cross G++ Linker” &gt; “Libraries”* add *gtest* as libraries
+![Preprocessor](http://i.imgur.com/vQrSQbg.jpg)
+
+Under *“MacOS X C++ Linker” &gt; “Libraries”* add *gtest* as libraries
 and *”/usr/local/lib”* as library search path.
 
 ![Libraries](http://i.imgur.com/AjPrUsO.jpg)
 
+The GCC C compiler need a twist to, the same as för GCC C++ compiler but this time in Symbols. 
+
+![Symbols](http://i.imgur.com/43IQngV.jpg)
 
 Well in properties go to *Tool Chain Editor* and change the toolchain to
-*MacOS GCC,* then this is the one used to make gtest in the beginning.
+*MacOSX GCC,* then this is the one used to make gtest in the beginning.
 
 ![Toolchain](http://i.imgur.com/QhhQo8o.jpg)
-
 
 ###Step 3
 
