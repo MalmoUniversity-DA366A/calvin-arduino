@@ -15,7 +15,9 @@
 
 #define standardOut(x)		strlen(x)
 
-struct actor{
+extern "C"{
+
+typedef struct actors{
 	const char* type;
 	const char* name;
 	const char* id;
@@ -23,15 +25,16 @@ struct actor{
 	const char* outport;
 	const char* fifo;
 	int (*function)();
-};
+}actor;
+
+}
 
 using namespace std;
 class ActorStdOut
 {
 public:
-	int actorInit();
+	//int actorInit();
 	int createActor(JsonObject &msg);
-	int StdOut();
 	int createJson(void);
 	actor getGlobalStruct(void);
 	int actorFire(void);

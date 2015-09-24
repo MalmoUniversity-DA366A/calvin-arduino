@@ -7,23 +7,23 @@
 
 #include "actorStdOut.h"
 
-
-
 actor globalActor;
 
-int ActorStdOut::StdOut(){
+int StdOut(){
 	const char* fifo;
 	fifo = globalActor.fifo;
 	return standardOut(fifo);
 }
 
 /**
- * In the current version this function has no use
- * If problem with function pointer gets resolved
- * this version of the function will be used.
+ *  What'sup with the external C you might wonder,
+ *  well thats the only way i could ad a function pointer to a strut,
+ * Apparently c++ handles this different from c.
  */
-int ActorStdOut::actorInit(){
-	//globalActor.function = &StdOut;
+extern "C"{
+int actorInit(){
+	globalActor.function = &StdOut;
+}
 }
 /**
  * Fires the actor with, since there is only one actor
@@ -32,7 +32,7 @@ int ActorStdOut::actorInit(){
  */
 int ActorStdOut::actorFire(){
 	int allOk = 0;
-	ActorStdOut::StdOut();
+	//ActorStdOut::StdOut();
 	allOk = 1;
 	return allOk;
 }
@@ -50,7 +50,6 @@ int ActorStdOut::createActor(JsonObject &msg){
 	globalActor.fifo = msg["fifo"];
 	globalActor.outport = "NULL";
 	allOk = 1;
-
 	return allOk;
 }
 
@@ -71,7 +70,7 @@ int ActorStdOut::createJson(){
 
 	JsonObject &p_json = root;
 	ActorStdOut::createActor(p_json);
-
+	actorInit();
 	return allOk;
 
 }

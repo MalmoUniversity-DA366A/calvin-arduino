@@ -383,7 +383,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.archiver.cygwin.base.1297289073" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.cygwin.base"/>
 							<tool command="g++" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base.1137970267" name="Cygwin C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base">
 								<option id="gnu.cpp.compiler.option.include.paths.274661241" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;C:\Development\gtest-1.7.0\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;A:\Development\gtest-1.7.0\include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/libraries/ArduinoJson/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system/include/calvinlib}&quot;"/>
@@ -422,7 +422,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.cygwin.base.653010082" name="Cygwin C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.cygwin.base"/>
 							<tool command="g++" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GLDErrorParser" id="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.base.463499301" name="Cygwin C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.base">
 								<option id="gnu.cpp.link.option.userobjs.887280450" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
-									<listOptionValue builtIn="false" value="&quot;C:\Development\gtest-1.7.0\make\libgtest.a&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;A:\Development\gtest-1.7.0\make\libgtest.a&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.600660352" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -443,21 +443,6 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="hello world cortex arduino due.ilg.gnuarmeclipse.managedbuild.cross.target.elf.1797339917" name="Executable" projectType="ilg.gnuarmeclipse.managedbuild.cross.target.elf"/>
 	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.398247501;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.398247501.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.125938498;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1291221353">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.398247501;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.398247501.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.428708687;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.380118379">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.999501644;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.999501644.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1160216110;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1533210154">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.999501644;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.999501644.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1523881214;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1878477650">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Debug">
@@ -469,4 +454,25 @@
 		<configuration configurationName="Mock"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.398247501;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.398247501.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.428708687;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.380118379">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.999501644;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.999501644.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1160216110;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1533210154">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="org.eclipse.cdt.msvc.exe.debug.1992493620;org.eclipse.cdt.msvc.exe.debug.1992493620.;cdt.managedbuild.tool.gnu.c.compiler.cygwin.base.1949068049;cdt.managedbuild.tool.gnu.c.compiler.input.cygwin.68633186">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.398247501;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.398247501.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.125938498;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1291221353">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="org.eclipse.cdt.msvc.exe.debug.1992493620;org.eclipse.cdt.msvc.exe.debug.1992493620.;cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base.1137970267;cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin.1899148008">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.999501644;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.999501644.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1523881214;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1878477650">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
 </cproject>

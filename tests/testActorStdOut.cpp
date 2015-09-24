@@ -59,18 +59,18 @@ TEST(ActorTest,createActor){
 	//EXPECT_EQ(1,actorstd.createActor());
 }
 
-TEST(ActorTest,actorStdOut){
-	ActorStdOut actorstd;
-	actor globalActor;
-	globalActor = actorstd.getGlobalStruct();
-	int testValue = actorstd.StdOut();
-	EXPECT_EQ(2,testValue);
-}
-
 TEST(ActorTest,actorFire){
 	ActorStdOut actorstd;
-	EXPECT_EQ(1,actorstd.actorFire());
+	actor globalActor;
+	actorstd.createJson();
+	globalActor = actorstd.getGlobalStruct();
+	EXPECT_EQ(2,globalActor.function());
 }
+
+//TEST(ActorTest,actorFire){
+//	ActorStdOut actorstd;
+//	EXPECT_EQ(1,actorstd.actorFire());
+//}
 
 
 
