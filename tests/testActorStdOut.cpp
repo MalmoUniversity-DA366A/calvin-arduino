@@ -56,13 +56,16 @@ TEST(ActorTest,structTest){
 
 TEST(ActorTest,createActor){
 	ActorStdOut actorstd;
-	//EXPECT_EQ(1,actorstd.createActor());
+	StaticJsonBuffer<2000> jsonBuffer;
+	char str[] = "{\"type\":\"actor\",\"name\":\"actor1\",\"id\":\"89\",\"fifo\":\"12\"}";
+	JsonObject &root = jsonBuffer.parseObject(str);
+	EXPECT_EQ(1,actorstd.createActor(root));
 }
 
 TEST(ActorTest,actorFire){
 	ActorStdOut actorstd;
 	actor globalActor;
-	actorstd.createJson();
+	//actorstd.createJson();
 	globalActor = actorstd.getGlobalStruct();
 	EXPECT_EQ(2,globalActor.function());
 }

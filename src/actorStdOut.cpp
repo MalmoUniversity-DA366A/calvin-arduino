@@ -25,17 +25,12 @@ int actorInit(){
 	globalActor.function = &StdOut;
 }
 }
+
 /**
  * Fires the actor with, since there is only one actor
  * with one standard out, this function will call StdOut
  * and the actor token will be printed.
  */
-int ActorStdOut::actorFire(){
-	int allOk = 0;
-	//ActorStdOut::StdOut();
-	allOk = 1;
-	return allOk;
-}
 
 /**
  * Create an new actor.
@@ -49,6 +44,8 @@ int ActorStdOut::createActor(JsonObject &msg){
 	globalActor.id = msg["id"];
 	globalActor.fifo = msg["fifo"];
 	globalActor.outport = "NULL";
+
+	actorInit();
 	allOk = 1;
 	return allOk;
 }
@@ -70,7 +67,7 @@ int ActorStdOut::createJson(){
 
 	JsonObject &p_json = root;
 	ActorStdOut::createActor(p_json);
-	actorInit();
+	//actorInit();
 	return allOk;
 
 }
