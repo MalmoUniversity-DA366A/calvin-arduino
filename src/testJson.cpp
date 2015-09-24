@@ -5,11 +5,18 @@
  * A test function for parsing a JsonObject
  * @return JsonObject
  */
-JsonObject& testJson::test()
+void testJson::test(JsonObject &root)
 {
-	StaticJsonBuffer<200> jsonBuffer;
 	char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
-	JsonObject &root = jsonBuffer.parseObject(json);
+
+	root["sensor"] = "gps";
+	root["time"] = 1351824120;
+	JsonArray &data = root.createNestedArray("data");
+	data.add(48.756080,3);
+	data.add(2.302038,3);
+
+	root.printTo(Serial);
+	Serial.println();
 	if (checkJson(root))
 	{
 	    const char* sensor = root["sensor"];
@@ -21,7 +28,6 @@ JsonObject& testJson::test()
 	    Serial.println(latitude, 6); // Number of decimals (6)
 	    Serial.println(longitude, 6);
 	}
-	return root;
 }
 
 /**
@@ -100,10 +106,11 @@ char* testJson::jsonSerialize(const char *str)
  */
 String testJson::createStringFromObject(JsonObject &reply)
 {
-  String str = "{\"";
+  String str = "{";
   unsigned int count = 0;
   for(JsonObject::iterator it=reply.begin(); it!=reply.end();++it)
   {
+      str += "\"";
       str += it->key;
       str += "\"";
       str += ":";
@@ -111,16 +118,28 @@ String testJson::createStringFromObject(JsonObject &reply)
       {
         str += it->value.as<int>();
       }
+      else if(it->value.is<JsonArray&>())
+      {
+          str += "[";
+          for(int i = 0; i < it->value.size(); i++)
+          {
+              str += it->value.as<int>();
+              if(i != it->value.size()-1)
+              {
+                  str += ",";
+              }
+          }
+          str += "]";
+      }
       else
       {
-        str += "\"";
-        str += it->value.asString();
-        str += "\"";
+          str += "\"";
+          str += it->value.asString();
+          str += "\"";
       }
       if(count != (reply.size() - 1))
       {
         str += ",";
-        str += "\"";
       }
       count++;
   }

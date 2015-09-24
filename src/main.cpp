@@ -67,7 +67,16 @@ int main(void) {
 
 	init_board();
 	Serial.begin(115200);
-	calvinRuntime *json = new calvinRuntime;
+	testJson *json = new testJson;
+	StaticJsonBuffer<200> jsonBuffer;
+	/*JsonObject &root = jsonBuffer.createObject();
+	json->test(root);
+	root.printTo(Serial);*/
+	char js[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48,2]}";
+	JsonObject &root = jsonBuffer.parseObject(js);
+	String str = json->createStringFromObject(root);
+	Serial.println(str);
+	/*calvinRuntime *json = new calvinRuntime;
 	json->setupConnection();
-	delete[] json;
+	delete[] json;*/
 }

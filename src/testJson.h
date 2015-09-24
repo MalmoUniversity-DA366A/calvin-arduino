@@ -3,7 +3,7 @@
 
 class testJson {
 public:
-  JsonObject& test();
+  void test(JsonObject &root);
   int checkJson(JsonObject &root);
   String jsonDeserialize(char *temp);
   char* jsonSerialize(const char *str);
