@@ -56,6 +56,7 @@ for develop Arduino library. It will focus on a already existing project
 and the Arduino Due board.
 
 ###Step 1 
+The guide is based on [Ole Bakstad](https://github.com/jgm/pandoc/releases/tag/1.15.0.6) guide. 
 
 First install the test runner as explained above.
 
