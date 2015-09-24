@@ -15,4 +15,16 @@ protected:
 	virtual void TearDown() {}
 };
 
+TEST(test_setupTunnel, handleSetupTunnel) {
+	setupTunnel st;
+	StaticJsonBuffer<1000> buffer;
+	JsonObject &reply = buffer.createObject();
+
+	StaticJsonBuffer<200> jsonBuffer;
+	char json[] = "{\"sensor\":\"gps\",\"msg_uuid\":1351824120,\"data\":[48.756080,2.302038]}";
+	JsonObject &root = jsonBuffer.parseObject(json);
+
+	EXPECT_EQ(1, st.handleSetupTunnel(root ,reply));
+
+}
 #endif
