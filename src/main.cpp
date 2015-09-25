@@ -79,17 +79,13 @@ int main(void) {
 	testJson test;
 	StaticJsonBuffer<200> jsonBuffer;
 	// Test 1
-	JsonObject &root = jsonBuffer.createObject();
+	/*JsonObject &root = jsonBuffer.createObject();
 	test.test(root);
-	char st[256];
-	char *p_st = &st;
-	root.printTo(st);
-	Serial.println(p_st);
-	//root.printTo(Serial);
+	root.printTo(Serial);*/
 	// Test 2
 	/*char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[1024,\"inside\"]}";
 	JsonObject &root = jsonBuffer.parseObject(json);
-	String str = test.createStringFromObject(root);
+	String str = test.buildStringFromJsonObject(root);
 	Serial.println(str);*/
 }
 #else

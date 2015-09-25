@@ -53,7 +53,7 @@ int testJson::checkJson(JsonObject &root)
 }
 
 /**
- * Deserializes Json to a String.
+ * Deserialize Json to a String.
  * From this: {\"sensor\":\"gps\",\"time\":1351824120}
  * To this: {"sensor":"gps","time":1351824120}
  * @param temp char* pointer
@@ -102,12 +102,12 @@ char* testJson::jsonSerialize(const char *str)
 }
 
 /**
- * Creates a string from a JsonObject
+ * Builds a string from a JsonObject
  * by iterating trough the object
- * @param reply
+ * @param reply JsonObject
  * @return String
  */
-String testJson::createStringFromObject(JsonObject &reply)
+String testJson::buildStringFromJsonObject(JsonObject &reply)
 {
   String str = "{";
   unsigned int count = 0;

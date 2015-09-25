@@ -11,14 +11,15 @@
 #include <socket.h>
 
 byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
-/*IPAddress ip(192,168,1,202);
+IPAddress ip(192,168,1,202);
 IPAddress gateway( 192,168,1,1 );
-IPAddress subnet( 255,255,255,0 );*/
+IPAddress subnet( 255,255,255,0 );
 uint16_t slaveport = 5001;
 EthernetServer server(slaveport);
 EthernetClient client;
 String messages_in[] = {};
 String messages_out[] = {};
+SOCKET s;
 
 /**
  * Setup TCP connection and receive
@@ -28,7 +29,7 @@ void calvinRuntime::setupConnection()
 {
   //getIPFromRouter(); // Doesn't work with shield
   //Ethernet.begin(mac, ip, gateway, gateway, subnet);
-  //Ethernet.begin(mac, ip);
+  Ethernet.begin(mac, ip);
   printIp(); // Test purpose
   server.begin();
   testJson json;
@@ -37,6 +38,17 @@ void calvinRuntime::setupConnection()
       client = server.available();
       if(client) // Wait for client
       {
+          if(socket(s, SnMR::TCP, 5001, 0))
+            {
+              Serial.println("socket");
+            }
+          Serial.println("socketStatus");
+          Serial.println(socketStatus(s));
+          if(listen(s))
+            {
+              Serial.println("listen");
+            }
+
           Serial.println("Reading..."); // Test purpose
           char temp[MAX_LENGTH+1];
           int size = client.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
@@ -55,7 +67,7 @@ void calvinRuntime::setupConnection()
               handleJoin(msg,reply);
 
               // Print JsonObject to a string
-              String str = json.createStringFromObject(reply);
+              String str = json.buildStringFromJsonObject(reply);
 
               // Serialize Json message from string
               char *jsonChar = json.jsonSerialize(str.c_str());
@@ -106,7 +118,7 @@ void calvinRuntime::getIPFromRouter()
     {
         Serial.println("Failed to configure Ethernet using DHCP");
         // Set static IP-address if fail
-        //Ethernet.begin(mac, ip, gateway, gateway, subnet);
+        Ethernet.begin(mac, ip, gateway, gateway, subnet);
     }
 }
 #endif
