@@ -56,8 +56,9 @@ The command git clone which gives the user a full copy of the data from the remo
 
 ####Ignore and/or delete the hidden Mac file .DS_Store
 * defaults write com.apple.finder AppleShowAllFiles -bool YES (Show hidden files/folders)
-* Add the line .DS_Store to the hidden .gitignore file in the repository
+* Add the line: .DS_Store to the hidden .gitignore file in the repository
 * find . -name .DS_Store -print0 | xargs -0 git rm -f --ignore-unmatch (Removes DS_Store file if already committed)
+* For any other file/folder than .DS_Store: git rm -r --cached filename/foldername(Removes from Github but not local)
 * git add .gitignore 
 * git commit -m ".DS_Store banished!"
 * defaults write com.apple.finder AppleShowAllFiles -bool NO (Hide hidden files/folders)
