@@ -81,10 +81,10 @@ int main(void) {
 	// Test 1
 	JsonObject &root = jsonBuffer.createObject();
 	test.test(root);
-	String st;
-	String *p_st = &st;
+	char st[256];
+	char *p_st = &st;
 	root.printTo(st);
-	Serial.println(*p_st);
+	Serial.println(p_st);
 	//root.printTo(Serial);
 	// Test 2
 	/*char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[1024,\"inside\"]}";
