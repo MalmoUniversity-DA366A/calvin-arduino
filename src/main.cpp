@@ -1,10 +1,10 @@
+#ifdef ARDUINO
 /*
  * Template project for arduino due. This project
  * includes the standard functions from the Arduino
  * library.
  * @author Daniel Nordahl
  */
-
 #include "test_exampel.h"
 #include "Arduino.h"
 #include <test_exampel.h>
@@ -72,19 +72,32 @@ int main(void) {
 	telnet tel;
 	tel.setupSocket();
 	tel.loopSocket();*/
-	calvinRuntime json;
-	json.setupConnection();
-/*
+	/*calvinRuntime json;
+	json.setupConnection();*/
+
 	// Start test
 	testJson test;
 	StaticJsonBuffer<200> jsonBuffer;
 	// Test 1
 	JsonObject &root = jsonBuffer.createObject();
 	test.test(root);
-	root.printTo(Serial);
+	String st;
+	String *p_st = &st;
+	root.printTo(st);
+	Serial.println(*p_st);
+	//root.printTo(Serial);
 	// Test 2
 	/*char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[1024,\"inside\"]}";
 	JsonObject &root = jsonBuffer.parseObject(json);
 	String str = test.createStringFromObject(root);
 	Serial.println(str);*/
 }
+#else
+
+#include "gtest/gtest.h"
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
+#endif

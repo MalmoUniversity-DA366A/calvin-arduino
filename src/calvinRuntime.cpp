@@ -1,3 +1,9 @@
+#ifdef ARDUINO
+/*
+ * calvinRuntime.cpp
+ *
+ *      Author: Peter
+ */
 #include <SPI.h>
 #include <Ethernet.h>
 #include "calvinRuntime.h"
@@ -103,3 +109,4 @@ void calvinRuntime::getIPFromRouter()
         //Ethernet.begin(mac, ip, gateway, gateway, subnet);
     }
 }
+#endif

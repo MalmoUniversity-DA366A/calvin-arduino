@@ -1,9 +1,15 @@
+#ifdef ARDUINO
+/*
+ * testJson.cpp
+ *
+ *      Author: Peter
+ */
 #include "testJson.h"
 #include "ArduinoJson.h"
 
 /**
  * A test function for parsing a JsonObject
- * @return JsonObject
+ * @param root JsonObject
  */
 void testJson::test(JsonObject &root)
 {
@@ -153,3 +159,4 @@ String testJson::createStringFromObject(JsonObject &reply)
   str += "}";
   return str;
 }
+#endif

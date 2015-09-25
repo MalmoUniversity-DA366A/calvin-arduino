@@ -23,6 +23,10 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+GoogleTest/src \
+GoogleTest/system/src/sam3x \
+GoogleTest/system/src/test \
+GoogleTest/system/src/unity \
 libraries/ArduinoJson/src/Arduino \
 libraries/ArduinoJson/src/Internals \
 libraries/ArduinoJson/src \

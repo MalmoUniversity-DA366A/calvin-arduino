@@ -26,6 +26,10 @@ RM := rm
 -include libraries/ArduinoJson/src/Internals/subdir.mk
 -include libraries/ArduinoJson/src/Arduino/subdir.mk
 -include libraries/ArduinoJson/src/subdir.mk
+-include GoogleTest/system/src/unity/subdir.mk
+-include GoogleTest/system/src/test/subdir.mk
+-include GoogleTest/system/src/sam3x/subdir.mk
+-include GoogleTest/src/subdir.mk
 -include subdir.mk
 -include objects.mk
 
