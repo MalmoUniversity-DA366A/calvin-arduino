@@ -8,10 +8,11 @@
 #include "SetupTunnel.h"
 
 /**
- * Method for setting up a tunnel using JSON, JSON is added to the JsonObject reference request
- * @param &msg
- * @param &request
- * @return int
+ * Method for setting up a tunnel using JSON message back to Calvin-Base,
+ * JSON text is added to the JsonObject request that is added to the reply list.
+ * @param &msg JsonObject received from Calvin-Base
+ * @param &request JsonObject that is added to the "reply" list
+ * @return uint32_t just for checking if the request Json is created correctly
  *
  * Author: Jesper Hansen
  */
@@ -22,13 +23,13 @@ uint32_t SetupTunnel::handleSetupTunnel(JsonObject &msg, JsonObject &request)
 
 	const char* msg_uuid = msg["msg_uuid"];
 
-	request["msg_uuid"] 		= "MSG-12345678-1234-5678-1234-567812345678"; // Created an hardcoded UUID
-	request["from_rt_uuid"] 	= "calvin-miniscule";
-	request["to_rt_uuid"] 		= msg_uuid;
-	request["cmd"] 				= "TUNNEL_NEW";
-	request["tunnel_id"] 		= "fake-tunnel";
-	request["policy"] 			= policy;
-	request["type"] 			= "token";
+	request["from_rt_uuid"] 	= "calvin-miniscule"; 							// Runtime ID
+	request["cmd"] 				= "TUNNEL_NEW";									// Command
+	request["tunnel_id"] 		= "fake-tunnel";								// Tunnel ID
+	request["to_rt_uuid"] 		= msg_uuid;										// Destination Runtime ID
+	request["policy"] 			= policy;										// Unused, create an empty JsonObject
+	request["type"] 			= "token";										// What will be tunneled
+	request["msg_uuid"] 		= "MSG-12345678-1234-5678-1234-567812345678"; 	// Message ID <Created an hardcoded UUID>
 
 	if (request.success())
 	{
@@ -42,9 +43,9 @@ uint32_t SetupTunnel::handleSetupTunnel(JsonObject &msg, JsonObject &request)
 
 /**
  * Method for handle the tunnel data using JSON, JSON is added to the JsonObject reference reply
- * @param &msg
- * @param &reply
- * @return int
+ * @param &msg JsonObject received from Calvin-Base
+ * @param &reply JsonObject that is added to the "reply" list
+ * @return int just for checking if the request Json is created correctly
  *
  * Author: Jesper Hansen
  */
