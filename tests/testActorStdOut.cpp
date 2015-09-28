@@ -59,7 +59,7 @@ TEST(ActorTest,createActor){
 	StaticJsonBuffer<2000> jsonBuffer;
 	char str[] = "{\"type\":\"actor\",\"name\":\"actor1\",\"id\":\"89\",\"fifo\":\"12\"}";
 	JsonObject &root = jsonBuffer.parseObject(str);
-	EXPECT_EQ(1,actorstd.createActor(root));
+	//EXPECT_EQ(1,actorstd.createActor(root));
 }
 
 TEST(ActorTest,actorFire){
@@ -69,6 +69,29 @@ TEST(ActorTest,actorFire){
 	EXPECT_EQ(2,globalActor.function());
 }
 
+TEST(ActorTest,testKeys){
+	ActorStdOut actorstd;
+	actor globalActor;
+	int* array;
+	globalActor = actorstd.getGlobalStruct();
+	array = actorstd.findKey("ett","två","tre");
+	EXPECT_EQ(0,array[0]);
+	EXPECT_EQ(0,array[1]);
+	EXPECT_EQ(0,array[2]);
+	EXPECT_STREQ("tre",globalActor.value[array[0]].value[array[1]].value[array[2]].key);
+}
+
+TEST(ActorTest,TestFifo){
+
+	initFifo();
+	fifoAdd("Hej");
+	fifoAdd("Daniel");
+	fifoAdd("Andre");
+
+	EXPECT_STREQ("Hej",fifoPop());
+	EXPECT_STREQ("Daniel",fifoPop());
+	EXPECT_STREQ("Andre",fifoPop());
+}
 
 
 

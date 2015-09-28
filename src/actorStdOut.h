@@ -17,6 +17,10 @@
 
 extern "C"{
 
+int initFifo(void);
+int fifoAdd(const char*);
+const char* fifoPop();
+
 typedef struct actors{
 	const char* type;
 	const char* name;
@@ -25,12 +29,23 @@ typedef struct actors{
 	const char* outport;
 	const char* fifo;
 	int (*function)();
-	struct date{
-		struct fifo{
-			int fif;
-		}fi;
-	}doj;
+	struct ports{
+		const char* key;
+		struct tokens{
+			const char* key;
+			struct fifos{
+				const char* key;
+				int length;
+			}value[5];
+		}value[5];
+	}value[5];
 }actor;
+
+typedef struct TokenFifo{
+	const char *buffer[5];
+	char add;
+	char pop;
+}fifo;
 
 }
 
@@ -43,6 +58,8 @@ public:
 	int createJson(void);
 	actor getGlobalStruct(void);
 	int actorFire(void);
+	int* findKey(const char*,const char*,const char*);
+	TokenFifo getActorStruct(void);
 };
 
 
