@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "actorStdOut.h"
 #include <string.h>
+#include <inttypes.h>
 
 actor globalActor;
 fifo actorFifo;
@@ -33,7 +34,7 @@ int actorInit(){
  * @param msg json list
  * @return return 1 if successful.
  */
-int ActorStdOut::createActor(JsonObject &msg){
+uint8_t ActorStdOut::createActor(JsonObject &msg){
 	int allOk = 0;
 	globalActor.type = msg["type"];
 	globalActor.name = msg["name"];
@@ -78,8 +79,8 @@ TokenFifo ActorStdOut::getActorStruct(){
  * Search for keys in the actor struct, this version is the first
  * draft and it is in need of improvements.
  */
-int* ActorStdOut::findKey(const char* key1, const char* key2, const char* key3){
-	static int keys[3] = {-1,-1,-1};
+uint32_t* ActorStdOut::findKey(const char* key1, const char* key2, const char* key3){
+	static uint32_t keys[3] = {-1,-1,-1};
 	int i;
 	i = 0;
 
@@ -102,12 +103,12 @@ int* ActorStdOut::findKey(const char* key1, const char* key2, const char* key3){
 	return keys;
 }
 
-int initFifo(){
+void initFifo(){
 	actorFifo.add = 0;
 	actorFifo.pop = 0;
 }
 
-int fifoAdd(const char* element){
+uint32_t fifoAdd(const char* element){
 	if(actorFifo.add > 5){
 		actorFifo.add = 0;
 	}

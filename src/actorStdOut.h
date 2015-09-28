@@ -17,8 +17,8 @@
 
 extern "C"{
 
-int initFifo(void);
-int fifoAdd(const char*);
+void initFifo(void);
+uint32_t fifoAdd(const char*);
 const char* fifoPop();
 
 typedef struct actors{
@@ -43,8 +43,8 @@ typedef struct actors{
 
 typedef struct TokenFifo{
 	const char *buffer[5];
-	char add;
-	char pop;
+	int8_t add;
+	int8_t pop;
 }fifo;
 
 }
@@ -54,11 +54,11 @@ class ActorStdOut
 {
 
 public:
-	int createActor(JsonObject &msg);
+	uint8_t createActor(JsonObject &msg);
 	int createJson(void);
 	actor getGlobalStruct(void);
 	int actorFire(void);
-	int* findKey(const char*,const char*,const char*);
+	uint32_t* findKey(const char*,const char*,const char*);
 	TokenFifo getActorStruct(void);
 };
 
