@@ -74,23 +74,29 @@ TEST(ActorTest,testKeys){
 	actor globalActor;
 	int* array;
 	globalActor = actorstd.getGlobalStruct();
+	globalActor.value[0].key = "ett";
+	globalActor.value[0].value[0].key="två";
+	globalActor.value[0].value[0].value[0].key="tre";
+	EXPECT_STREQ("tre",globalActor.value[0].value[0].value[0].key);
+	/*
 	array = actorstd.findKey("ett","två","tre");
 	EXPECT_EQ(0,array[0]);
 	EXPECT_EQ(0,array[1]);
 	EXPECT_EQ(0,array[2]);
 	EXPECT_STREQ("tre",globalActor.value[array[0]].value[array[1]].value[array[2]].key);
+	*/
 }
 
 TEST(ActorTest,TestFifo){
 
 	initFifo();
-	fifoAdd("Hej");
-	fifoAdd("Daniel");
 	fifoAdd("Andre");
+	fifoAdd("Daniel");
+	fifoAdd("Hej");
 
-	EXPECT_STREQ("Hej",fifoPop());
-	EXPECT_STREQ("Daniel",fifoPop());
 	EXPECT_STREQ("Andre",fifoPop());
+	EXPECT_STREQ("Daniel",fifoPop());
+	EXPECT_STREQ("Hej",fifoPop());
 }
 
 

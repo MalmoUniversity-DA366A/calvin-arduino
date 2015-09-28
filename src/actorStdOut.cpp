@@ -39,24 +39,7 @@ int ActorStdOut::createActor(JsonObject &msg){
 	globalActor.name = msg["name"];
 	globalActor.id = msg["id"];
 	globalActor.fifo = msg["fifo"];
-
 	globalActor.outport = "NULL";
-
-	globalActor.value[0].key = "ett";
-	globalActor.value[0].value[0].key="två";
-	globalActor.value[0].value[0].value[0].key="tre";
-
-	globalActor.value[1].key = "björn";
-	globalActor.value[1].value[1].key="anders";
-	globalActor.value[1].value[1].value[1].key="klas";
-
-	globalActor.value[2].key = "tina";
-	globalActor.value[2].value[2].key="tunna";
-    globalActor.value[2].value[2].value[2].key="sak";
-
-    globalActor.value[3].key = "siffra";
-    globalActor.value[3].value[3].key="3";
-    globalActor.value[3].value[3].value[3].key="f";
 	actorInit();
 	allOk = 1;
 	return allOk;
