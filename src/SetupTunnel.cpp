@@ -5,7 +5,7 @@
  *      Author: Jesper Hansen
  */
 
-#include "setupTunnel.h"
+#include "SetupTunnel.h"
 
 /**
  * Method for setting up a tunnel using JSON, JSON is added to the JsonObject reference request
@@ -15,14 +15,16 @@
  *
  * Author: Jesper Hansen
  */
-int setupTunnel::handleSetupTunnel(JsonObject &msg, JsonObject &request)
+uint32_t SetupTunnel::handleSetupTunnel(JsonObject &msg, JsonObject &request)
 {
 	StaticJsonBuffer<1000> buffer;
 	JsonObject &policy = buffer.createObject();
 
+	const char* msg_uuid = msg["msg_uuid"];
+
 	request["msg_uuid"] 		= "MSG-12345678-1234-5678-1234-567812345678"; // Created an hardcoded UUID
 	request["from_rt_uuid"] 	= "calvin-miniscule";
-	request["to_rt_uuid"] 		= *msg["msg_uuid"]; //"123456789";
+	request["to_rt_uuid"] 		= msg_uuid;
 	request["cmd"] 				= "TUNNEL_NEW";
 	request["tunnel_id"] 		= "fake-tunnel";
 	request["policy"] 			= policy;
@@ -46,10 +48,13 @@ int setupTunnel::handleSetupTunnel(JsonObject &msg, JsonObject &request)
  *
  * Author: Jesper Hansen
  */
-int setupTunnel::handleTunnelData(JsonObject &msg, JsonObject &reply)
+uint32_t SetupTunnel::handleTunnelData(JsonObject &msg, JsonObject &reply)
 {
-	reply["to_rt_uuid"] 	= "1234"; //*msg["from_rt_uuid"];
-	reply["from_rt_uuid"] 	= "1234"; //*msg["to_rt_uuid"];
+	const char* to_rt_uuid = msg["to_rt_uuid"];
+	const char* from_rt_uuid = msg["from_rt_uuid"];
+
+	reply["to_rt_uuid"] 	= from_rt_uuid;
+	reply["from_rt_uuid"] 	= to_rt_uuid;
 	reply["cmd"] 			= "TUNNEL_DATA";
 	reply["tunnel_id"] 		= "fake-tunnel";
 	reply["value"]			= "foo";				// Dummy string instead of value variable that is created from the handle_msg() function
