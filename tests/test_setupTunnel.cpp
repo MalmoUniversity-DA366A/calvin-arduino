@@ -37,7 +37,7 @@ TEST(test_setupTunnel, handleSetupTunnel) {
 	EXPECT_EQ(7, request.size());
 
 	// Test for checking if the string value in the JsonObject is equal to the set string
-	EXPECT_STREQ("MSG-12345678-1234-5678-1234-567812345678", request.get("msg_uuid"));
+	EXPECT_STREQ("MSG-12345678-9101-1123-1415-161718192021", request.get("msg_uuid"));
 	EXPECT_STREQ("calvin-miniscule", request.get("from_rt_uuid"));
 	EXPECT_STREQ(msg["msg_uuid"], request.get("to_rt_uuid"));
 	EXPECT_STREQ("TUNNEL_NEW", request.get("cmd"));

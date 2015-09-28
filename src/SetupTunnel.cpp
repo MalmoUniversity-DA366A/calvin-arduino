@@ -29,7 +29,7 @@ uint32_t SetupTunnel::handleSetupTunnel(JsonObject &msg, JsonObject &request)
 	request["to_rt_uuid"] 		= msg_uuid;										// Destination Runtime ID
 	request["policy"] 			= policy;										// Unused, create an empty JsonObject
 	request["type"] 			= "token";										// What will be tunneled
-	request["msg_uuid"] 		= "MSG-12345678-1234-5678-1234-567812345678"; 	// Message ID <Created an hardcoded UUID>
+	request["msg_uuid"] 		= "MSG-12345678-9101-1123-1415-161718192021"; 	// Message ID <Created an hardcoded UUID>
 
 	if (request.success())
 	{
