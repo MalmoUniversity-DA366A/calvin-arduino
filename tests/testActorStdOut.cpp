@@ -70,20 +70,31 @@ TEST(ActorTest,actorFire){
 }
 
 TEST(ActorTest,testKeys){
-	ActorStdOut actorstd;
-	actor globalActor;
-	int* array;
-	globalActor = actorstd.getGlobalStruct();
-	globalActor.value[0].key = "ett";
-	globalActor.value[0].value[0].key="två";
-	globalActor.value[0].value[0].value[0].key="tre";
-	EXPECT_STREQ("tre",globalActor.value[0].value[0].value[0].key);
 	/*
-	array = actorstd.findKey("ett","två","tre");
-	EXPECT_EQ(0,array[0]);
+	ActorStdOut actorstd;
+	int8_t* array;
+	array = actorstd.searchForKeys("ett","sex","sju");
+	EXPECT_EQ(4,array[0]);
 	EXPECT_EQ(0,array[1]);
-	EXPECT_EQ(0,array[2]);
-	EXPECT_STREQ("tre",globalActor.value[array[0]].value[array[1]].value[array[2]].key);
+	EXPECT_EQ(3,array[2]);
+
+	main
+	globalActor.value[0].key = "e4tt";
+	globalActor.value[1].key = "e22tt";
+	globalActor.value[2].key = "etdt";
+	globalActor.value[3].key = "esstft";
+	globalActor.value[4].key = "ett";
+	globalActor.value[4].value[0].key = "sex";
+	globalActor.value[4].value[1].key = "se2x";
+	globalActor.value[4].value[2].key = "se2x";
+	globalActor.value[4].value[3].key = "s2ex";
+	globalActor.value[4].value[4].key = "se2x";
+
+	globalActor.value[4].value[0].value[0].key = "sex";
+	globalActor.value[4].value[0].value[1].key  = "se2x";
+	globalActor.value[4].value[0].value[2].key = "se2x";
+	globalActor.value[4].value[0].value[3].key  = "sju";
+	globalActor.value[4].value[0].value[4].key  = "se2x";
 	*/
 }
 

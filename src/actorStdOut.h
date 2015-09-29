@@ -14,6 +14,7 @@
 #include "ArduinoJson.h"
 
 #define standardOut(x)		strlen(x)
+#define ACTOR_SIZE			5
 
 extern "C"{
 
@@ -36,9 +37,11 @@ typedef struct actors{
 			struct fifos{
 				const char* key;
 				int length;
-			}value[5];
-		}value[5];
-	}value[5];
+				int (*pop)();		//Fifo pop and add
+				int (*add)();		//functions.
+			}value[ACTOR_SIZE];
+		}value[ACTOR_SIZE];
+	}value[ACTOR_SIZE];
 }actor;
 
 typedef struct TokenFifo{
@@ -48,18 +51,18 @@ typedef struct TokenFifo{
 }fifo;
 
 }
-
 using namespace std;
 class ActorStdOut
 {
-
 public:
 	uint8_t createActor(JsonObject &msg);
 	int createJson(void);
 	actor getGlobalStruct(void);
 	int actorFire(void);
 	uint32_t* findKey(const char*,const char*,const char*);
-	TokenFifo getActorStruct(void);
+	int8_t* searchForKeys(const char*,const char*,const char*);
+	int8_t search(const char*);
+	void initGlobalActor(void);
 };
 
 

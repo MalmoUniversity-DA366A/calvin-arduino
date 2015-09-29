@@ -12,10 +12,17 @@
 actor globalActor;
 fifo actorFifo;
 
+/**
+ * Current standard out is the lcd screen connected to arduino due
+ */
 int StdOut(){
-	const char* fifo;
-	fifo = globalActor.fifo;
-	return standardOut(fifo);
+	uint8_t inFifo;
+	inFifo = globalActor.value[0].value[0].value[0].length;
+	if(inFifo > 0)
+	{
+		;//pop token
+	}
+	return standardOut(globalActor.fifo);
 }
 
 /**
@@ -36,11 +43,15 @@ int actorInit(){
  */
 uint8_t ActorStdOut::createActor(JsonObject &msg){
 	int allOk = 0;
+	ActorStdOut::initGlobalActor();
 	globalActor.type = msg["type"];
 	globalActor.name = msg["name"];
 	globalActor.id = msg["id"];
 	globalActor.fifo = msg["fifo"];
+	globalActor.value[0].key = "inport";
+	globalActor.value[0].value[0].value[0].length = 0; //This is the port-fifo
 	globalActor.outport = "NULL";
+
 	actorInit();
 	allOk = 1;
 	return allOk;
@@ -64,59 +75,109 @@ int ActorStdOut::createJson(){
 	JsonObject &p_json = root;
 	ActorStdOut::createActor(p_json);
 	return allOk;
-
 }
 
-actor ActorStdOut::getGlobalStruct(){
+actor ActorStdOut::getGlobalStruct()
+{
 	return globalActor;
 }
 
-TokenFifo ActorStdOut::getActorStruct(){
-	return actorFifo;
-}
-
 /*
- * Search for keys in the actor struct, this version is the first
- * draft and it is in need of improvements.
+ * Search for keys in the actor struct. The actor struct is a struct
+ * with struct arrays in it, it has 3 levels so to search it 3 keys are
+ * needed.
+ * @return An arrays with positions of the found keys.
  */
-uint32_t* ActorStdOut::findKey(const char* key1, const char* key2, const char* key3){
-	static uint32_t keys[3] = {-1,-1,-1};
+int8_t* ActorStdOut::searchForKeys(const char* key1,const char* key2,
+		const char* key3)
+{
+	static int8_t keys[3] = {0,0,0};
 	int i;
-	i = 0;
-
-	while(i < 4){
-		if (!strcmp(key1,globalActor.value[i].key))
+	for( i = 0; i < ACTOR_SIZE; i++ ){
+		if(!strcmp(key1,globalActor.value[i].key))
 		{
 			keys[0] = i;
 		}
-		if(!strcmp(key2,globalActor.value[i].value[i].key))
+	}
+	for( i = 0; i < ACTOR_SIZE; i++ ){
+		if(!strcmp(key2,globalActor.value[keys[0]].value[i].key))
 		{
 			keys[1] = i;
 		}
-		if(!strcmp(key3,globalActor.value[i].value[i].value[i].key))
+	}
+	for( i = 0; i < ACTOR_SIZE; i++ ){
+		if(!strcmp(key3,globalActor.value[keys[0]].value[keys[1]].
+				value[i].key))
 		{
 			keys[2] = i;
 		}
-		++i;
 	}
-
 	return keys;
 }
+/**
+ * To be able to search thru the struct all keys
+ * needs a value, this method sets it to null.
+ */
+void ActorStdOut::initGlobalActor(){
+	int8_t i,j,k;
+	i = 0;
+	j = 0;
+	k = 0;
 
+	for(i ; i < ACTOR_SIZE; i++)
+	{
+		globalActor.value[i].key = "null";
+	}
+
+	i = 0;
+	for( i ; i < ACTOR_SIZE; i++ )
+		{
+		for( j ; j < ACTOR_SIZE ; j++ )
+		{
+			globalActor.value[i].value[j].key = "null";
+		}
+		}
+	i = 0;
+	j = 0;
+
+	for( i ; i < ACTOR_SIZE ; i++ )
+	{
+		for( j ; j < ACTOR_SIZE ; j++)
+		{
+			for( k ; k < ACTOR_SIZE ; k++)
+			{
+				globalActor.value[i].value[j].value[k].key = "null";
+			}
+		}
+	}
+}
+
+/**
+ * This Function initiate the fifo must be
+ * called prior to using the fifo.
+ */
 void initFifo(){
 	actorFifo.add = 0;
 	actorFifo.pop = 0;
 }
-
+/**
+ * Adds a new element to the fifo
+ * @return returns 0 if the fifo is full
+ */
 uint32_t fifoAdd(const char* element){
 	if(actorFifo.add > 5){
-		actorFifo.add = 0;
+		return 0;					//Fifo is full
 	}
 	actorFifo.buffer[actorFifo.add] = element;
 	++(actorFifo.add);
 	return 1;
 }
 
+/**
+ * Return and removes the oldest element in the fifo.
+ * @Return Returns fifo element, returns NULL if fifo is
+ * empty.
+ */
 const char* fifoPop(){
 	const char* ret;
 	if(actorFifo.pop == -1){
