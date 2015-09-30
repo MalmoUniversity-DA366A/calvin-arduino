@@ -125,7 +125,7 @@ String testJson::stringBuilderJsonObject(JsonObject &reply)
       {
           JsonArray &array = it->value.asArray();
           str += "[";
-          for(int i = 0; i < array.size(); i++)
+          for(unsigned int i = 0; i < array.size(); i++)
           {
               if(array.get(i).operator int())
               {

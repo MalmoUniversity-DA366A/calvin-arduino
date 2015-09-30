@@ -65,6 +65,11 @@ void calvinRuntime::setupConnection()
   }
 }
 
+/**
+ * Receive message from calvin base
+ * @param temp char pointer
+ * @return int
+ */
 int calvinRuntime::recvMsg(char *temp)
 {
   Serial.println("Reading..."); // Test purpose
@@ -74,6 +79,10 @@ int calvinRuntime::recvMsg(char *temp)
   return size;
 }
 
+/**
+ * Reply message to calvin base
+ * @param str char pointer
+ */
 void calvinRuntime::sendMsg(const char *str)
 {
   Serial.println("Sending..."); // Test purpose
@@ -84,7 +93,9 @@ void calvinRuntime::sendMsg(const char *str)
 }
 
 /**
- * Reply message to calvin base
+ * Create a reply message
+ * @param msg JsonObject
+ * @param reply JsonObject
  */
 void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
 {
@@ -94,6 +105,11 @@ void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
   reply["serializer"] = "json";
 }
 
+/**
+ * Handle all different messages
+ * @param msg JsonObject
+ * @param reply JsonObject
+ */
 void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply)
 {
   String str = msg["cmd"];
@@ -123,8 +139,7 @@ void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply)
   }
   else
   {
-      /*jprint(msg, prefix="UNKNOWN CMD")
-      return None*/
+      Serial.println("UNKNOWN CMD");
   }
 }
 
