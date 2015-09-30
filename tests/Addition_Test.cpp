@@ -19,7 +19,7 @@ class AdditionTest : public ::testing::Test {
     // (right before the destructor).
   }
 };
-
+/*
 TEST(AdditionTest,twoValues){
     const int x = 4;
     const int y = 5;
@@ -32,5 +32,5 @@ TEST(AdditonTest,twoValues){
 	Addition addition;
 	EXPECT_EQ(2,addition.twoValues(1,1));
 }
-
+*/
 #endif

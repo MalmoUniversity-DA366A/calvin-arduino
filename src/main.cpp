@@ -144,6 +144,10 @@ int main(void) {
 
 #include "gtest/gtest.h"
 
+/**
+ * This main function launch all the test that is written for the project
+ * it only runs if the project is compiled and runne'd in mocking mode
+ */
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

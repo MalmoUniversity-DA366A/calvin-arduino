@@ -4,3 +4,7 @@ language.settings.xml
 
 /Mock2/
 /Mock/
+/.settings/
+.cproject
+.project
+Calvin.exe.stackdump
