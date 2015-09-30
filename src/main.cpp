@@ -82,24 +82,17 @@ void init_board(){
 void testJsonCode(void)
 {
   char temp[MAX_LENGTH+1]; // Make room for NULL terminator
-  //while(true)
-  //{
-      String str = "";
+  String str = "";
 
-      int size = Serial.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
-      temp[size-1] = '\0';
-      Serial.println(temp); // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
-      if(size)              // or      {"sensor":"gps","time":"flies"}
-      {
-          // Json to String
-          //str = jsonUnserialize(temp);
-          //printJson(str);     // Prints: {"sensor":"gps","time":"flies"}
-
-          // String to Json
-          str = jsonSerialize(temp);
-          Serial.println(str);  // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
-      }
-    //}
+  int size = Serial.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
+  temp[size-1] = '\0';
+  Serial.println(temp); // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
+  if(size)              // or      {"sensor":"gps","time":"flies"}
+  {
+      // String to Json
+      str = jsonSerialize(temp);
+      Serial.println(str);  // Prints: {\"sensor\":\"gps\",\"time\":\"flies\"}
+  }
 }
 
  /**
@@ -122,7 +115,7 @@ void printMyIp()
 	Serial.print("My IP address: ");
 	for (byte thisByte = 0; thisByte < 4; thisByte++)
 	{
-		// print the value of each byte of the IP address:
+	    // print the value of each byte of the IP address:
     	Serial.print(Ethernet.localIP()[thisByte], DEC);
     	Serial.print(".");
     }

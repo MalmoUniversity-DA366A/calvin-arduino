@@ -22,7 +22,9 @@ make
 Download the latest relase of GoogleTest from [here](https://code.google.com/p/googletest/downloads/list) extract the files into C:\Development
 (if u choose a diffrent directory don't forget to change the compiler include path in Eclipse )
 Open the Cygwin terminal, cd to GoogleTest make directory on your drive (c:/<<yourpath>>/gtest-1.7.0/make/)
-Type make to build the project. Then create an archived library out of the gtest-all.o file:ar -rv libgtest.a gtest-all.o
+Type "make" to build the project. Then create an archived library out of the gtest-all.o file.
+Type the following in the terminal:
+ar -rv libgtest.a gtest-all.o
 
 
 ###Step 4 Add the Cygwin bin directory to the computers PATH
@@ -48,3 +50,84 @@ Project should be Calvin. Click on the C/C++ Testing tap and choose Google Test 
 Click appaly and Run.
 Now watch the automagic.
 
+#Eclipse with google test for Mac os
+This guide will describe how to install gtest for eclipse under Max OS,
+for develop Arduino library. It will focus on a already existing project
+and the Arduino Due board.
+
+This guide is based on [Ole Bakstad](http://dibon.net/2013/04/getting-started-with-gtest-in-eclipse-juno-under-mac-os/) guide. 
+
+###Step 1 
+
+First install the test runner as explained above.
+
+Installing gtest-1.7.0 from
+[here](https://code.google.com/p/googletest/downloads/list) and follow this instruction.
+
+From terminal navigate to the download location
+```
+* unzip gtest-1.7.0
+
+* cd ~/Downloads/gtest-1.7.0
+
+* ./configure && make
+
+* sudo cp ~/Downloads/gtest-1.7.0/lib/.libs/*.a /usr/local/lib/
+
+* sudo cp -R ~/Downloads/gtest-1.7.0/include/ /usr/local/include/
+```
+
+###Step 2
+
+Right click on your project and click *Properties* and navigate to
+*“C/C++ Build” &gt; “Settings”. Under “GCC C++ Compiler” &gt;
+“Includes”* add *”/usr/local/include”* as an include.
+
+![Include](http://i.imgur.com/Lo2vV0K.jpg)
+
+In the preprocessor there is also necessary to remove *ARDUINO* and add *\_MOCK\_*. 
+
+![Preprocessor](http://i.imgur.com/vQrSQbg.jpg)
+
+Under *“MacOS X C++ Linker” &gt; “Libraries”* add *gtest* as libraries
+and *”/usr/local/lib”* as library search path.
+
+![Libraries](http://i.imgur.com/AjPrUsO.jpg)
+
+The GCC C compiler need a twist to, the same as för GCC C++ compiler but this time in Symbols. 
+
+![Symbols](http://i.imgur.com/43IQngV.jpg)
+
+Well in properties go to *Tool Chain Editor* and change the toolchain to
+*MacOSX GCC,* then this is the one used to make gtest in the beginning.
+
+![Toolchain](http://i.imgur.com/QhhQo8o.jpg)
+
+###Step 3
+
+With that sorted we’ll soon be ready to write some tests, but we still
+miss two things: the build and run configurations.
+
+To create a test build target right click on your project and navigate
+to *“Build configurations” &gt; “Manage…”. Click “New”* and give it an
+appropriate name, I’m calling mine *“UnitTest”* and choosing to copy
+settings from *“Debug”*.
+
+![Build configurations](http://i.imgur.com/n5ArzYk.jpg)
+
+Before you do anything else we must exclude the system folder from
+build, the system folder is used when flashing to the Arduino card. Just
+right clicking the *system* folder and selecting *“Resource
+Configurations” &gt; “Exclude from Build…”* and check *UnitTest*.
+
+![Exclude system from UnitTest build](http://i.imgur.com/f8lbuwh.jpg)
+
+Click *“Run” &gt; “Run Configurations…”* and click on *C/C++ Unit* in
+the menu. Now create a new configuration named *“UnitTest”* and browse
+to the location of your built binary under the *“UnitTest”* build
+folder, for me the path was
+*”\~/Documents/workspace/calvin-arduino/UnitTest/calvin-arduino.elf”*.
+Select your project and under *“C/C++ Testing”* select *Google Tests
+Runner* and press *Run*.
+
+![Test runner](http://i.imgur.com/tFefTQj.jpg)
