@@ -24,9 +24,9 @@ TEST(test_setupTunnel, handleSetupTunnel) {
 	// Create an empty JsonObject with an StaticJsonBuffer
 	StaticJsonBuffer<300> jsonBuffer;
 	JsonObject &request = jsonBuffer.createObject();
-
 	JsonObject &msg = jsonBuffer.createObject();
 
+	// Add a string value to msg_uuid key
 	msg["msg_uuid"] = "123456789";
 
 	// Test for initiate the method so that the empty JsonObject is being filled,
@@ -39,12 +39,15 @@ TEST(test_setupTunnel, handleSetupTunnel) {
 	// Test for checking if the string value in the JsonObject is equal to the set string
 	EXPECT_STREQ("MSG-12345678-9101-1123-1415-161718192021", request.get("msg_uuid"));
 	EXPECT_STREQ("calvin-miniscule", request.get("from_rt_uuid"));
-	EXPECT_STREQ(msg["msg_uuid"], request.get("to_rt_uuid"));
+	EXPECT_STREQ(msg.get("msg_uuid"), request.get("to_rt_uuid"));
 	EXPECT_STREQ("TUNNEL_NEW", request.get("cmd"));
 	EXPECT_STREQ("fake-tunnel", request.get("tunnel_id"));
 	EXPECT_STREQ("token", request.get("type"));
 
+	// Checks if JsonObject contains the following keys
 	EXPECT_TRUE(request.containsKey("policy"));
+
+	// Checks if the JsonObject policy is size 0
 	EXPECT_EQ(0, request.get("policy").size());
 }
 
@@ -70,8 +73,6 @@ TEST(test_setupTunnel, handleTunnelData) {
 
 
 	// Test for checking if the string value in the JsonObject is equal to the set string
-
-	// This test isn't fulfilled because I don't think the dummy JsonObject isn't working correctl
 	EXPECT_STREQ("5678", reply.get("to_rt_uuid"));
 	EXPECT_STREQ("1234", reply.get("from_rt_uuid"));
 

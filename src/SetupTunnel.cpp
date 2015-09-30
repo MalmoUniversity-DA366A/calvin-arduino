@@ -21,15 +21,13 @@ uint32_t SetupTunnel::handleSetupTunnel(JsonObject &msg, JsonObject &request)
 	StaticJsonBuffer<1000> buffer;
 	JsonObject &policy = buffer.createObject();
 
-	const char* msg_uuid = msg["msg_uuid"];
-
-	request["from_rt_uuid"] 	= "calvin-miniscule"; 							// Runtime ID
-	request["cmd"] 				= "TUNNEL_NEW";									// Command
-	request["tunnel_id"] 		= "fake-tunnel";								// Tunnel ID
-	request["to_rt_uuid"] 		= msg_uuid;										// Destination Runtime ID
-	request["policy"] 			= policy;										// Unused, create an empty JsonObject
-	request["type"] 			= "token";										// What will be tunneled
-	request["msg_uuid"] 		= "MSG-12345678-9101-1123-1415-161718192021"; 	// Message ID <Created an hardcoded UUID>
+	request.set("from_rt_uuid", 	"calvin-miniscule");
+	request.set("cmd", 				"TUNNEL_NEW");
+	request.set("tunnel_id",  		"fake-tunnel");
+	request.set("to_rt_uuid",  		msg.get("msg_uuid"));
+	request.set("policy", 			policy);
+	request.set("type",				"token");
+	request.set("msg_uuid", 		"MSG-12345678-9101-1123-1415-161718192021");
 
 	if (request.success())
 	{
@@ -51,14 +49,11 @@ uint32_t SetupTunnel::handleSetupTunnel(JsonObject &msg, JsonObject &request)
  */
 uint32_t SetupTunnel::handleTunnelData(JsonObject &msg, JsonObject &reply)
 {
-	const char* to_rt_uuid = msg["to_rt_uuid"];
-	const char* from_rt_uuid = msg["from_rt_uuid"];
-
-	reply["to_rt_uuid"] 	= from_rt_uuid;
-	reply["from_rt_uuid"] 	= to_rt_uuid;
-	reply["cmd"] 			= "TUNNEL_DATA";
-	reply["tunnel_id"] 		= "fake-tunnel";
-	reply["value"]			= "foo";				// Dummy string instead of value variable that is created from the handle_msg() function
+	reply.set("to_rt_uuid", 	msg.get("from_rt_uuid"));
+	reply.set("from_rt_uuid", 	msg.get("to_rt_uuid"));
+	reply.set("cmd", 			"TUNNEL_DATA");
+	reply.set("tunnel_id",		"fake-tunnel");
+	reply.set("value",			"foo");
 
 	if (reply.success())
 	{
