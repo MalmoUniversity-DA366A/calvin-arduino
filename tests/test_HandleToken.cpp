@@ -41,9 +41,10 @@ TEST(test_HandleToken, handleToken) {
 	EXPECT_TRUE(reply.containsKey("peer_port_id"));
 	EXPECT_TRUE(reply.containsKey("value"));
 
-	//
+	// Checks if the JsonObject is the correct size
 	EXPECT_EQ(5, reply.size());
 
+	// Checks if the reply value is correct
 	EXPECT_STREQ("TOKEN_REPLY", reply.get("cmd"));
 	EXPECT_STREQ(msg.get("sequencenbr"), reply.get("sequencenbr"));
 	EXPECT_STREQ("4321", reply.get("port_id"));
