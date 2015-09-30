@@ -15,7 +15,7 @@ byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
 IPAddress ip(192,168,1,146);
 IPAddress gateway( 192,168,1,1 );
 IPAddress subnet( 255,255,255,0 );
-uint16_t slaveport = 1337;
+uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
 String messages_in[] = {};
@@ -39,12 +39,6 @@ void calvinRuntime::setupConnection()
       client = server.available();
       if(client) // Wait for client
       {
-          /*if(socket(s, SnMR::TCP, 5001, 0))
-            {
-              Serial.println("socket");
-            }*/
-          /*Serial.println("socketStatus");
-          Serial.println(socketStatus(s));*/
           char temp[MAX_LENGTH+1];
           int size = recvMsg(temp);
           if(size)

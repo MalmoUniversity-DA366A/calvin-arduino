@@ -68,10 +68,6 @@ int main(void) {
 
 	init_board();
 	Serial.begin(115200);
-/*
-	telnet tel;
-	tel.setupSocket();
-	tel.loopSocket();*/
 	calvinRuntime json;
 	json.setupConnection();
 
@@ -87,6 +83,7 @@ int main(void) {
 	JsonObject &root = jsonBuffer.parseObject(json);
 	String str = test.buildStringFromJsonObject(root);
 	Serial.println(str);*/
+	// End test
 }
 #else
 
