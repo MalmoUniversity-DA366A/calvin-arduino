@@ -12,7 +12,7 @@
 
 class Token {
 public:
-	void handleToken(JsonObject &msg, JsonObject &reply);
+	int handleToken(JsonObject &msg, JsonObject &reply);
 };
 
 #endif /* TOKEN_H_ */
