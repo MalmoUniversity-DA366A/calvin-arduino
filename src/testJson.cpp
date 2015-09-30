@@ -107,7 +107,7 @@ char* testJson::jsonSerialize(const char *str)
  * @param reply JsonObject
  * @return String
  */
-String testJson::buildStringFromJsonObject(JsonObject &reply)
+String testJson::stringBuilderJsonObject(JsonObject &reply)
 {
   String str = "{";
   unsigned int count = 0;

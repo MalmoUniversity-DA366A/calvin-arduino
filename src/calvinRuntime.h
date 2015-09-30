@@ -14,6 +14,9 @@ public:
   void printIp(void);
   void getIPFromRouter(void);
   void handleJoin(JsonObject &msg, JsonObject &reply);
+  void handleMsg(JsonObject &msg, JsonObject &reply);
+  int recvMsg(char *temp);
+  void sendMsg(const char *str);
 
 private:
 };

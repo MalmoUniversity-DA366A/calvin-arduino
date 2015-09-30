@@ -10,15 +10,17 @@
 #include "testJson.h"
 #include <socket.h>
 
-byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
-IPAddress ip(192,168,1,202);
+//byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
+IPAddress ip(192,168,1,146);
 IPAddress gateway( 192,168,1,1 );
 IPAddress subnet( 255,255,255,0 );
-uint16_t slaveport = 5001;
+uint16_t slaveport = 1337;
 EthernetServer server(slaveport);
 EthernetClient client;
 String messages_in[] = {};
 String messages_out[] = {};
+testJson json;
 SOCKET s;
 
 /**
@@ -32,30 +34,21 @@ void calvinRuntime::setupConnection()
   Ethernet.begin(mac, ip);
   printIp(); // Test purpose
   server.begin();
-  testJson json;
   while(true)
   {
       client = server.available();
       if(client) // Wait for client
       {
-          if(socket(s, SnMR::TCP, 5001, 0))
+          /*if(socket(s, SnMR::TCP, 5001, 0))
             {
               Serial.println("socket");
-            }
-          Serial.println("socketStatus");
-          Serial.println(socketStatus(s));
-          if(listen(s))
-            {
-              Serial.println("listen");
-            }
-
-          Serial.println("Reading..."); // Test purpose
+            }*/
+          /*Serial.println("socketStatus");
+          Serial.println(socketStatus(s));*/
           char temp[MAX_LENGTH+1];
-          int size = client.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
-          temp[size-1] = '\0';  // Null terminate char
+          int size = recvMsg(temp);
           if(size)
           {
-              Serial.println(temp); // Print content for test purpose
               // Jsonobject that holds all values
               StaticJsonBuffer<200> jsonBufferMsg;
               JsonObject &msg = jsonBufferMsg.parseObject(temp);
@@ -64,24 +57,36 @@ void calvinRuntime::setupConnection()
               // JsonObject for replying a fixed message
               StaticJsonBuffer<200> jsonBufferReply;
               JsonObject &reply = jsonBufferReply.createObject();
-              handleJoin(msg,reply);
+              handleMsg(msg, reply);
 
               // Print JsonObject to a string
-              String str = json.buildStringFromJsonObject(reply);
+              String str = json.stringBuilderJsonObject(reply);
 
-              // Serialize Json message from string
-              char *jsonChar = json.jsonSerialize(str.c_str());
+              // Serialize Json message and replay to calvin base
               delay(100);
-
-              // Replay to calvin base
-              Serial.println("Sending..."); // Test purpose
-              server.write(jsonChar);
-              delete[] jsonChar;
-              jsonChar = 0;
+              sendMsg(str.c_str());
               delay(100);
           }
       }
   }
+}
+
+int calvinRuntime::recvMsg(char *temp)
+{
+  Serial.println("Reading..."); // Test purpose
+  int size = client.readBytesUntil(TERMINATOR, temp, MAX_LENGTH);
+  temp[size-1] = '\0';  // Null terminate char
+  Serial.println(temp); // Print content for test purpose
+  return size;
+}
+
+void calvinRuntime::sendMsg(const char *str)
+{
+  Serial.println("Sending..."); // Test purpose
+  char *jsonChar = json.jsonSerialize(str);
+  server.write(jsonChar);
+  delete[] jsonChar;
+  jsonChar = 0;
 }
 
 /**
@@ -93,6 +98,40 @@ void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
   reply["id"] = "calvin-miniscule";
   reply["sid"] = *msg["sid"];
   reply["serializer"] = "json";
+}
+
+void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply)
+{
+  String str = msg["cmd"];
+  if(strcmp(str.c_str(),"JOIN_REQUEST") == 0)
+  {
+      handleJoin(msg,reply);
+  }
+  if(strcmp(str.c_str(),"ACTOR_NEW") == 0)
+  {
+
+  }
+  if(strcmp(str.c_str(),"TUNNEL_DATA") == 0)
+  {
+
+  }
+  if(strcmp(str.c_str(),"TOKEN") == 0)
+  {
+
+  }
+  if(strcmp(str.c_str(),"TOKEN_REPLY") == 0)
+  {
+
+  }
+  if(strcmp(str.c_str(),"REPLY") == 0)
+  {
+
+  }
+  else
+  {
+      /*jprint(msg, prefix="UNKNOWN CMD")
+      return None*/
+  }
 }
 
 /**
@@ -118,7 +157,7 @@ void calvinRuntime::getIPFromRouter()
     {
         Serial.println("Failed to configure Ethernet using DHCP");
         // Set static IP-address if fail
-        Ethernet.begin(mac, ip, gateway, gateway, subnet);
+        Ethernet.begin(mac, ip);
     }
 }
 #endif

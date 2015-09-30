@@ -72,12 +72,12 @@ int main(void) {
 	telnet tel;
 	tel.setupSocket();
 	tel.loopSocket();*/
-	/*calvinRuntime json;
-	json.setupConnection();*/
+	calvinRuntime json;
+	json.setupConnection();
 
 	// Start test
-	testJson test;
-	StaticJsonBuffer<200> jsonBuffer;
+	/*testJson test;
+	StaticJsonBuffer<200> jsonBuffer;*/
 	// Test 1
 	/*JsonObject &root = jsonBuffer.createObject();
 	test.test(root);

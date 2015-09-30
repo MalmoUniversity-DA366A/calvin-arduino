@@ -12,6 +12,6 @@ public:
   int checkJson(JsonObject &root);
   String jsonDeserialize(char *temp);
   char* jsonSerialize(const char *str);
-  String buildStringFromJsonObject(JsonObject &reply);
+  String stringBuilderJsonObject(JsonObject &reply);
 private:
 };
