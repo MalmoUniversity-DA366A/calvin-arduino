@@ -164,12 +164,14 @@ void initFifo(){
  * Adds a new element to the fifo
  * @return returns 0 if the fifo is full
  */
-uint32_t fifoAdd(const char* element){
-	if(actorFifo.add > 5){
-		return 0;					//Fifo is full
+int fifoAdd(const char* element){
+
+	if(actorFifo.add == ((actorFifo.pop - 1 + QUEUE_SIZE) % QUEUE_SIZE)){
+		return -1;
 	}
 	actorFifo.buffer[actorFifo.add] = element;
-	++(actorFifo.add);
+	(++actorFifo.add);
+
 	return 1;
 }
 
@@ -179,15 +181,15 @@ uint32_t fifoAdd(const char* element){
  * empty.
  */
 const char* fifoPop(){
+
 	const char* ret;
-	if(actorFifo.pop == -1){
-		return "NULL";				//Nothing in fifo operation failed
+	if(actorFifo.add == actorFifo.pop)
+	{
+		return "NULL";				//Fifo full
 	}
-	if(actorFifo.pop > 5){
-		actorFifo.pop = 0;
-	}
+
 	ret = actorFifo.buffer[actorFifo.pop];
-	++(actorFifo.pop);
+	(++actorFifo.pop);
 	return ret;
 }
 

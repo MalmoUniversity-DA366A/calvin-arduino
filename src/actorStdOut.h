@@ -15,11 +15,12 @@
 
 #define standardOut(x)		strlen(x)
 #define ACTOR_SIZE			5
+#define QUEUE_SIZE			10
 
 extern "C"{
 
 void initFifo(void);
-uint32_t fifoAdd(const char*);
+int fifoAdd(const char*);
 const char* fifoPop();
 
 typedef struct actors{
@@ -45,9 +46,9 @@ typedef struct actors{
 }actor;
 
 typedef struct TokenFifo{
-	const char *buffer[5];
-	int8_t add;
-	int8_t pop;
+	const char *buffer[6];
+	int add;
+	int pop;
 }fifo;
 
 }
