@@ -193,6 +193,15 @@ const char* fifoPop(){
 	return ret;
 }
 
+int ActorStdOut::process(const char* token){
+	uint8_t allOk;
+	allOk = 0;
+
+
+	allOk = 1;
+	return allOk;
+}
+
 
 
 

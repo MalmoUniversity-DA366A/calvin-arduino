@@ -64,6 +64,7 @@ public:
 	int8_t* searchForKeys(const char*,const char*,const char*);
 	int8_t search(const char*);
 	void initGlobalActor(void);
+	int process(const char*);
 };
 
 
