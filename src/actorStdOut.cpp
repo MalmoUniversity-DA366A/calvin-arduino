@@ -33,6 +33,11 @@ int StdOut(){
 extern "C"{
 int actorInit(){
 	globalActor.function = &StdOut;
+
+	/*This sets up the fifo for the actor, not sure
+	 *if it should be done here but for now it works*/
+	globalActor.value[0].value[0].value[0].add = &fifoAdd;
+	globalActor.value[0].value[0].value[0].pop = &fifoPop;
 }
 }
 
@@ -191,6 +196,19 @@ const char* fifoPop(){
 	ret = actorFifo.buffer[actorFifo.pop];
 	(++actorFifo.pop);
 	return ret;
+}
+/**
+ * Process an incomming token and add the token data to
+ * an actor fifo.
+ * @param Token data as a string
+ * @return if data vas added to fifo this function returns
+ * 1, if something went wrong it returns 0.
+ */
+int ActorStdOut::process(const char* token){
+	int allOk;
+	allOk = 0;
+	allOk = globalActor.value[0].value[0].value[0].add(token);
+	return allOk;
 }
 
 

@@ -69,6 +69,16 @@ TEST(ActorTest,actorFire){
 	EXPECT_EQ(2,globalActor.function());
 }
 
+TEST(ActorTest,processTest){
+	ActorStdOut actorstd;
+	EXPECT_EQ(1,actorstd.process("Test1"));
+	EXPECT_EQ(1,actorstd.process("Test2"));
+	EXPECT_EQ(1,actorstd.process("Test3"));
+	EXPECT_STREQ("Test1",fifoPop());
+	EXPECT_STREQ("Test2",fifoPop());
+	EXPECT_STREQ("Test3",fifoPop());
+}
+
 TEST(ActorTest,testKeys){
 	/*
 	ActorStdOut actorstd;

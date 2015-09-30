@@ -38,8 +38,8 @@ typedef struct actors{
 			struct fifos{
 				const char* key;
 				int length;
-				int (*pop)();		//Fifo pop and add
-				int (*add)();		//functions.
+				const char* (*pop)();		//Fifo pop and add
+				int (*add)(const char*);		//functions.
 			}value[ACTOR_SIZE];
 		}value[ACTOR_SIZE];
 	}value[ACTOR_SIZE];
@@ -64,6 +64,7 @@ public:
 	int8_t* searchForKeys(const char*,const char*,const char*);
 	int8_t search(const char*);
 	void initGlobalActor(void);
+	int process(const char*);
 };
 
 
