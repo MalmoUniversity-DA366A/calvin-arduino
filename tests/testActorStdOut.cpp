@@ -79,6 +79,10 @@ TEST(ActorTest,processTest){
 	EXPECT_STREQ("Test3",fifoPop());
 }
 
+/**
+ * I need to figure out how to make the actorstruct
+ * global before these tests can be runned.
+ */
 TEST(ActorTest,testKeys){
 	/*
 	ActorStdOut actorstd;
@@ -119,34 +123,7 @@ TEST(ActorTest,TestFifo){
 	EXPECT_EQ(1,fifoAdd("Saker"));
 	EXPECT_STREQ("Hej",fifoPop());
 	EXPECT_STREQ("Saker",fifoPop());
-	/*
-	EXPECT_EQ(1,fifoAdd("Andre"));
-	EXPECT_EQ(1,fifoAdd("Daniel"));
-	EXPECT_EQ(1,fifoAdd("Hej"));
-	EXPECT_EQ(1,fifoAdd("Saker"));
-	EXPECT_EQ(1,fifoAdd("Som"));
-	EXPECT_EQ(-1,fifoAdd("ser"));   //Testign if fifo return 0 when full
-	EXPECT_EQ(-1,fifoAdd("ser"));
 
-	EXPECT_STREQ("Andre",fifoPop());
-	EXPECT_STREQ("Daniel",fifoPop());
-	EXPECT_STREQ("Hej",fifoPop());
-	EXPECT_STREQ("Saker",fifoPop());
-	EXPECT_STREQ("Som",fifoPop());
-
-
-
-	EXPECT_EQ(1,fifoAdd("First"));
-	EXPECT_STREQ("First",fifoPop());
-	/*
-	EXPECT_EQ(1,fifoAdd("Second"));
-	EXPECT_STREQ("Second",fifoPop());
-
-
-	EXPECT_EQ(1,fifoAdd("Second"));
-	EXPECT_STREQ("First",fifoPop());
-	EXPECT_EQ(1,fifoAdd("Third"));
-	*/
 }
 
 
