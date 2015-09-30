@@ -72,6 +72,7 @@ TEST(ActorTest,actorFire){
 TEST(ActorTest,processTest){
 	ActorStdOut actorstd;
 	EXPECT_EQ(1,actorstd.process("Test"));
+	EXPECT_STREQ("Test",fifoPop());
 }
 
 TEST(ActorTest,testKeys){

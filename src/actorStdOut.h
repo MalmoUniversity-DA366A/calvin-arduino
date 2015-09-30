@@ -38,8 +38,8 @@ typedef struct actors{
 			struct fifos{
 				const char* key;
 				int length;
-				int (*pop)();		//Fifo pop and add
-				int (*add)();		//functions.
+				const char* (*pop)();		//Fifo pop and add
+				int (*add)(const char*);		//functions.
 			}value[ACTOR_SIZE];
 		}value[ACTOR_SIZE];
 	}value[ACTOR_SIZE];
