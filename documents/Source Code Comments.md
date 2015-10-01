@@ -25,7 +25,7 @@ comments. This is done by choosing *Mode -&gt; all entities*. Doxygen
 ignores comments done with // some comment here, and /\* some comment
 here \*/. A plain HTML (.html) document is constructed and the completed
 document is then converted to Markdown (.md) with a program called
-PanDoc (<https://github.com/jgm/pandoc/releases/tag/1.15.0.6)>. PanDoc
+PanDoc (<https://github.com/jgm/pandoc/releases/tag/1.15.0.6>). PanDoc
 uses cmd/terminal code. To convert from .html to .md, write:
 
 *pandoc -f html -t markdown\_strict filenameToReadFrom.html -s -o
