@@ -125,12 +125,12 @@ void printMyIp()
 int main(void) {
 
 	init_board();
-	testRunner();
+	//testRunner();
 	Serial.begin(115200);
 	testJsonCode();
 
-  // Test function for blink L LED on Due connected to pin 13
-  blinkLED();
+	// Test function for blink L LED on Due connected to pin 13
+	//blinkLED();
 }
 
 #else
