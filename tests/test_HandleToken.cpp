@@ -16,7 +16,7 @@ protected:
 };
 
 // A test method for testing the handleToken function
-TEST(test_HandleToken, handleToken) {
+TEST(test_HandleToken, tokenContainsKey) {
 	// Create an instance of the Token
 	Token token;
 
@@ -40,9 +40,47 @@ TEST(test_HandleToken, handleToken) {
 	EXPECT_TRUE(reply.containsKey("port_id"));
 	EXPECT_TRUE(reply.containsKey("peer_port_id"));
 	EXPECT_TRUE(reply.containsKey("value"));
+}
+
+TEST(test_HandleToken, tokenSize) {
+	// Create an instance of the Token
+	Token token;
+
+	// Create two empty JsonObject with an StaticJsonBuffer
+	StaticJsonBuffer<400> jsonBuffer;
+	JsonObject &reply = jsonBuffer.createObject();
+	JsonObject &msg = jsonBuffer.createObject();
+
+	// Add String values for testing, remove in the final project.
+	msg["sequencenbr"] = "1234";
+	msg["port_id"] = "4321";
+	msg["peer_port_id"] = "5678";
+
+	// Initiate the handleToken function so that JsonObject reply
+	// is filled.
+	token.handleToken(msg, reply);
 
 	// Checks if the JsonObject is the correct size
 	EXPECT_EQ(5, reply.size());
+}
+
+TEST(test_HandleToken, tokenStringValue) {
+	// Create an instance of the Token
+	Token token;
+
+	// Create two empty JsonObject with an StaticJsonBuffer
+	StaticJsonBuffer<400> jsonBuffer;
+	JsonObject &reply = jsonBuffer.createObject();
+	JsonObject &msg = jsonBuffer.createObject();
+
+	// Add String values for testing, remove in the final project.
+	msg["sequencenbr"] = "1234";
+	msg["port_id"] = "4321";
+	msg["peer_port_id"] = "5678";
+
+	// Initiate the handleToken function so that JsonObject reply
+	// is filled.
+	token.handleToken(msg, reply);
 
 	// Checks if the reply value is correct
 	EXPECT_STREQ("TOKEN_REPLY", reply.get("cmd"));
