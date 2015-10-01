@@ -13,7 +13,7 @@
  */
 void Token::handleToken(JsonObject &msg, JsonObject &reply)
 {
-	// Add process() here!!!!!!!
+	// Add process() here after mergin to develop
 	reply.set("cmd", 			"TOKEN_REPLY");
 	reply.set("sequencenbr", 	msg.get("sequencenbr"));
 	reply.set("port_id",		msg.get("port_id"));
