@@ -70,12 +70,20 @@ TEST(ActorTest,actorFire){
 	EXPECT_EQ(2,globalActor.function());
 }
 
+/**
+ *Tests if tokens can be processed
+ */
 TEST(ActorTest,processTest){
 	ActorStdOut actorstd;
 	actorInit();
 	EXPECT_EQ(0,actorstd.process("Test1"));
 	EXPECT_EQ(0,actorstd.process("Test2"));
 	EXPECT_EQ(0,actorstd.process("Test3"));
+	EXPECT_EQ(0,actorstd.process("Test1"));
+	EXPECT_EQ(0,actorstd.process("Test2"));
+	EXPECT_EQ(0,actorstd.process("Test3"));
+	EXPECT_EQ(0,actorstd.process("Test2"));
+	EXPECT_EQ(-1,actorstd.process("Test3"));
 
 }
 
@@ -85,6 +93,31 @@ TEST(ActorTest,processTest){
  * global before these tests can be runned.
  */
 TEST(ActorTest,testKeys){
+	actor globalActor;
+	ActorStdOut actorstd;
+	int8_t* array;
+
+	globalActor.value[0].key = "e4tt";
+	globalActor.value[1].key = "e22tt";
+	globalActor.value[2].key = "etdt";
+	globalActor.value[3].key = "esstft";
+	globalActor.value[4].key = "ett";
+	globalActor.value[4].value[0].key = "sex";
+	globalActor.value[4].value[1].key = "se2x";
+	globalActor.value[4].value[2].key = "se2x";
+	globalActor.value[4].value[3].key = "s2ex";
+	globalActor.value[4].value[4].key = "se2x";
+
+	globalActor.value[4].value[0].value[0].key = "sex";
+	globalActor.value[4].value[0].value[1].key  = "se2x";
+	globalActor.value[4].value[0].value[2].key = "se2x";
+	globalActor.value[4].value[0].value[3].key  = "sju";
+	globalActor.value[4].value[0].value[4].key  = "se2x";
+
+	array = actorstd.searchForKeys(&globalActor,"ett","sex","sju");
+	EXPECT_EQ(4,array[0]);
+	EXPECT_EQ(1,array[1]);
+	EXPECT_EQ(3,array[2]);
 	/*
 	ActorStdOut actorstd;
 	int8_t* array;

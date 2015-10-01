@@ -65,10 +65,9 @@ public:
 	int createJson(void);
 	actor getGlobalStruct(void);
 	int actorFire(void);
-	uint32_t* findKey(const char*,const char*,const char*);
-	int8_t* searchForKeys(const char*,const char*,const char*);
+	int8_t* searchForKeys(actor* act,const char*,const char*,const char*);
 	int8_t search(const char*);
-	void initGlobalActor(void);
+	void initGlobalActor(actor*);
 	int process(const char*);
 	int lengthOfData(fifo*);
 };

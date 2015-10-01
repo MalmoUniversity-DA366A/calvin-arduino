@@ -50,7 +50,7 @@ int actorInit(){
  */
 uint8_t ActorStdOut::createActor(JsonObject &msg){
 	int allOk = 0;
-	ActorStdOut::initGlobalActor();
+	ActorStdOut::initGlobalActor(&globalActor);
 	globalActor.type = msg["type"];
 	globalActor.name = msg["name"];
 	globalActor.id = msg["id"];
@@ -95,25 +95,25 @@ actor ActorStdOut::getGlobalStruct()
  * needed.
  * @return An arrays with positions of the found keys.
  */
-int8_t* ActorStdOut::searchForKeys(const char* key1,const char* key2,
+int8_t* ActorStdOut::searchForKeys(actor* act,const char* key1,const char* key2,
 		const char* key3)
 {
 	static int8_t keys[3] = {0,0,0};
 	int i;
 	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key1,globalActor.value[i].key))
+		if(!strcmp(key1,act->value[i].key))
 		{
 			keys[0] = i;
 		}
 	}
 	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key2,globalActor.value[keys[0]].value[i].key))
+		if(!strcmp(key2,act->value[keys[0]].value[i].key))
 		{
 			keys[1] = i;
 		}
 	}
 	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key3,globalActor.value[keys[0]].value[keys[1]].
+		if(!strcmp(key3,act->value[keys[0]].value[keys[1]].
 				value[i].key))
 		{
 			keys[2] = i;
@@ -125,7 +125,7 @@ int8_t* ActorStdOut::searchForKeys(const char* key1,const char* key2,
  * To be able to search thru the struct all keys
  * needs a value, this method sets it to null.
  */
-void ActorStdOut::initGlobalActor(){
+void ActorStdOut::initGlobalActor(actor *act){
 	int8_t i,j,k;
 	i = 0;
 	j = 0;
@@ -133,7 +133,7 @@ void ActorStdOut::initGlobalActor(){
 
 	for(i ; i < ACTOR_SIZE; i++)
 	{
-		globalActor.value[i].key = "null";
+		act->value[i].key = "null";
 	}
 
 	i = 0;
@@ -141,7 +141,7 @@ void ActorStdOut::initGlobalActor(){
 		{
 		for( j ; j < ACTOR_SIZE ; j++ )
 		{
-			globalActor.value[i].value[j].key = "null";
+			act->value[i].value[j].key = "null";
 		}
 		}
 	i = 0;
@@ -153,7 +153,7 @@ void ActorStdOut::initGlobalActor(){
 		{
 			for( k ; k < ACTOR_SIZE ; k++)
 			{
-				globalActor.value[i].value[j].value[k].key = "null";
+				act->value[i].value[j].value[k].key = "null";
 			}
 		}
 	}
