@@ -73,15 +73,18 @@ int main(void) {
 
 	// Start test
 	/*testJson test;
-	StaticJsonBuffer<200> jsonBuffer;*/
+	StaticJsonBuffer<2000> jsonBuffer;*/
 	// Test 1
 	/*JsonObject &root = jsonBuffer.createObject();
 	test.test(root);
 	root.printTo(Serial);*/
 	// Test 2
-	/*char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[1024,\"inside\"]}";
+	//char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[1024,\"inside\"]}";
+	/*char json[] = "{\"cmd\": \"JOIN_REQUEST\", \"serializers\": [\"json\"], \"id\": \"1c17dc88-63b0-48c2-8930-1df399b4c887\", \"sid\": \"00531ac3-1d2d-454d-964a-7e9573f6ebb6\"}";
+	Serial.println(json);
 	JsonObject &root = jsonBuffer.parseObject(json);
-	String str = test.buildStringFromJsonObject(root);
+	test.checkJson(root);
+	String str = test.stringBuilderJsonObject(root);
 	Serial.println(str);*/
 	// End test
 }

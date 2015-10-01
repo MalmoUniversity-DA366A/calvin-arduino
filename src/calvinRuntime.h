@@ -3,7 +3,7 @@
  *
  *      Author: Peter
  */
-#define MAX_LENGTH 255
+#define MAX_LENGTH 1
 #define TERMINATOR 0x0A // $0A in Terminal.exe
 #include "ArduinoJson.h"
 
@@ -15,7 +15,7 @@ public:
   void getIPFromRouter(void);
   void handleJoin(JsonObject &msg, JsonObject &reply);
   void handleMsg(JsonObject &msg, JsonObject &reply);
-  int recvMsg(char *temp);
+  String recvMsg(void);
   void sendMsg(const char *str);
 
 private:

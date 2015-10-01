@@ -117,38 +117,38 @@ String testJson::stringBuilderJsonObject(JsonObject &reply)
       str += it->key;
       str += "\"";
       str += ":";
-      if(it->value.operator int())
-      {
-        str += it->value.as<int>();
-      }
-      else if(it->value.is<JsonArray&>())
+      if(it->value.is<JsonArray&>())
       {
           JsonArray &array = it->value.asArray();
           str += "[";
           for(unsigned int i = 0; i < array.size(); i++)
           {
-              if(array.get(i).operator int())
-              {
-                  str += array.get(i).as<int>();
-              }
-              else
+              if(array.get(i).operator String())
               {
                   str += "\"";
                   str += array.get(i).asString();
                   str += "\"";
               }
+              else
+              {
+                  str += array.get(i).as<int>();
+              }
               if(i != array.size() - 1)
               {
                   str += ",";
               }
-          }
-          str += "]";
+           }
+           str += "]";
       }
-      else
+      else if(it->value.operator String())
       {
           str += "\"";
           str += it->value.asString();
           str += "\"";
+      }
+      else
+      {
+          str += it->value.as<int>();
       }
       if(count != (reply.size() - 1))
       {
