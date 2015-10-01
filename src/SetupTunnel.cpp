@@ -24,7 +24,7 @@ uint32_t SetupTunnel::handleSetupTunnel(JsonObject &msg, JsonObject &request)
 	request.set("from_rt_uuid", 	"calvin-miniscule");
 	request.set("cmd", 				"TUNNEL_NEW");
 	request.set("tunnel_id",  		"fake-tunnel");
-	request.set("to_rt_uuid",  		msg.get("msg_uuid"));
+	request.set("to_rt_uuid",  		msg.get("id"));
 	request.set("policy", 			policy);
 	request.set("type",				"token");
 	request.set("msg_uuid", 		"MSG-12345678-9101-1123-1415-161718192021");

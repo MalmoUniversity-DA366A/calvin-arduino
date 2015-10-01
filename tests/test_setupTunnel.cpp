@@ -27,7 +27,7 @@ TEST(test_setupTunnel, handleSetupTunnel) {
 	JsonObject &msg = jsonBuffer.createObject();
 
 	// Add a string value to msg_uuid key
-	msg["msg_uuid"] = "123456789";
+	msg["id"] = "123456789";
 
 	// Test for initiate the method so that the empty JsonObject is being filled,
 	// if the object is valid it will return a 1. Otherwise 2.
@@ -39,7 +39,7 @@ TEST(test_setupTunnel, handleSetupTunnel) {
 	// Test for checking if the string value in the JsonObject is equal to the set string
 	EXPECT_STREQ("MSG-12345678-9101-1123-1415-161718192021", request.get("msg_uuid"));
 	EXPECT_STREQ("calvin-miniscule", request.get("from_rt_uuid"));
-	EXPECT_STREQ(msg.get("msg_uuid"), request.get("to_rt_uuid"));
+	EXPECT_STREQ(msg.get("id"), request.get("to_rt_uuid"));
 	EXPECT_STREQ("TUNNEL_NEW", request.get("cmd"));
 	EXPECT_STREQ("fake-tunnel", request.get("tunnel_id"));
 	EXPECT_STREQ("token", request.get("type"));
