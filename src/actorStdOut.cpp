@@ -38,6 +38,7 @@ int actorInit(){
 	 *if it should be done here but for now it works*/
 	globalActor.value[0].value[0].value[0].add = &fifoAdd;
 	globalActor.value[0].value[0].value[0].pop = &fifoPop;
+	return 1;
 }
 }
 
