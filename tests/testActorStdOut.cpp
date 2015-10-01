@@ -89,8 +89,7 @@ TEST(ActorTest,processTest){
 
 
 /**
- * I need to figure out how to make the actorstruct
- * global before these tests can be runned.
+ * Testing actor key search function
  */
 TEST(ActorTest,testKeys){
 	actor globalActor;
@@ -116,34 +115,8 @@ TEST(ActorTest,testKeys){
 
 	array = actorstd.searchForKeys(&globalActor,"ett","sex","sju");
 	EXPECT_EQ(4,array[0]);
-	EXPECT_EQ(1,array[1]);
-	EXPECT_EQ(3,array[2]);
-	/*
-	ActorStdOut actorstd;
-	int8_t* array;
-	array = actorstd.searchForKeys("ett","sex","sju");
-	EXPECT_EQ(4,array[0]);
 	EXPECT_EQ(0,array[1]);
 	EXPECT_EQ(3,array[2]);
-
-	main
-	globalActor.value[0].key = "e4tt";
-	globalActor.value[1].key = "e22tt";
-	globalActor.value[2].key = "etdt";
-	globalActor.value[3].key = "esstft";
-	globalActor.value[4].key = "ett";
-	globalActor.value[4].value[0].key = "sex";
-	globalActor.value[4].value[1].key = "se2x";
-	globalActor.value[4].value[2].key = "se2x";
-	globalActor.value[4].value[3].key = "s2ex";
-	globalActor.value[4].value[4].key = "se2x";
-
-	globalActor.value[4].value[0].value[0].key = "sex";
-	globalActor.value[4].value[0].value[1].key  = "se2x";
-	globalActor.value[4].value[0].value[2].key = "se2x";
-	globalActor.value[4].value[0].value[3].key  = "sju";
-	globalActor.value[4].value[0].value[4].key  = "se2x";
-	*/
 }
 /**
  * Test the fifo
