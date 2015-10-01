@@ -31,8 +31,8 @@ TEST(test_HandleToken, handleToken) {
 	msg["peer_port_id"] = "5678";
 
 	// Initiate the handleToken function so that JsonObject reply
-	// is filled. If object is valid it will return 1, otherwise 2
-	EXPECT_EQ(1, token.handleToken(msg, reply));
+	// is filled.
+	token.handleToken(msg, reply);
 
 	// Checks if reply contains the key that we want
 	EXPECT_TRUE(reply.containsKey("cmd"));

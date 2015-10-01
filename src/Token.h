@@ -1,8 +1,7 @@
 /*
  * Token.h
  *
- *  Created on: 30 sep. 2015
- *      Author: Jesper
+ * Author: Jesper Hansen
  */
 
 #ifndef TOKEN_H_
@@ -12,7 +11,7 @@
 
 class Token {
 public:
-	int handleToken(JsonObject &msg, JsonObject &reply);
+	void handleToken(JsonObject &msg, JsonObject &reply);
 };
 
 #endif /* TOKEN_H_ */
