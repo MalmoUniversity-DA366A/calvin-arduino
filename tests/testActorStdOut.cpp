@@ -57,7 +57,8 @@ TEST(ActorTest,structTest){
 TEST(ActorTest,createActor){
 	ActorStdOut actorstd;
 	StaticJsonBuffer<2000> jsonBuffer;
-	char str[] = "{\"type\":\"actor\",\"name\":\"actor1\",\"id\":\"89\",\"fifo\":\"12\"}";
+	char str[] = "{\"type\":\"actor\",\"name\":\"actor1\","
+			"\"id\":\"89\",\"fifo\":\"12\"}";
 	JsonObject &root = jsonBuffer.parseObject(str);
 	//EXPECT_EQ(1,actorstd.createActor(root));
 }
@@ -71,13 +72,13 @@ TEST(ActorTest,actorFire){
 
 TEST(ActorTest,processTest){
 	ActorStdOut actorstd;
-	EXPECT_EQ(1,actorstd.process("Test1"));
-	EXPECT_EQ(1,actorstd.process("Test2"));
-	EXPECT_EQ(1,actorstd.process("Test3"));
-	EXPECT_STREQ("Test1",fifoPop());
-	EXPECT_STREQ("Test2",fifoPop());
-	EXPECT_STREQ("Test3",fifoPop());
+	actorInit();
+	EXPECT_EQ(0,actorstd.process("Test1"));
+	EXPECT_EQ(0,actorstd.process("Test2"));
+	EXPECT_EQ(0,actorstd.process("Test3"));
+
 }
+
 
 /**
  * I need to figure out how to make the actorstruct
@@ -111,20 +112,36 @@ TEST(ActorTest,testKeys){
 	globalActor.value[4].value[0].value[4].key  = "se2x";
 	*/
 }
-
+/**
+ * Test the fifo
+ */
 TEST(ActorTest,TestFifo){
+	fifo actorFifo;
+	EXPECT_EQ(0,initFifo(&actorFifo));
+	EXPECT_EQ(0,fifoAdd(&actorFifo,"Hej"));
+	EXPECT_STREQ("Hej",fifoPop(&actorFifo));
+	EXPECT_EQ(0,fifoAdd(&actorFifo,"Daniel"));
+	EXPECT_EQ(0,fifoAdd(&actorFifo,"Hanna"));
+	EXPECT_EQ(0,fifoAdd(&actorFifo,"Ebbe"));
+	EXPECT_STREQ("Daniel",fifoPop(&actorFifo));
+	EXPECT_STREQ("Hanna",fifoPop(&actorFifo));
+	EXPECT_STREQ("Ebbe",fifoPop(&actorFifo));
 
-	initFifo();
-	EXPECT_EQ(1,fifoAdd("Andre"));
-	EXPECT_STREQ("Andre",fifoPop());
-	EXPECT_EQ(1,fifoAdd("Daniel"));
-	EXPECT_STREQ("Daniel",fifoPop());
-	EXPECT_EQ(1,fifoAdd("Hej"));
-	EXPECT_EQ(1,fifoAdd("Saker"));
-	EXPECT_STREQ("Hej",fifoPop());
-	EXPECT_STREQ("Saker",fifoPop());
+
+	for( int i = 0 ; i < 7 ; i++ ){
+		EXPECT_EQ(0,fifoAdd(&actorFifo,"Ebbe"));
+	}
+	/*If fifo size is 8 this is where it fills upp size-1*/
+	EXPECT_EQ(-1,fifoAdd(&actorFifo,"Ebbe"));
+
+	/*Now we pop it*/
+	for( int i = 0 ; i < 7 ; i++ ){
+		EXPECT_STREQ("Ebbe",fifoPop(&actorFifo));
+	}
+	EXPECT_STREQ("Null",fifoPop(&actorFifo));;
 
 }
+
 
 
 
