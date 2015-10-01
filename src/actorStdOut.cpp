@@ -36,6 +36,7 @@ int actorInit(){
 
 	/*This sets up the fifo for the actor, not sure
 	 *if it should be done here but for now it works*/
+	initFifo(&actorFifo);
 	globalActor.value[0].value[0].value[0].add = &fifoAdd;
 	globalActor.value[0].value[0].value[0].pop = &fifoPop;
 	return 1;
@@ -49,7 +50,7 @@ int actorInit(){
  */
 uint8_t ActorStdOut::createActor(JsonObject &msg){
 	int allOk = 0;
-	ActorStdOut::initGlobalActor();
+	ActorStdOut::initGlobalActor(&globalActor);
 	globalActor.type = msg["type"];
 	globalActor.name = msg["name"];
 	globalActor.id = msg["id"];
@@ -94,25 +95,25 @@ actor ActorStdOut::getGlobalStruct()
  * needed.
  * @return An arrays with positions of the found keys.
  */
-int8_t* ActorStdOut::searchForKeys(const char* key1,const char* key2,
+int8_t* ActorStdOut::searchForKeys(actor* act,const char* key1,const char* key2,
 		const char* key3)
 {
 	static int8_t keys[3] = {0,0,0};
 	int i;
 	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key1,globalActor.value[i].key))
+		if(!strcmp(key1,act->value[i].key))
 		{
 			keys[0] = i;
 		}
 	}
 	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key2,globalActor.value[keys[0]].value[i].key))
+		if(!strcmp(key2,act->value[keys[0]].value[i].key))
 		{
 			keys[1] = i;
 		}
 	}
 	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key3,globalActor.value[keys[0]].value[keys[1]].
+		if(!strcmp(key3,act->value[keys[0]].value[keys[1]].
 				value[i].key))
 		{
 			keys[2] = i;
@@ -124,7 +125,7 @@ int8_t* ActorStdOut::searchForKeys(const char* key1,const char* key2,
  * To be able to search thru the struct all keys
  * needs a value, this method sets it to null.
  */
-void ActorStdOut::initGlobalActor(){
+void ActorStdOut::initGlobalActor(actor *act){
 	int8_t i,j,k;
 	i = 0;
 	j = 0;
@@ -132,7 +133,7 @@ void ActorStdOut::initGlobalActor(){
 
 	for(i ; i < ACTOR_SIZE; i++)
 	{
-		globalActor.value[i].key = "null";
+		act->value[i].key = "null";
 	}
 
 	i = 0;
@@ -140,7 +141,7 @@ void ActorStdOut::initGlobalActor(){
 		{
 		for( j ; j < ACTOR_SIZE ; j++ )
 		{
-			globalActor.value[i].value[j].key = "null";
+			act->value[i].value[j].key = "null";
 		}
 		}
 	i = 0;
@@ -152,51 +153,92 @@ void ActorStdOut::initGlobalActor(){
 		{
 			for( k ; k < ACTOR_SIZE ; k++)
 			{
-				globalActor.value[i].value[j].value[k].key = "null";
+				act->value[i].value[j].value[k].key = "null";
 			}
 		}
 	}
 }
-
+extern "C"{
 /**
  * This Function initiate the fifo must be
  * called prior to using the fifo.
+ *
+ * This fifo implementation is based upon a circular
+ * buffert written by Elcia White found in the book
+ * "Making Embedded Systems by Elecia White(O'Reilly).
+ *
+ * Copyright 2012 Elecia White,978-1-449-30214-6"
  */
-void initFifo(){
-	actorFifo.add = 0;
-	actorFifo.pop = 0;
+int initFifo(fifo *fif)
+{
+	fif->size = FIFO_SIZE;
+	fif->read = 0;
+	fif->write = 0;
+	return 0;
 }
 /**
+ * Used by Add and Pop to determine fifo length.
+ *
+ * This fifo implementation is based upon a circular
+ * buffert written by Elcia White found in the book
+ * "Making Embedded Systems by Elecia White(O'Reilly).
+ * Copyright 2012 Elecia White,978-1-449-30214-6"
+ *
+ * @return Fifo length
+ */
+int lengthOfData(fifo *fif)
+{
+	return ((fif->write - fif->read) & (fif->size -1));
+}
+
+/**
  * Adds a new element to the fifo
+ *
+ * This fifo implementation is based upon a circular
+ * buffert written by Elcia White found in the book
+ * "Making Embedded Systems by Elecia White(O'Reilly).
+ *
+ * Copyright 2012 Elecia White,978-1-449-30214-6"
  * @return returns 0 if the fifo is full
  */
-int fifoAdd(const char* element){
+int fifoAdd(fifo *fif, const char* element){
 
-	if(actorFifo.add == ((actorFifo.pop - 1 + QUEUE_SIZE) % QUEUE_SIZE)){
-		return -1;
+	if(lengthOfData(fif) == (fif->size-1))
+	{
+		return -1;			//fifo full;
 	}
-	actorFifo.buffer[actorFifo.add] = element;
-	(++actorFifo.add);
+	fif->element[fif->write] = element;
+	fif->write = (fif->write + 1) & (fif->size - 1);
 
-	return 1;
+	return 0;				//all is well
 }
 
 /**
  * Return and removes the oldest element in the fifo.
+ *
+ * This fifo implementation is based upon a circular
+ * buffert written by Elcia White found in the book
+ * "Making Embedded Systems by Elecia White(O'Reilly).
+ * Copyright 2012 Elecia White,978-1-449-30214-6"
+ *
  * @Return Returns fifo element, returns NULL if fifo is
  * empty.
  */
-const char* fifoPop(){
+const char* fifoPop(fifo *fif){
 
 	const char* ret;
-	if(actorFifo.add == actorFifo.pop)
+
+	if(lengthOfData(fif) == 0)
 	{
-		return "NULL";				//Fifo full
+		return "Null";		//fifo empty
 	}
 
-	ret = actorFifo.buffer[actorFifo.pop];
-	(++actorFifo.pop);
+	ret = fif->element[fif->read];
+	fif->read = (fif->read + 1) & (fif->size - 1);
+
 	return ret;
+}
+
 }
 /**
  * Process an incomming token and add the token data to
@@ -207,8 +249,8 @@ const char* fifoPop(){
  */
 int ActorStdOut::process(const char* token){
 	int allOk;
-	allOk = 0;
-	allOk = globalActor.value[0].value[0].value[0].add(token);
+	allOk = -1;
+	allOk = globalActor.value[0].value[0].value[0].add(&actorFifo,token);
 	return allOk;
 }
 

@@ -16,12 +16,22 @@
 #define standardOut(x)		strlen(x)
 #define ACTOR_SIZE			5
 #define QUEUE_SIZE			10
+#define FIFO_SIZE			8			//Must be a power of two
 
 extern "C"{
 
-void initFifo(void);
-int fifoAdd(const char*);
-const char* fifoPop();
+typedef struct buffert{
+	const char* element[FIFO_SIZE];
+	int size;
+	int read;
+	int write;
+}fifo;
+
+int initFifo(fifo*);
+int fifoAdd(fifo*, const char*);
+const char* fifoPop(fifo*);
+int lengthOfData(fifo*);
+int actorInit();
 
 typedef struct actors{
 	const char* type;
@@ -38,18 +48,13 @@ typedef struct actors{
 			struct fifos{
 				const char* key;
 				int length;
-				const char* (*pop)();		//Fifo pop and add
-				int (*add)(const char*);		//functions.
+				const char* (*pop)(struct buffert*);		//Fifo pop and add
+				int (*add)(struct buffert*,const char*);		//functions.
 			}value[ACTOR_SIZE];
 		}value[ACTOR_SIZE];
 	}value[ACTOR_SIZE];
 }actor;
 
-typedef struct TokenFifo{
-	const char *buffer[6];
-	int add;
-	int pop;
-}fifo;
 
 }
 using namespace std;
@@ -60,11 +65,11 @@ public:
 	int createJson(void);
 	actor getGlobalStruct(void);
 	int actorFire(void);
-	uint32_t* findKey(const char*,const char*,const char*);
-	int8_t* searchForKeys(const char*,const char*,const char*);
+	int8_t* searchForKeys(actor* act,const char*,const char*,const char*);
 	int8_t search(const char*);
-	void initGlobalActor(void);
+	void initGlobalActor(actor*);
 	int process(const char*);
+	int lengthOfData(fifo*);
 };
 
 
