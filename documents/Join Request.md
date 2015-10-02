@@ -1,4 +1,4 @@
-**Join request**
+###Join request
 
 **Terminal commands**
 
