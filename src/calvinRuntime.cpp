@@ -27,7 +27,7 @@ void calvinRuntime::setupConnection()
 {
   //getIPFromRouter(); // Doesn't work with shield
   Ethernet.begin(mac, ip);
-  printIp(); // Test purpose
+  //printIp(); // Test purpose
   server.begin();
   while(true)
   {
