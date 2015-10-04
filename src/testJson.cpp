@@ -6,12 +6,31 @@
  */
 #include "testJson.h"
 #include "ArduinoJson.h"
+#include "calvinRuntime.h"
 
 /**
- * A test function for parsing a JsonObject
+ * A test function for creating,
+ * parsing and printing a JsonObject
+ */
+void testJson::testObject()
+{
+  calvinRuntime calvin;
+  StaticJsonBuffer<2000> jsonBuffer;
+  //char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[1024,\"inside\"]}";
+  //char json[] = "{\"from_rt_uuid\": \"calvin-miniscule\",\"cmd\": \"TUNNEL_NEW\", \"tunnel_id\": 1c17dc88-63b0-48c2-8930-1df399b4c887, \"to_rt_uuid\": \"str\", \"policy\": {},\"type\":\"token\",\"msg_uuid\":00531ac3-1d2d-454d-964a-7e9573f6ebb6}";
+  char json[] = "{\"cmd\": \"JOIN_REQUEST\", \"serializers\": [\"json\"], \"id\": \"1c17dc88-63b0-48c2-8930-1df399b4c887\", \"sid\": \"00531ac3-1d2d-454d-964a-7e9573f6ebb6\"}";
+  JsonObject &root = jsonBuffer.parseObject(json);
+  checkJson(root);
+  String str = calvin.stringBuilderJsonObject(root);
+  Serial.println(str);
+}
+
+/**
+ * A test function for creating
+ * and printing a JsonObject
  * @param root JsonObject
  */
-void testJson::test(JsonObject &root)
+void testJson::testParsing(JsonObject &root)
 {
 	root["sensor"] = "gps";
 	root["time"] = 1351824120;
@@ -20,6 +39,7 @@ void testJson::test(JsonObject &root)
 	data.add(2.302038, 6);
 
 	Serial.println();
+	root.printTo(Serial);
 	if (checkJson(root))
 	{
 	    const char* sensor = root["sensor"];
@@ -50,113 +70,5 @@ int testJson::checkJson(JsonObject &root)
 	    Serial.println("parseObject() success");
 	    return 1;
 	}
-}
-
-/**
- * Deserialize Json to a String.
- * From this: {\"sensor\":\"gps\",\"time\":1351824120}
- * To this: {"sensor":"gps","time":1351824120}
- * @param temp char* pointer
- * @return String
- */
-String testJson::jsonDeserialize(char *temp)
-{
-	String str = "";
-	int count = 0;
-	while(temp[count] != '\0')
-	{
-		if(temp[count+1] == '\"')
-		{
-			count++;
-		}
-		str += temp[count];
-		count++;
-	}
-	return str;
-}
-
-/**
- * Serializes a String to Json syntax.
- * From this: {"sensor":"gps","time":1351824120}
- * To this: {\"sensor\":\"gps\",\"time\":1351824120}
- * @param str char* pointer
- * @return char* pointer
- */
-char* testJson::jsonSerialize(const char *str)
-{
-  const char *json = str;
-  char *temp = new char[256];
-  int counter = 0;
-  for(int i = 0; json[i] != '\0'; i++)
-  {
-      if(json[i] == '\"')
-      {
-          temp[counter] = '\\';
-          counter++;
-      }
-      temp[counter] = json[i];
-      counter++;
-  }
-  temp[counter] = '\0';
-  return temp;
-}
-
-/**
- * Builds a string from a JsonObject
- * by iterating trough the object
- * @param reply JsonObject
- * @return String
- */
-String testJson::stringBuilderJsonObject(JsonObject &reply)
-{
-  String str = "{";
-  unsigned int count = 0;
-  for(JsonObject::iterator it=reply.begin(); it!=reply.end();++it)
-  {
-      str += "\"";
-      str += it->key;
-      str += "\"";
-      str += ":";
-      if(it->value.is<JsonArray&>())
-      {
-          JsonArray &array = it->value.asArray();
-          str += "[";
-          for(unsigned int i = 0; i < array.size(); i++)
-          {
-              if(array.get(i).operator String())
-              {
-                  str += "\"";
-                  str += array.get(i).asString();
-                  str += "\"";
-              }
-              else
-              {
-                  str += array.get(i).as<int>();
-              }
-              if(i != array.size() - 1)
-              {
-                  str += ",";
-              }
-           }
-           str += "]";
-      }
-      else if(it->value.operator String())
-      {
-          str += "\"";
-          str += it->value.asString();
-          str += "\"";
-      }
-      else
-      {
-          str += it->value.as<int>();
-      }
-      if(count != (reply.size() - 1))
-      {
-        str += ",";
-      }
-      count++;
-  }
-  str += "}";
-  return str;
 }
 #endif

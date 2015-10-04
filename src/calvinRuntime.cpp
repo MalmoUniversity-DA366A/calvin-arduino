@@ -17,7 +17,6 @@ IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
-testJson json;
 
 /**
  * Setup TCP connection and receive
@@ -27,43 +26,43 @@ void calvinRuntime::setupConnection()
 {
   //getIPFromRouter(); // Doesn't work with shield
   Ethernet.begin(mac, ip);
-  //printIp(); // Test purpose
+  printIp();
   server.begin();
   while(true)
   {
       client = server.available();
       if(client) // Wait for client
       {
+          Serial.println("Connected...");
           String str = recvMsg();
 
-          // Jsonobject that holds all values
+          // Jsonobject for recieving a join request
           StaticJsonBuffer<2000> jsonBufferMsg;
           JsonObject &msg = jsonBufferMsg.parseObject(str.c_str());
-          json.checkJson(msg); // Test purpose
 
-          // JsonObject for replying a fixed message
+          // JsonObject for replying a join request
           StaticJsonBuffer<2000> jsonBufferReply;
           JsonObject &reply = jsonBufferReply.createObject();
-          handleMsg(msg, reply);
-          json.checkJson(reply); // Test purpose
 
-          // Print JsonObject to a string
-          String temp = json.stringBuilderJsonObject(reply);
-          Serial.println(temp); // Test purpose
+          // JsonObject for requesting a new tunnel
+          StaticJsonBuffer<2000> jsonBufferRequest;
+          JsonObject &request = jsonBufferRequest.createObject();
 
-          // Serialize Json message and replay to calvin base
-          char *replyJson = json.jsonSerialize(temp.c_str());
-          Serial.println(replyJson); // Test purpose
-          sendMsg(replyJson);
-          delete[] replyJson;
+          handleMsg(msg, reply, request);
 
-          while(true)
-          {
-              int i;
-              i++;
-              Serial.println("In loop");
-              delay(500);
-          }
+          // Test purpose
+          testJson json;
+          json.checkJson(msg);
+          json.checkJson(reply);
+          json.checkJson(request);
+
+          // Print JsonObject and send to Calvin
+          String replyTemp = stringBuilderJsonObject(reply);
+          sendMsg(replyTemp.c_str());
+          String requestTemp = stringBuilderJsonObject(request);
+          sendMsg(requestTemp.c_str());
+
+          String tunnelReply = recvMsg();
       }
   }
 }
@@ -74,7 +73,7 @@ void calvinRuntime::setupConnection()
  */
 String calvinRuntime::recvMsg()
 {
-  Serial.println("Reading..."); // Test purpose
+  Serial.println("Reading...");
   char temp[MAX_LENGTH+1] = {};
   String str = "";
   bool found = false;
@@ -103,9 +102,11 @@ String calvinRuntime::recvMsg()
  */
 void calvinRuntime::sendMsg(const char *str)
 {
-  Serial.println("Sending..."); // Test purpose
-  char *jsonChar = json.jsonSerialize(str);
-  server.write(jsonChar);
+  Serial.println("Sending...");
+  char *jsonChar = jsonSerialize(str);
+  Serial.println(jsonChar); // Test purpose
+  client.write(jsonChar);
+  client.flush();
   delete[] jsonChar;
   jsonChar = 0;
 }
@@ -124,15 +125,32 @@ void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
 }
 
 /**
+ * Create a new tunnel request
+ * @param msg JsonObject
+ * @param request JsonObject
+ */
+void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request)
+{
+  request["msg_uuid"] = "00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
+  request["from_rt_uuid"] = "calvin-miniscule";
+  request["to_rt_uuid"] = (const char*)msg["id"];
+  request["cmd"] = "TUNNEL_NEW";
+  request["tunnel_id"] = "fake-tunnel";
+  request["type"] = "token";
+}
+
+/**
  * Handle all different messages
  * @param msg JsonObject
  * @param reply JsonObject
+ * @param request JsonObject
  */
-void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply)
+void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
   if(strcmp((const char*)msg["cmd"],"JOIN_REQUEST") == 0)
   {
       handleJoin(msg,reply);
+      handleSetupTunnel(msg, request);
   }
   else if(strcmp((const char*)msg["cmd"],"ACTOR_NEW") == 0)
   {
@@ -182,5 +200,113 @@ void calvinRuntime::getIPFromRouter()
         // Set static IP-address if fail
         Ethernet.begin(mac, ip);
     }
+}
+
+/**
+ * Deserialize Json to a String.
+ * From this: {\"sensor\":\"gps\",\"time\":1351824120}
+ * To this: {"sensor":"gps","time":1351824120}
+ * @param temp char* pointer
+ * @return String
+ */
+String calvinRuntime::jsonDeserialize(char *temp)
+{
+  String str = "";
+  int count = 0;
+  while(temp[count] != '\0')
+  {
+    if(temp[count+1] == '\"')
+    {
+      count++;
+    }
+    str += temp[count];
+    count++;
+  }
+  return str;
+}
+
+/**
+ * Serializes a String to Json syntax.
+ * From this: {"sensor":"gps","time":1351824120}
+ * To this: {\"sensor\":\"gps\",\"time\":1351824120}
+ * @param str char* pointer
+ * @return char* pointer
+ */
+char* calvinRuntime::jsonSerialize(const char *str)
+{
+  const char *json = str;
+  char *temp = new char[256];
+  int counter = 0;
+  for(int i = 0; json[i] != '\0'; i++)
+  {
+      if(json[i] == '\"')
+      {
+          temp[counter] = '\\';
+          counter++;
+      }
+      temp[counter] = json[i];
+      counter++;
+  }
+  temp[counter] = '\0';
+  return temp;
+}
+
+/**
+ * Builds a string from a JsonObject
+ * by iterating trough the object
+ * @param reply JsonObject
+ * @return String
+ */
+String calvinRuntime::stringBuilderJsonObject(JsonObject &reply)
+{
+  String str = "{";
+  unsigned int count = 0;
+  for(JsonObject::iterator it=reply.begin(); it!=reply.end();++it)
+  {
+      str += "\"";
+      str += it->key;
+      str += "\"";
+      str += ":";
+      if(it->value.is<JsonArray&>())
+      {
+          JsonArray &array = it->value.asArray();
+          str += "[";
+          for(unsigned int i = 0; i < array.size(); i++)
+          {
+              if(array.get(i).operator String())
+              {
+                  str += "\"";
+                  str += array.get(i).asString();
+                  str += "\"";
+              }
+              else
+              {
+                  str += array.get(i).as<int>();
+              }
+              if(i != array.size() - 1)
+              {
+                  str += ",";
+              }
+           }
+           str += "]";
+      }
+      else if(it->value.operator String())
+      {
+          str += "\"";
+          str += it->value.asString();
+          str += "\"";
+      }
+      else
+      {
+          str += it->value.as<int>();
+      }
+      if(count != (reply.size() - 1))
+      {
+        str += ",";
+      }
+      count++;
+  }
+  str += "}";
+  return str;
 }
 #endif

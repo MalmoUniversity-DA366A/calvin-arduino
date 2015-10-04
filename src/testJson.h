@@ -8,10 +8,8 @@
 
 class testJson {
 public:
-  void test(JsonObject &root);
+  void testObject(void);
+  void testParsing(JsonObject &root);
   int checkJson(JsonObject &root);
-  String jsonDeserialize(char *temp);
-  char* jsonSerialize(const char *str);
-  String stringBuilderJsonObject(JsonObject &reply);
 private:
 };
