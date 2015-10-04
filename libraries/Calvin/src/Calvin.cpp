@@ -15,4 +15,3 @@ Calvin::Calvin() {
 Calvin::~Calvin() {
 	// TODO Auto-generated destructor stub
 }
-
