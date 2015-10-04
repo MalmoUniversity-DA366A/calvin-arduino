@@ -120,7 +120,7 @@ void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
 {
   reply["cmd"] = "JOIN_REPLAY";
   reply["id"] = "calvin-miniscule";
-  reply["sid"] = (const char*)msg["sid"];
+  reply["sid"] = msg.get("sid");
   reply["serializer"] = "json";
 }
 
@@ -133,7 +133,7 @@ void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request)
 {
   request["msg_uuid"] = "00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
   request["from_rt_uuid"] = "calvin-miniscule";
-  request["to_rt_uuid"] = (const char*)msg["id"];
+  request["to_rt_uuid"] = msg.get("id");
   request["cmd"] = "TUNNEL_NEW";
   request["tunnel_id"] = "fake-tunnel";
   request["type"] = "token";
@@ -147,28 +147,28 @@ void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request)
  */
 void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
-  if(strcmp((const char*)msg["cmd"],"JOIN_REQUEST") == 0)
+  if(strcmp(msg.get("cmd"),"JOIN_REQUEST") == 0)
   {
       handleJoin(msg,reply);
       handleSetupTunnel(msg, request);
   }
-  else if(strcmp((const char*)msg["cmd"],"ACTOR_NEW") == 0)
+  else if(strcmp(msg.get("cmd"),"ACTOR_NEW") == 0)
   {
 
   }
-  else if(strcmp((const char*)msg["cmd"],"TUNNEL_DATA") == 0)
+  else if(strcmp(msg.get("cmd"),"TUNNEL_DATA") == 0)
   {
 
   }
-  else if(strcmp((const char*)msg["cmd"],"TOKEN") == 0)
+  else if(strcmp(msg.get("cmd"),"TOKEN") == 0)
   {
 
   }
-  else if(strcmp((const char*)msg["cmd"],"TOKEN_REPLY") == 0)
+  else if(strcmp(msg.get("cmd"),"TOKEN_REPLY") == 0)
   {
 
   }
-  else if(strcmp((const char*)msg["cmd"],"REPLY") == 0)
+  else if(strcmp(msg.get("cmd"),"REPLY") == 0)
   {
 
   }
