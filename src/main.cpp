@@ -18,12 +18,8 @@
 #include "unity.h"
 #include "uart.h"
 #include "calvinRuntime.h"
-//#include "telnet.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
-
-#define MAX_LENGTH 255
-#define TERMINATOR 0x0A // $0A in Terminal.exe
 
 void testRunner(void);
 void init_board(void);

@@ -14,8 +14,8 @@ public:
   void printIp(void);
   void getIPFromRouter(void);
   void handleJoin(JsonObject &msg, JsonObject &reply);
-  void handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request);
-  void handleSetupTunnel(JsonObject &msg, JsonObject &request);
+  void handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy);
+  void handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy);
   String recvMsg(void);
   void sendMsg(const char *str);
   String jsonDeserialize(char *temp);
