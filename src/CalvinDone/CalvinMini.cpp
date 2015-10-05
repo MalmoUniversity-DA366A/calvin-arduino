@@ -228,3 +228,42 @@ int CalvinMini::process(const char* token){
 	return allOk;
 }
 
+/**
+ * Method for setting up a tunnel using JSON message back to Calvin-Base,
+ * JSON is added to the JsonObject request that is added to the reply list.
+ * @param &msg JsonObject received from Calvin-Base
+ * @param &request JsonObject that is added to the "reply" list
+ * @param &policy JsonObject that is an empty JsonObject
+ *
+ */
+void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
+{
+	request.set("msg_uuid", "MSG-12345678-9101-1123-1415-161718192021");
+	request.set("from_rt_uuid", "calvin-miniscule");
+	request.set("to_rt_uuid", msg.get("id"));
+	request.set("cmd", "TUNNEL_NEW");
+	request.set("tunnel_id", "fake-tunnel");
+	request.set("type", "token");
+	request.set("policy", policy);
+}
+
+void loop()
+{
+	while(1)
+	{
+		// 1: Kontrollera anslutna sockets
+
+		// 2: Fixa koppling
+
+		// 3: Läs av meddelande
+
+		// 4: Hantera meddelande
+
+		// 5: Fire Actors
+
+		// 6: Läs av utlistan
+
+		// 7: Skicka utmeddelande
+	}
+}
+
