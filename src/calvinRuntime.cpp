@@ -1,4 +1,3 @@
-#ifdef ARDUINO
 /*
  * calvinRuntime.cpp
  *
@@ -37,19 +36,13 @@ void calvinRuntime::setupConnection()
           String str = recvMsg();
 
           // Jsonobject for recieving a join request
-          StaticJsonBuffer<1000> jsonBufferMsg;
-          JsonObject &msg = jsonBufferMsg.parseObject(str.c_str());
+          StaticJsonBuffer<2048> jsonBuffer;
+          JsonObject &msg = jsonBuffer.parseObject(str.c_str());
 
-          // JsonObject for replying a join request
-          StaticJsonBuffer<1000> jsonBufferReply;
-          JsonObject &reply = jsonBufferReply.createObject();
-
-          // JsonObject for requesting a new tunnel
-          StaticJsonBuffer<1000> jsonBufferRequest;
-          JsonObject &request = jsonBufferRequest.createObject();
-
-          StaticJsonBuffer<1000> jsonBufferPolicy;
-          JsonObject &policy = jsonBufferPolicy.createObject();
+          // JsonObjects for replying a join request
+          JsonObject &reply = jsonBuffer.createObject();
+          JsonObject &request = jsonBuffer.createObject();
+          JsonObject &policy = jsonBuffer.createObject();
 
           handleMsg(msg, reply, request, policy);
 
@@ -79,7 +72,7 @@ String calvinRuntime::recvMsg()
   Serial.println("Reading...");
   char temp[MAX_LENGTH+1] = {};
   String str = "";
-  bool found = false;
+  int found = 0;
   while(!found)
   {
         int size = client.readBytes(temp, MAX_LENGTH);
@@ -87,7 +80,7 @@ String calvinRuntime::recvMsg()
         {
             temp[size] = '\0';  // Null terminate char
             str += temp;
-            found = true;
+            found = 1;
         }
   }
   while(*temp != '}')
@@ -133,7 +126,7 @@ void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
  */
 void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
-  request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
+  request["msg_uuid"] = "00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
   request["from_rt_uuid"] = "calvin-miniscule";
   request["to_rt_uuid"] = msg.get("id");
   request["cmd"] = "TUNNEL_NEW";
@@ -293,15 +286,15 @@ String calvinRuntime::stringBuilderJsonObject(JsonObject &reply)
            }
            str += "]";
       }
-      else if(it->value.operator int())
-      {
-          str += it->value.as<int>();
-      }
-      else
+      else if(it->value.operator String())
       {
           str += "\"";
           str += it->value.asString();
           str += "\"";
+      }
+      else
+      {
+          str += it->value.as<int>();
       }
       if(count != (reply.size() - 1))
       {
@@ -312,4 +305,3 @@ String calvinRuntime::stringBuilderJsonObject(JsonObject &reply)
   str += "}";
   return str;
 }
-#endif
