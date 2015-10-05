@@ -16,7 +16,7 @@ fifo actorFifo;
  */
 int StdOut(){
 	uint8_t inFifo;
-	inFifo = globalActor.value[0].value[0].value[0].length;
+	inFifo = globalActor.ports[0].portName[0].fifo[0].length;
 	if(inFifo > 0)
 	{
 		;//pop token
@@ -36,8 +36,8 @@ int actorInit(){
 	/*This sets up the fifo for the actor, not sure
 	 *if it should be done here but for now it works*/
 	initFifo(&actorFifo);
-	globalActor.value[0].value[0].value[0].add = &fifoAdd;
-	globalActor.value[0].value[0].value[0].pop = &fifoPop;
+	globalActor.ports[0].portName[0].fifo[0].add = &fifoAdd;
+	globalActor.ports[0].portName[0].fifo[0].pop = &fifoPop;
 	return 1;
 }
 }
@@ -54,8 +54,8 @@ uint8_t CalvinMini::createActor(JsonObject &msg){
 	globalActor.name = msg["name"];
 	globalActor.id = msg["id"];
 	globalActor.fifo = msg["fifo"];
-	globalActor.value[0].key = "inport";
-	globalActor.value[0].value[0].value[0].length = 0; //This is the port-fifo
+	globalActor.ports[0].key = "inport";
+	globalActor.ports[0].portName[0].fifo[0].length = 0; //This is the port-fifo
 	globalActor.outport = "NULL";
 
 	actorInit();
@@ -75,20 +75,20 @@ int8_t* CalvinMini::searchForKeys(actor* act,const char* key1,const char* key2,
 	static int8_t keys[3] = {0,0,0};
 	int i;
 	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key1,act->value[i].key))
+		if(!strcmp(key1,act->ports[i].key))
 		{
 			keys[0] = i;
 		}
 	}
 	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key2,act->value[keys[0]].value[i].key))
+		if(!strcmp(key2,act->ports[keys[0]].portName[i].key))
 		{
 			keys[1] = i;
 		}
 	}
 	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key3,act->value[keys[0]].value[keys[1]].
-				value[i].key))
+		if(!strcmp(key3,act->ports[keys[0]].portName[keys[1]].
+				fifo[i].key))
 		{
 			keys[2] = i;
 		}
@@ -107,7 +107,7 @@ void CalvinMini::initGlobalActor(actor *act){
 
 	for(i ; i < ACTOR_SIZE; i++)
 	{
-		act->value[i].key = "null";
+		act->ports[i].key = "null";
 	}
 
 	i = 0;
@@ -115,7 +115,7 @@ void CalvinMini::initGlobalActor(actor *act){
 		{
 		for( j ; j < ACTOR_SIZE ; j++ )
 		{
-			act->value[i].value[j].key = "null";
+			act->ports[i].portName[j].key = "null";
 		}
 		}
 	i = 0;
@@ -127,7 +127,7 @@ void CalvinMini::initGlobalActor(actor *act){
 		{
 			for( k ; k < ACTOR_SIZE ; k++)
 			{
-				act->value[i].value[j].value[k].key = "null";
+				act->ports[i].portName[j].fifo[k].key = "null";
 			}
 		}
 	}
@@ -224,7 +224,7 @@ const char* fifoPop(fifo *fif){
 int CalvinMini::process(const char* token){
 	int allOk;
 	allOk = -1;
-	allOk = globalActor.value[0].value[0].value[0].add(&actorFifo,token);
+	allOk = globalActor.ports[0].portName[0].fifo[0].add(&actorFifo,token);
 	return allOk;
 }
 
@@ -245,5 +245,25 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 	request.set("tunnel_id", "fake-tunnel");
 	request.set("type", "token");
 	request.set("policy", policy);
+}
+
+void loop()
+{
+	while(1)
+	{
+		// 1: Kontrollera anslutna sockets
+
+		// 2: Fixa koppling
+
+		// 3: Läs av meddelande
+
+		// 4: Hantera meddelande
+
+		// 5: Fire Actors
+
+		// 6: Läs av utlistan
+
+		// 7: Skicka utmeddelande
+	}
 }
 
