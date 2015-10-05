@@ -7,7 +7,7 @@
 #ifdef _MOCK_
 
 #include "gtest/gtest.h"
-#include "../src/handleMessage.h"
+#include "../src/CalvinInProgress/handleMessage.h"
 
 class test_handleMessage : public ::testing::Test {
 protected:

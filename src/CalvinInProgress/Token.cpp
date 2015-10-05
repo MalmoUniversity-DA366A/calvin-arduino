@@ -1,3 +1,4 @@
+#ifdef _MOCK_
 /*
  * Token.cpp
  *
@@ -20,3 +21,4 @@ void Token::handleToken(JsonObject &msg, JsonObject &reply)
 	reply.set("peer_port_id", 	msg.get("peer_port_id"));
 	reply.set("value", 			"ACK");
 }
+#endif

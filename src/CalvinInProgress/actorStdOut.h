@@ -1,3 +1,4 @@
+
 /*
  * actorStdOut.h
  *
@@ -12,7 +13,7 @@
 #include <iostream>
 #include <string>
 #include <string.h>
-#include "../libraries/ArduinoJson/include/ArduinoJson.h"
+#include "ArduinoJson.h"
 
 #define standardOut(x)		strlen(x)
 #define ACTOR_SIZE			5
@@ -77,3 +78,4 @@ public:
 
 
 #endif /* SRC_ACTORSTDOUT_H_ */
+

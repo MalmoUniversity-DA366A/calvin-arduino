@@ -1,3 +1,4 @@
+#ifdef _MOCK_
 /*
  * Token.h
  *
@@ -15,3 +16,4 @@ public:
 };
 
 #endif /* TOKEN_H_ */
+#endif

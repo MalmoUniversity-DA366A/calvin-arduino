@@ -8,7 +8,7 @@
 #ifdef _MOCK_
 
 #include "gtest/gtest.h"
-#include "../src/SetupTunnel.h"
+#include "../src/CalvinInProgress/SetupTunnel.h"
 
 class test_setupTunnel : public ::testing::Test {
 protected:

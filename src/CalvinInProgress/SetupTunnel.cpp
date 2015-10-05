@@ -1,3 +1,4 @@
+#ifdef _MOCK_
 /*
  * setupTunnel.cpp
  *
@@ -64,3 +65,4 @@ uint32_t SetupTunnel::handleTunnelData(JsonObject &msg, JsonObject &reply)
 		return 2;
 	}
 }
+#endif
