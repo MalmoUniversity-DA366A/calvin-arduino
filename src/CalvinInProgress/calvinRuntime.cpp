@@ -1,3 +1,4 @@
+#ifdef ARDUINO
 /*
  * calvinRuntime.cpp
  *
@@ -32,11 +33,12 @@ void calvinRuntime::setupConnection()
       client = server.available();
       if(client) // Wait for client
       {
-          Serial.println("Connected...");
+          Serial.println("Reading...");
           String str = recvMsg();
+          Serial.println(str);
 
           // Jsonobject for recieving a join request
-          StaticJsonBuffer<2048> jsonBuffer;
+          StaticJsonBuffer<4096> jsonBuffer;
           JsonObject &msg = jsonBuffer.parseObject(str.c_str());
 
           // JsonObjects for replying a join request
@@ -54,8 +56,11 @@ void calvinRuntime::setupConnection()
 
           // Print JsonObject and send to Calvin
           String replyTemp = stringBuilderJsonObject(reply);
+          Serial.println("Sending...");
           sendMsg(replyTemp.c_str());
+
           String requestTemp = stringBuilderJsonObject(request);
+          Serial.println("Sending...");
           sendMsg(requestTemp.c_str());
 
           String tunnelReply = recvMsg();
@@ -69,7 +74,6 @@ void calvinRuntime::setupConnection()
  */
 String calvinRuntime::recvMsg()
 {
-  Serial.println("Reading...");
   char temp[MAX_LENGTH+1] = {};
   String str = "";
   int found = 0;
@@ -98,12 +102,9 @@ String calvinRuntime::recvMsg()
  */
 void calvinRuntime::sendMsg(const char *str)
 {
-  Serial.println("Sending...");
   char *jsonChar = jsonSerialize(str);
-  Serial.println(jsonChar); // Test purpose
   server.write(jsonChar);
   delete[] jsonChar;
-  jsonChar = 0;
 }
 
 /**
@@ -129,13 +130,13 @@ void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
  */
 void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
-  request["msg_uuid"] = "00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
+  request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
   request["from_rt_uuid"] = "calvin-miniscule";
   request["to_rt_uuid"] = msg.get("id");
   request["cmd"] = "TUNNEL_NEW";
   request["tunnel_id"] = "fake-tunnel";
   request["type"] = "token";
-  request["policy"] = policy;
+  //request["policy"] = policy;
 }
 
 /**
@@ -234,7 +235,7 @@ String calvinRuntime::jsonDeserialize(char *temp)
 char* calvinRuntime::jsonSerialize(const char *str)
 {
   const char *json = str;
-  char *temp = new char[256];
+  char *temp = new char[512];
   int counter = 0;
   for(int i = 0; json[i] != '\0'; i++)
   {
@@ -308,3 +309,4 @@ String calvinRuntime::stringBuilderJsonObject(JsonObject &reply)
   str += "}";
   return str;
 }
+#endif
