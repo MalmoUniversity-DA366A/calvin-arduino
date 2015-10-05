@@ -36,19 +36,13 @@ void calvinRuntime::setupConnection()
           String str = recvMsg();
 
           // Jsonobject for recieving a join request
-          StaticJsonBuffer<1000> jsonBufferMsg;
-          JsonObject &msg = jsonBufferMsg.parseObject(str.c_str());
+          StaticJsonBuffer<4096> jsonBuffer;
+          JsonObject &msg = jsonBuffer.parseObject(str.c_str());
 
           // JsonObject for replying a join request
-          StaticJsonBuffer<1000> jsonBufferReply;
-          JsonObject &reply = jsonBufferReply.createObject();
-
-          // JsonObject for requesting a new tunnel
-          StaticJsonBuffer<1000> jsonBufferRequest;
-          JsonObject &request = jsonBufferRequest.createObject();
-
-          StaticJsonBuffer<1000> jsonBufferPolicy;
-          JsonObject &policy = jsonBufferPolicy.createObject();
+          JsonObject &reply = jsonBuffer.createObject();
+          JsonObject &request = jsonBuffer.createObject();
+          JsonObject &policy = jsonBuffer.createObject();
 
           handleMsg(msg, reply, request, policy);
 
@@ -60,8 +54,10 @@ void calvinRuntime::setupConnection()
 
           // Print JsonObject and send to Calvin
           String replyTemp = stringBuilderJsonObject(reply);
+          Serial.println("Sending...");
           sendMsg(replyTemp.c_str());
           String requestTemp = stringBuilderJsonObject(request);
+          Serial.println("Sending...");
           sendMsg(requestTemp.c_str());
 
           String tunnelReply = recvMsg();
@@ -104,12 +100,9 @@ String calvinRuntime::recvMsg()
  */
 void calvinRuntime::sendMsg(const char *str)
 {
-  Serial.println("Sending...");
   char *jsonChar = jsonSerialize(str);
-  Serial.println(jsonChar); // Test purpose
   server.write(jsonChar);
   delete[] jsonChar;
-  jsonChar = 0;
 }
 
 /**
@@ -132,13 +125,13 @@ void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
  */
 void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
-  request["msg_uuid"] = "00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
+  request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
   request["from_rt_uuid"] = "calvin-miniscule";
   request["to_rt_uuid"] = msg.get("id");
   request["cmd"] = "TUNNEL_NEW";
   request["tunnel_id"] = "fake-tunnel";
   request["type"] = "token";
-  request["policy"] = policy;
+  //request["policy"] = policy; // Unused
 }
 
 /**
