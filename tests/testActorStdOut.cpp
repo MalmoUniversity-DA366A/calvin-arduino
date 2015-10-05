@@ -77,22 +77,22 @@ TEST(ActorTest,testKeys)
 	CalvinMini actorstd;
 	int8_t* array;
 
-	globalActor.value[0].key = "e4tt";
-	globalActor.value[1].key = "e22tt";
-	globalActor.value[2].key = "etdt";
-	globalActor.value[3].key = "esstft";
-	globalActor.value[4].key = "ett";
-	globalActor.value[4].value[0].key = "sex";
-	globalActor.value[4].value[1].key = "se2x";
-	globalActor.value[4].value[2].key = "se2x";
-	globalActor.value[4].value[3].key = "s2ex";
-	globalActor.value[4].value[4].key = "se2x";
+	globalActor.ports[0].key = "e4tt";
+	globalActor.ports[1].key = "e22tt";
+	globalActor.ports[2].key = "etdt";
+	globalActor.ports[3].key = "esstft";
+	globalActor.ports[4].key = "ett";
+	globalActor.ports[4].portName[0].key = "sex";
+	globalActor.ports[4].portName[1].key = "se2x";
+	globalActor.ports[4].portName[2].key = "se2x";
+	globalActor.ports[4].portName[3].key = "s2ex";
+	globalActor.ports[4].portName[4].key = "se2x";
 
-	globalActor.value[4].value[0].value[0].key = "sex";
-	globalActor.value[4].value[0].value[1].key  = "se2x";
-	globalActor.value[4].value[0].value[2].key = "se2x";
-	globalActor.value[4].value[0].value[3].key  = "sju";
-	globalActor.value[4].value[0].value[4].key  = "se2x";
+	globalActor.ports[4].portName[0].fifo[0].key = "sex";
+	globalActor.ports[4].portName[0].fifo[1].key  = "se2x";
+	globalActor.ports[4].portName[0].fifo[2].key = "se2x";
+	globalActor.ports[4].portName[0].fifo[3].key  = "sju";
+	globalActor.ports[4].portName[0].fifo[4].key  = "se2x";
 
 	array = actorstd.searchForKeys(&globalActor,"ett","sex","sju");
 	EXPECT_EQ(4,array[0]);

@@ -22,7 +22,8 @@ int initFifo(fifo*);
 int fifoAdd(fifo*, const char*);
 const char* fifoPop(fifo*);
 int lengthOfData(fifo*);
-int actorInit();
+int actorInit(void);
+int SdtOut(void);
 
 typedef struct actors{
 	const char* type;
@@ -41,13 +42,13 @@ typedef struct actors{
 				int length;
 				const char* (*pop)(struct buffert*);		//Fifo pop and add
 				int (*add)(struct buffert*,const char*);		//functions.
-			}value[ACTOR_SIZE];
-		}value[ACTOR_SIZE];
-	}value[ACTOR_SIZE];
+			}fifo[ACTOR_SIZE];
+		}portName[ACTOR_SIZE];
+	}ports[ACTOR_SIZE];
 }actor;
 
-
 }
+
 using namespace std;
 class CalvinMini
 {
