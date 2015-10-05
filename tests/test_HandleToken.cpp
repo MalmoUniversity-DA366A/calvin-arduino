@@ -8,6 +8,7 @@
 
 #include "gtest/gtest.h"
 #include "../src/CalvinInProgress/Token.h"
+#include "../src/CalvinDone/CalvinMini.h"
 
 class test_HandleToken : public ::testing::Test {
 protected:
@@ -15,11 +16,10 @@ protected:
 	virtual void TearDown() {}
 };
 
-// A test method for testing the handleToken function
-TEST(test_HandleToken, tokenContainsKey) {
+TEST(test_HandleToken, testProcess) {
 	// Create an instance of the Token
-	Token token;
-
+	CalvinMini token;
+	actorInit();
 	// Create two empty JsonObject with an StaticJsonBuffer
 	StaticJsonBuffer<400> jsonBuffer;
 	JsonObject &reply = jsonBuffer.createObject();
@@ -29,6 +29,51 @@ TEST(test_HandleToken, tokenContainsKey) {
 	msg["sequencenbr"] = "1234";
 	msg["port_id"] = "4321";
 	msg["peer_port_id"] = "5678";
+	msg["token"] = "6666";
+
+	// Initiate the handleToken function so that JsonObject reply
+	// is filled.
+	token.handleToken(msg, reply);
+
+	EXPECT_EQ(4, StdOut());
+}
+
+TEST(test_HandleToken, testSize) {
+	// Create an instance of the Token
+	CalvinMini token;
+	actorInit();
+	// Create two empty JsonObject with an StaticJsonBuffer
+	StaticJsonBuffer<400> jsonBuffer;
+	JsonObject &reply = jsonBuffer.createObject();
+	JsonObject &msg = jsonBuffer.createObject();
+
+	// Add String values for testing, remove in the final project.
+	msg["sequencenbr"] = "1234";
+	msg["port_id"] = "4321";
+	msg["peer_port_id"] = "5678";
+	msg["token"] = "6666";
+
+	// Initiate the handleToken function so that JsonObject reply
+	// is filled.
+	token.handleToken(msg, reply);
+
+	EXPECT_EQ(5, reply.size());
+}
+
+TEST(test_HandleToken, testIfContainsKey) {
+	// Create an instance of the Token
+	CalvinMini token;
+	actorInit();
+	// Create two empty JsonObject with an StaticJsonBuffer
+	StaticJsonBuffer<400> jsonBuffer;
+	JsonObject &reply = jsonBuffer.createObject();
+	JsonObject &msg = jsonBuffer.createObject();
+
+	// Add String values for testing, remove in the final project.
+	msg["sequencenbr"] = "1234";
+	msg["port_id"] = "4321";
+	msg["peer_port_id"] = "5678";
+	msg["token"] = "6666";
 
 	// Initiate the handleToken function so that JsonObject reply
 	// is filled.
@@ -42,10 +87,10 @@ TEST(test_HandleToken, tokenContainsKey) {
 	EXPECT_TRUE(reply.containsKey("value"));
 }
 
-TEST(test_HandleToken, tokenSize) {
+TEST(test_HandleToken, testValues) {
 	// Create an instance of the Token
-	Token token;
-
+	CalvinMini token;
+	actorInit();
 	// Create two empty JsonObject with an StaticJsonBuffer
 	StaticJsonBuffer<400> jsonBuffer;
 	JsonObject &reply = jsonBuffer.createObject();
@@ -55,28 +100,7 @@ TEST(test_HandleToken, tokenSize) {
 	msg["sequencenbr"] = "1234";
 	msg["port_id"] = "4321";
 	msg["peer_port_id"] = "5678";
-
-	// Initiate the handleToken function so that JsonObject reply
-	// is filled.
-	token.handleToken(msg, reply);
-
-	// Checks if the JsonObject is the correct size
-	EXPECT_EQ(5, reply.size());
-}
-
-TEST(test_HandleToken, tokenStringValue) {
-	// Create an instance of the Token
-	Token token;
-
-	// Create two empty JsonObject with an StaticJsonBuffer
-	StaticJsonBuffer<400> jsonBuffer;
-	JsonObject &reply = jsonBuffer.createObject();
-	JsonObject &msg = jsonBuffer.createObject();
-
-	// Add String values for testing, remove in the final project.
-	msg["sequencenbr"] = "1234";
-	msg["port_id"] = "4321";
-	msg["peer_port_id"] = "5678";
+	msg["token"] = "6666";
 
 	// Initiate the handleToken function so that JsonObject reply
 	// is filled.
@@ -89,5 +113,4 @@ TEST(test_HandleToken, tokenStringValue) {
 	EXPECT_STREQ("5678", reply.get("peer_port_id"));
 	EXPECT_STREQ("ACK", reply.get("value"));
 }
-
 #endif

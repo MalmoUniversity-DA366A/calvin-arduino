@@ -8,6 +8,7 @@
 #include "CalvinMini.h"
 #include <inttypes.h>
 
+
 actor globalActor;
 fifo actorFifo;
 
@@ -21,7 +22,7 @@ int StdOut(){
 	{
 		;//pop token
 	}
-	return standardOut(globalActor.fifo);
+	return standardOut(globalActor.value[0].value[0].value[0].pop(&actorFifo));
 }
 
 /**
@@ -226,6 +227,22 @@ int CalvinMini::process(const char* token){
 	allOk = -1;
 	allOk = globalActor.value[0].value[0].value[0].add(&actorFifo,token);
 	return allOk;
+}
+
+/**
+ * Function for setting the Json reply back to Calvin-Base when the request message from
+ * Calvin-Base is "Token"
+ * @param msg is the JsonObject that is message from Calvin-Base
+ * @param reply is the JsonObject with the reply message from Calvin-Arduino
+ */
+void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
+{
+	process(msg.get("token"));
+	reply.set("cmd", 			"TOKEN_REPLY");
+	reply.set("sequencenbr", 	msg.get("sequencenbr"));
+	reply.set("port_id",		msg.get("port_id"));
+	reply.set("peer_port_id", 	msg.get("peer_port_id"));
+	reply.set("value", 			"ACK");
 }
 
 /**

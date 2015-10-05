@@ -23,6 +23,7 @@ int fifoAdd(fifo*, const char*);
 const char* fifoPop(fifo*);
 int lengthOfData(fifo*);
 int actorInit();
+int StdOut(void);
 
 typedef struct actors{
 	const char* type;
@@ -60,6 +61,7 @@ public:
 	int8_t search(const char*);
 	void initGlobalActor(actor*);
 	int process(const char*);
+	void handleToken(JsonObject &msg, JsonObject &reply);
 	int lengthOfData(fifo*);
 	void handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy);
 	void loop();
