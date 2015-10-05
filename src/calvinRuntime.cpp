@@ -37,18 +37,21 @@ void calvinRuntime::setupConnection()
           String str = recvMsg();
 
           // Jsonobject for recieving a join request
-          StaticJsonBuffer<2000> jsonBufferMsg;
+          StaticJsonBuffer<1000> jsonBufferMsg;
           JsonObject &msg = jsonBufferMsg.parseObject(str.c_str());
 
           // JsonObject for replying a join request
-          StaticJsonBuffer<2000> jsonBufferReply;
+          StaticJsonBuffer<1000> jsonBufferReply;
           JsonObject &reply = jsonBufferReply.createObject();
 
           // JsonObject for requesting a new tunnel
-          StaticJsonBuffer<2000> jsonBufferRequest;
+          StaticJsonBuffer<1000> jsonBufferRequest;
           JsonObject &request = jsonBufferRequest.createObject();
 
-          handleMsg(msg, reply, request);
+          StaticJsonBuffer<1000> jsonBufferPolicy;
+          JsonObject &policy = jsonBufferPolicy.createObject();
+
+          handleMsg(msg, reply, request, policy);
 
           // Test purpose
           testJson json;
@@ -129,14 +132,15 @@ void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
  * @param msg JsonObject
  * @param request JsonObject
  */
-void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request)
+void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
-  request["msg_uuid"] = "00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
+  request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
   request["from_rt_uuid"] = "calvin-miniscule";
   request["to_rt_uuid"] = msg.get("id");
   request["cmd"] = "TUNNEL_NEW";
   request["tunnel_id"] = "fake-tunnel";
   request["type"] = "token";
+  request["policy"] = policy;
 }
 
 /**
@@ -145,30 +149,30 @@ void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request)
  * @param reply JsonObject
  * @param request JsonObject
  */
-void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
+void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy)
 {
-  if(strcmp(msg.get("cmd"),"JOIN_REQUEST") == 0)
+  if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
   {
       handleJoin(msg,reply);
-      handleSetupTunnel(msg, request);
+      handleSetupTunnel(msg, request, policy);
   }
-  else if(strcmp(msg.get("cmd"),"ACTOR_NEW") == 0)
+  else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
 
   }
-  else if(strcmp(msg.get("cmd"),"TUNNEL_DATA") == 0)
+  else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
 
   }
-  else if(strcmp(msg.get("cmd"),"TOKEN") == 0)
+  else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
 
   }
-  else if(strcmp(msg.get("cmd"),"TOKEN_REPLY") == 0)
+  else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
   {
 
   }
-  else if(strcmp(msg.get("cmd"),"REPLY") == 0)
+  else if(!strcmp(msg.get("cmd"),"REPLY"))
   {
 
   }
@@ -290,15 +294,15 @@ String calvinRuntime::stringBuilderJsonObject(JsonObject &reply)
            }
            str += "]";
       }
-      else if(it->value.operator String())
+      else if(it->value.operator int())
+      {
+          str += it->value.as<int>();
+      }
+      else
       {
           str += "\"";
           str += it->value.asString();
           str += "\"";
-      }
-      else
-      {
-          str += it->value.as<int>();
       }
       if(count != (reply.size() - 1))
       {
