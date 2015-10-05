@@ -61,6 +61,7 @@ public:
 	void initGlobalActor(actor*);
 	int process(const char*);
 	int lengthOfData(fifo*);
+	void handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy);
 };
 
 
