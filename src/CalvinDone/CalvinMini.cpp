@@ -264,6 +264,44 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 	request.set("policy", policy);
 }
 
+/**
+ * Handle all different messages
+ * @param msg JsonObject
+ * @param reply JsonObject
+ * @param request JsonObject
+ */
+void CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy)
+{
+  if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
+  {
+
+  }
+  else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
+  {
+
+  }
+  else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
+  {
+
+  }
+  else if(!strcmp(msg.get("cmd"),"TOKEN"))
+  {
+
+  }
+  else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
+  {
+
+  }
+  else if(!strcmp(msg.get("cmd"),"REPLY"))
+  {
+
+  }
+  else
+  {
+      //Serial.println("UNKNOWN CMD");
+  }
+}
+
 void loop()
 {
 	while(1)

@@ -64,6 +64,7 @@ public:
 	void handleToken(JsonObject &msg, JsonObject &reply);
 	int lengthOfData(fifo*);
 	void handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy);
+	void handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy);
 	void loop();
 };
 
