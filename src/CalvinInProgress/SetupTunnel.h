@@ -1,3 +1,4 @@
+#ifdef _MOCK_
 /*
  * setupTunnel.h
  *
@@ -17,3 +18,4 @@ public:
 };
 
 #endif /* SETUPTUNNEL_H_ */
+#endif

@@ -1,18 +1,9 @@
-/*
- * actorStdOut.h
- *
- *  Created on: 22 sep. 2015
- *      Author: Daniel Nordahl
- */
 
-#ifndef SRC_ACTORSTDOUT_H_
-#define SRC_ACTORSTDOUT_H_
+#ifndef CALVINDONE_CALVINMINI_H_
+#define CALVINDONE_CALVINMINI_H_
+
 #include <stdio.h>
-#include <iostream>
-#include <string>
-#include <string.h>
-#include "../libraries/ArduinoJson/include/ArduinoJson.h"
-
+#include "ArduinoJson.h"
 #define standardOut(x)		strlen(x)
 #define ACTOR_SIZE			5
 #define QUEUE_SIZE			10
@@ -58,7 +49,7 @@ typedef struct actors{
 
 }
 using namespace std;
-class ActorStdOut
+class CalvinMini
 {
 public:
 	uint8_t createActor(JsonObject &msg);
@@ -70,9 +61,10 @@ public:
 	void initGlobalActor(actor*);
 	int process(const char*);
 	int lengthOfData(fifo*);
+	void handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy);
 };
 
 
 
 
-#endif /* SRC_ACTORSTDOUT_H_ */
+#endif /* CALVINDONE_CALVINMINI_H_ */

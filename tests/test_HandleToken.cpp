@@ -7,7 +7,7 @@
 #ifdef _MOCK_
 
 #include "gtest/gtest.h"
-#include "../src/Token.h"
+#include "../src/CalvinInProgress/Token.h"
 
 class test_HandleToken : public ::testing::Test {
 protected:

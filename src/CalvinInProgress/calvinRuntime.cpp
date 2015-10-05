@@ -120,9 +120,12 @@ void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
 }
 
 /**
- * Create a new tunnel request
- * @param msg JsonObject
- * @param request JsonObject
+ * Method for setting up a tunnel using JSON message back to Calvin-Base,
+ * JSON is added to the JsonObject request that is added to the reply list.
+ * @param &msg JsonObject received from Calvin-Base
+ * @param &request JsonObject that is added to the "reply" list
+ * @param &policy JsonObject that is an empty JsonObject
+ *
  */
 void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {

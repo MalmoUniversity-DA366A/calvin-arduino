@@ -1,12 +1,11 @@
 /*
- * actorStdOut.cpp
+ * This is the Calvin mini library for Arduino due
  *
- *  Created on: 22 sep. 2015
- *      Author: Daniel Nordahl
+ *Created on: 5 okt. 2015
+ *
  */
 #include <stdio.h>
-#include "actorStdOut.h"
-#include <string.h>
+#include "CalvinMini.h"
 #include <inttypes.h>
 
 actor globalActor;
@@ -48,9 +47,9 @@ int actorInit(){
  * @param msg json list
  * @return return 1 if successful.
  */
-uint8_t ActorStdOut::createActor(JsonObject &msg){
+uint8_t CalvinMini::createActor(JsonObject &msg){
 	int allOk = 0;
-	ActorStdOut::initGlobalActor(&globalActor);
+	CalvinMini::initGlobalActor(&globalActor);
 	globalActor.type = msg["type"];
 	globalActor.name = msg["name"];
 	globalActor.id = msg["id"];
@@ -64,38 +63,13 @@ uint8_t ActorStdOut::createActor(JsonObject &msg){
 	return allOk;
 }
 
-/**
- * Construct a json-object used in testing
- */
-int ActorStdOut::createJson(){
-	int allOk = 0;
-
-	StaticJsonBuffer<2000> jsonBuffer;
-	char str[] = "{\"type\":\"actor\",\"name\":\"actor1\",\"id\":\"89\",\"fifo\":\"12\"}";
-	JsonObject &root = jsonBuffer.parseObject(str);
-
-	if (root.success())
-	{
-			    allOk = 1;
-	}
-
-	JsonObject &p_json = root;
-	ActorStdOut::createActor(p_json);
-	return allOk;
-}
-
-actor ActorStdOut::getGlobalStruct()
-{
-	return globalActor;
-}
-
 /*
  * Search for keys in the actor struct. The actor struct is a struct
  * with struct arrays in it, it has 3 levels so to search it 3 keys are
  * needed.
  * @return An arrays with positions of the found keys.
  */
-int8_t* ActorStdOut::searchForKeys(actor* act,const char* key1,const char* key2,
+int8_t* CalvinMini::searchForKeys(actor* act,const char* key1,const char* key2,
 		const char* key3)
 {
 	static int8_t keys[3] = {0,0,0};
@@ -125,7 +99,7 @@ int8_t* ActorStdOut::searchForKeys(actor* act,const char* key1,const char* key2,
  * To be able to search thru the struct all keys
  * needs a value, this method sets it to null.
  */
-void ActorStdOut::initGlobalActor(actor *act){
+void CalvinMini::initGlobalActor(actor *act){
 	int8_t i,j,k;
 	i = 0;
 	j = 0;
@@ -247,14 +221,29 @@ const char* fifoPop(fifo *fif){
  * @return if data vas added to fifo this function returns
  * 1, if something went wrong it returns 0.
  */
-int ActorStdOut::process(const char* token){
+int CalvinMini::process(const char* token){
 	int allOk;
 	allOk = -1;
 	allOk = globalActor.value[0].value[0].value[0].add(&actorFifo,token);
 	return allOk;
 }
 
-
-
-
+/**
+ * Method for setting up a tunnel using JSON message back to Calvin-Base,
+ * JSON is added to the JsonObject request that is added to the reply list.
+ * @param &msg JsonObject received from Calvin-Base
+ * @param &request JsonObject that is added to the "reply" list
+ * @param &policy JsonObject that is an empty JsonObject
+ *
+ */
+void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
+{
+	request.set("msg_uuid", "MSG-12345678-9101-1123-1415-161718192021");
+	request.set("from_rt_uuid", "calvin-miniscule");
+	request.set("to_rt_uuid", msg.get("id"));
+	request.set("cmd", "TUNNEL_NEW");
+	request.set("tunnel_id", "fake-tunnel");
+	request.set("type", "token");
+	request.set("policy", policy);
+}
 
