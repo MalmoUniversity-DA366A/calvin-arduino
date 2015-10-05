@@ -67,16 +67,6 @@ int main(void) {
 	Serial.begin(115200);
 	calvinRuntime json;
 	json.setupConnection();
-  /*char json2[] = "{\"cmd\": \"JOIN_REQUEST\", \"serializers\": [\"json\"], \"id\": \"1c17dc88-63b0-48c2-8930-1df399b4c887\", \"sid\": \"MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6\"}";
-  char json3[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[1024,\"inside\"]}";
-  StaticJsonBuffer<4096> jsonBuffer;
-  JsonObject &msg = jsonBuffer.parseObject(json2);
-  JsonObject &msg2 = jsonBuffer.parseObject(json3);
-  String str = json.stringBuilderJsonObject(msg);
-	str += json.stringBuilderJsonObject(msg2);
-	Serial.println(str);
-	char *test = json.jsonSerialize(str.c_str());
-	Serial.println(test);*/
 }
 #else
 
