@@ -108,8 +108,7 @@ void calvinRuntime::sendMsg(const char *str)
   Serial.println("Sending...");
   char *jsonChar = jsonSerialize(str);
   Serial.println(jsonChar); // Test purpose
-  client.write(jsonChar);
-  client.flush();
+  server.write(jsonChar);
   delete[] jsonChar;
   jsonChar = 0;
 }
