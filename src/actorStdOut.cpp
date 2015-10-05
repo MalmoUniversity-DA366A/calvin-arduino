@@ -4,6 +4,7 @@
  *  Created on: 22 sep. 2015
  *      Author: Daniel Nordahl
  */
+
 #include <stdio.h>
 #include "actorStdOut.h"
 #include <string.h>

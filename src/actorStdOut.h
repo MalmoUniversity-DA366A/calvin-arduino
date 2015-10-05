@@ -7,6 +7,7 @@
 
 #ifndef SRC_ACTORSTDOUT_H_
 #define SRC_ACTORSTDOUT_H_
+
 #include <stdio.h>
 #include <iostream>
 #include <string>
