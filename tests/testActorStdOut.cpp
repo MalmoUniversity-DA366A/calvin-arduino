@@ -18,11 +18,6 @@ class ActorTest : public ::testing::Test {
 	 }
 };
 
-/*TEST(ActorTest,jsonTest)
-{
-	CavinMini actorstd;
-	EXPECT_EQ(1,actorstd.createJson());
-}*/
 /**
  * Testing the actor struct.
  */
