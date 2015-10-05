@@ -247,3 +247,23 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 	request.set("policy", policy);
 }
 
+void loop()
+{
+	while(1)
+	{
+		// 1: Kontrollera anslutna sockets
+
+		// 2: Fixa koppling
+
+		// 3: Läs av meddelande
+
+		// 4: Hantera meddelande
+
+		// 5: Fire Actors
+
+		// 6: Läs av utlistan
+
+		// 7: Skicka utmeddelande
+	}
+}
+
