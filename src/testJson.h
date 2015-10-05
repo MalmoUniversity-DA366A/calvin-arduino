@@ -1,6 +1,15 @@
+/*
+ * testJson.h
+ *
+ *      Author: Peter
+ */
 #include "Arduino.h"
+#include "ArduinoJson.h"
 
-void testJson();
-void printJson(String str);
-String jsonUnserialize(char *temp);
-String jsonSerialize(char *str);
+class testJson {
+public:
+  void testObject(void);
+  void testParsing(JsonObject &root);
+  int checkJson(JsonObject &root);
+private:
+};
