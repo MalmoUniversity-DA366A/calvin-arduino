@@ -264,6 +264,63 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 	request.set("policy", policy);
 }
 
+/**
+ * Method for handle the tunnel data using JSON, JSON is added to the JsonObject reference reply
+ * @param &msg JsonObject received from Calvin-Base
+ * @param &reply JsonObject that is added to the "reply" list
+ *
+ * Author: Jesper Hansen
+ */
+void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply)
+{
+	reply.set("to_rt_uuid", 	msg.get("from_rt_uuid"));
+	reply.set("from_rt_uuid", 	msg.get("to_rt_uuid"));
+	reply.set("cmd", 			"TUNNEL_DATA");
+	reply.set("tunnel_id",		""); // None in python
+	reply.set("value",			"foo"); // Look in Calvin-Mini.py
+}
+
+/**
+ * Handle all different messages
+ * @param msg JsonObject
+ * @param reply JsonObject
+ * @param request JsonObject
+ */
+int CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy)
+{
+  if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
+  {
+	  return 1;
+  }
+  else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
+  {
+	  return 2;
+  }
+  else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
+  {
+	  return 3;
+  }
+  else if(!strcmp(msg.get("cmd"),"TOKEN"))
+  {
+	  return 4;
+  }
+  else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
+  {
+	  return 5;
+  }
+  else if(!strcmp(msg.get("cmd"),"REPLY"))
+  {
+	  return 6;
+  }
+  else
+  {
+
+      //Serial.println("UNKNOWN CMD");
+
+	  return 7;
+  }
+}
+
 void loop()
 {
 	while(1)
