@@ -17,7 +17,7 @@ public:
   void handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy);
   void handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy);
   String recvMsg(void);
-  void sendMsg(const char *str);
+  void sendMsg(const char *str, size_t length);
   String jsonDeserialize(char *temp);
   char* jsonSerialize(const char *str);
   String stringBuilderJsonObject(JsonObject &reply);

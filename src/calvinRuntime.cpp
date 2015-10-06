@@ -5,6 +5,7 @@
  */
 #include <SPI.h>
 #include <Ethernet.h>
+#include <util.h>
 #include "calvinRuntime.h"
 #include "testJson.h"
 #include <socket.h>
@@ -54,11 +55,15 @@ void calvinRuntime::setupConnection()
 
           // Print JsonObject and send to Calvin
           String replyTemp = stringBuilderJsonObject(reply);
+          //String sendReply = replyTemp.length();
+          //sendReply += replyTemp;
           Serial.println("Sending...");
-          sendMsg(replyTemp.c_str());
+          sendMsg(replyTemp.c_str(),replyTemp.length());
           String requestTemp = stringBuilderJsonObject(request);
-          Serial.println("Sending...");
-          sendMsg(requestTemp.c_str());
+          //String sendRequest = requestTemp.length();
+          //sendRequest += requestTemp;
+          //Serial.println("Sending...");
+          sendMsg(requestTemp.c_str(),requestTemp.length());
 
           String tunnelReply = recvMsg();
       }
@@ -74,22 +79,27 @@ String calvinRuntime::recvMsg()
   Serial.println("Reading...");
   char temp[MAX_LENGTH+1] = {};
   String str = "";
-  bool found = false;
+  byte data[4];
+  int found = 0;
+  int count = 0;
+  int sizeOfMsg;
   while(!found)
   {
         int size = client.readBytes(temp, MAX_LENGTH);
+        data[count] = *temp;
+        count++;
         if(*temp == '{')
         {
-            temp[size] = '\0';  // Null terminate char
             str += temp;
-            found = true;
+            found = 1;
         }
   }
-  while(*temp != '}')
+  sizeOfMsg = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
+  for(int i=0;i<sizeOfMsg-1;i++)
   {
-        int size = client.readBytes(temp, MAX_LENGTH);
-        temp[size] = '\0';  // Null terminate char
-        str += temp;
+      int size = client.readBytes(temp, MAX_LENGTH);
+      temp[size] = '\0';  // Null terminate char
+      str += temp;
   }
   return str;
 }
@@ -98,11 +108,24 @@ String calvinRuntime::recvMsg()
  * Reply message to calvin base
  * @param str char pointer
  */
-void calvinRuntime::sendMsg(const char *str)
+void calvinRuntime::sendMsg(const char *str, size_t length)
 {
-  char *jsonChar = jsonSerialize(str);
-  server.write(jsonChar);
-  delete[] jsonChar;
+  //char *jsonChar = jsonSerialize(str);
+    //char numstr[length+21]; // enough to hold all numbers up to 64-bits
+    //uint32_t nlength = htonl(length);
+  uint32_t hex[4] = {};
+  hex[0] = (length & 0xFF000000);
+  hex[1] = (length & 0x00FF0000);
+  hex[2] = (length & 0x0000FF00);
+  hex[3] = (length & 0x000000FF);
+  //Serial.println(hex);
+
+    //sprintf(numstr, "%x%x%x%x%s", NULL,NULL,NULL,length,str);
+    //server.write(numstr);
+    //server.write(nlength);
+  for(int i = 0; i< 4;i++)
+    server.write(hex[i]);
+  server.write(str);
 }
 
 /**
@@ -130,8 +153,8 @@ void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request, Json
   request["to_rt_uuid"] = msg.get("id");
   request["cmd"] = "TUNNEL_NEW";
   request["tunnel_id"] = "fake-tunnel";
+  request["policy"] = policy; // Unused
   request["type"] = "token";
-  //request["policy"] = policy; // Unused
 }
 
 /**
@@ -285,6 +308,54 @@ String calvinRuntime::stringBuilderJsonObject(JsonObject &reply)
            }
            str += "]";
       }
+      else if(it->value.is<JsonObject&>())
+        {
+          JsonObject &object = it->value.asObject();
+          str += "{";
+          unsigned int innercount = 0;
+          for(JsonObject::iterator it=object.begin(); it!=object.end();++it)
+          {
+              if(it->value.is<JsonArray&>())
+              {
+                  JsonArray &array = it->value.asArray();
+                  str += "[";
+                  for(unsigned int i = 0; i < array.size(); i++)
+                  {
+                      if(array.get(i).operator String())
+                      {
+                          str += "\"";
+                          str += array.get(i).asString();
+                          str += "\"";
+                      }
+                      else
+                      {
+                          str += array.get(i).as<int>();
+                      }
+                      if(i != array.size() - 1)
+                      {
+                          str += ",";
+                      }
+               }
+               str += "]";
+              }
+              else if(it->value.operator String())
+              {
+                  str += "\"";
+                  str += it->value.asString();
+                  str += "\"";
+              }
+              else
+              {
+                  str += it->value.as<int>();
+              }
+              if(count != (object.size() - 1))
+              {
+                  str += ",";
+              }
+              innercount++;
+          }
+          str += "}";
+        }
       else if(it->value.operator String())
       {
           str += "\"";
