@@ -22,7 +22,7 @@ int StdOut(){
 	{
 		;//pop token
 	}
-	return standardOut(globalActor.value[0].value[0].value[0].pop(&actorFifo));
+	return standardOut(globalActor.ports[0].portName[0].fifo[0].pop(&actorFifo));
 }
 
 /**
@@ -314,9 +314,9 @@ int CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &reques
   }
   else
   {
-
-      //Serial.println("UNKNOWN CMD");
-
+#ifdef ARDUINO
+      Serial.println("UNKNOWN CMD");
+#endif
 	  return 7;
   }
 }
