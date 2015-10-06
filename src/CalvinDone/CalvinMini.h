@@ -8,7 +8,7 @@
 #define ACTOR_SIZE			5
 #define QUEUE_SIZE			10
 #define FIFO_SIZE			8			//Must be a power of two
-
+#define NUMBER_OF_PORTS     2
 extern "C"{
 
 typedef struct buffert{
@@ -25,26 +25,18 @@ int lengthOfData(fifo*);
 int actorInit();
 int StdOut(void);
 
+typedef struct testStruct{
+	struct buffert *inports[5];
+}test;
+
 typedef struct actors{
 	const char* type;
 	const char* name;
 	const char* id;
-	const char* inport;
-	const char* outport;
 	const char* fifo;
-	int (*function)();
-	struct ports{
-		const char* key;
-		struct tokens{
-			const char* key;
-			struct fifos{
-				const char* key;
-				int length;
-				const char* (*pop)(struct buffert*);		//Fifo pop and add
-				int (*add)(struct buffert*,const char*);		//functions.
-			}fifo[ACTOR_SIZE];
-		}portName[ACTOR_SIZE];
-	}ports[ACTOR_SIZE];
+	int (*fireActor)();
+	struct buffert *inportsFifo[NUMBER_OF_PORTS];
+	struct buffert *outportsFifo[NUMBER_OF_PORTS];
 }actor;
 
 }

@@ -17,12 +17,12 @@ fifo actorFifo;
  */
 int StdOut(){
 	uint8_t inFifo;
-	inFifo = globalActor.ports[0].portName[0].fifo[0].length;
+	inFifo = lengthOfData(globalActor.inportsFifo[0]);
 	if(inFifo > 0)
 	{
 		;//pop token
 	}
-	return standardOut(globalActor.ports[0].portName[0].fifo[0].pop(&actorFifo));
+	return standardOut(fifoPop(globalActor.inportsFifo[0]));
 }
 
 /**
@@ -32,13 +32,13 @@ int StdOut(){
  */
 extern "C"{
 int actorInit(){
-	globalActor.function = &StdOut;
+	globalActor.fireActor = &StdOut;
 
 	/*This sets up the fifo for the actor, not sure
 	 *if it should be done here but for now it works*/
 	initFifo(&actorFifo);
-	globalActor.ports[0].portName[0].fifo[0].add = &fifoAdd;
-	globalActor.ports[0].portName[0].fifo[0].pop = &fifoPop;
+	globalActor.inportsFifo[0] = &actorFifo;
+
 	return 1;
 }
 }
@@ -50,89 +50,15 @@ int actorInit(){
  */
 uint8_t CalvinMini::createActor(JsonObject &msg){
 	int allOk = 0;
-	CalvinMini::initGlobalActor(&globalActor);
 	globalActor.type = msg["type"];
 	globalActor.name = msg["name"];
 	globalActor.id = msg["id"];
-	globalActor.fifo = msg["fifo"];
-	globalActor.ports[0].key = "inport";
-	globalActor.ports[0].portName[0].fifo[0].length = 0; //This is the port-fifo
-	globalActor.outport = "NULL";
 
 	actorInit();
 	allOk = 1;
 	return allOk;
 }
 
-/*
- * Search for keys in the actor struct. The actor struct is a struct
- * with struct arrays in it, it has 3 levels so to search it 3 keys are
- * needed.
- * @return An arrays with positions of the found keys.
- */
-int8_t* CalvinMini::searchForKeys(actor* act,const char* key1,const char* key2,
-		const char* key3)
-{
-	static int8_t keys[3] = {0,0,0};
-	int i;
-	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key1,act->ports[i].key))
-		{
-			keys[0] = i;
-		}
-	}
-	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key2,act->ports[keys[0]].portName[i].key))
-		{
-			keys[1] = i;
-		}
-	}
-	for( i = 0; i < ACTOR_SIZE; i++ ){
-		if(!strcmp(key3,act->ports[keys[0]].portName[keys[1]].
-				fifo[i].key))
-		{
-			keys[2] = i;
-		}
-	}
-	return keys;
-}
-/**
- * To be able to search thru the struct all keys
- * needs a value, this method sets it to null.
- */
-void CalvinMini::initGlobalActor(actor *act){
-	int8_t i,j,k;
-	i = 0;
-	j = 0;
-	k = 0;
-
-	for(i ; i < ACTOR_SIZE; i++)
-	{
-		act->ports[i].key = "null";
-	}
-
-	i = 0;
-	for( i ; i < ACTOR_SIZE; i++ )
-		{
-		for( j ; j < ACTOR_SIZE ; j++ )
-		{
-			act->ports[i].portName[j].key = "null";
-		}
-		}
-	i = 0;
-	j = 0;
-
-	for( i ; i < ACTOR_SIZE ; i++ )
-	{
-		for( j ; j < ACTOR_SIZE ; j++)
-		{
-			for( k ; k < ACTOR_SIZE ; k++)
-			{
-				act->ports[i].portName[j].fifo[k].key = "null";
-			}
-		}
-	}
-}
 extern "C"{
 /**
  * This Function initiate the fifo must be
@@ -225,7 +151,7 @@ const char* fifoPop(fifo *fif){
 int CalvinMini::process(const char* token){
 	int allOk;
 	allOk = -1;
-	allOk = globalActor.ports[0].portName[0].fifo[0].add(&actorFifo,token);
+	allOk = fifoAdd(globalActor.inportsFifo[0],token);
 	return allOk;
 }
 
@@ -315,7 +241,7 @@ int CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &reques
   else
   {
 #ifdef ARDUINO
-      Serial.println("UNKNOWN CMD");
+      //Serial.println("UNKNOWN CMD");
 #endif
 	  return 7;
   }
@@ -329,13 +255,13 @@ void loop()
 
 		// 2: Fixa koppling
 
-		// 3: Läs av meddelande
+		// 3: Lï¿½s av meddelande
 
 		// 4: Hantera meddelande
 
 		// 5: Fire Actors
 
-		// 6: Läs av utlistan
+		// 6: Lï¿½s av utlistan
 
 		// 7: Skicka utmeddelande
 	}

@@ -26,18 +26,36 @@ TEST(ActorTest,structTest)
 {
 	CalvinMini actorstd;
 	actor newActor;
-
+	fifo actorFifo;
+	EXPECT_EQ(0,initFifo(&actorFifo));
 	//Test struct
 	newActor.type = "Daniel";
 	newActor.name = "Hej";
 	newActor.id = "1";
-	newActor.outport = "7411";
-	newActor.inport = "1337";
+
+	/*Test inport fifo*/
+	newActor.inportsFifo[0] = &actorFifo;
+	EXPECT_EQ(0,fifoAdd(newActor.inportsFifo[0],"Add"));
+	EXPECT_STREQ("Add",fifoPop(newActor.inportsFifo[0]));
+	/*Test outportfifo*/
+	newActor.outportsFifo[0] = &actorFifo;
+	EXPECT_EQ(0,fifoAdd(newActor.inportsFifo[0],"Add"));
+	EXPECT_STREQ("Add",fifoPop(newActor.inportsFifo[0]));
+
 	EXPECT_EQ("Daniel",newActor.type);
 	EXPECT_EQ("Hej",newActor.name);
 	EXPECT_EQ("1",newActor.id);
-	EXPECT_EQ("7411",newActor.outport);
-	EXPECT_EQ("1337",newActor.inport);
+
+}
+
+TEST(ActorTest,Struct){
+
+	actor newTest;
+	fifo actorFifo;
+	EXPECT_EQ(0,initFifo(&actorFifo));
+	newTest.inportsFifo[0] = &actorFifo;
+	EXPECT_EQ(0,fifoAdd(newTest.inportsFifo[0],"Calvin"));
+	EXPECT_STREQ("Calvin",fifoPop(newTest.inportsFifo[0]));
 
 }
 
@@ -67,38 +85,6 @@ TEST(ActorTest,processTest)
 
 }
 
-
-/**
- * Testing actor key search function
- */
-TEST(ActorTest,testKeys)
-{
-	actor globalActor;
-	CalvinMini actorstd;
-	int8_t* array;
-
-	globalActor.ports[0].key = "e4tt";
-	globalActor.ports[1].key = "e22tt";
-	globalActor.ports[2].key = "etdt";
-	globalActor.ports[3].key = "esstft";
-	globalActor.ports[4].key = "ett";
-	globalActor.ports[4].portName[0].key = "sex";
-	globalActor.ports[4].portName[1].key = "se2x";
-	globalActor.ports[4].portName[2].key = "se2x";
-	globalActor.ports[4].portName[3].key = "s2ex";
-	globalActor.ports[4].portName[4].key = "se2x";
-
-	globalActor.ports[4].portName[0].fifo[0].key = "sex";
-	globalActor.ports[4].portName[0].fifo[1].key  = "se2x";
-	globalActor.ports[4].portName[0].fifo[2].key = "se2x";
-	globalActor.ports[4].portName[0].fifo[3].key  = "sju";
-	globalActor.ports[4].portName[0].fifo[4].key  = "se2x";
-
-	array = actorstd.searchForKeys(&globalActor,"ett","sex","sju");
-	EXPECT_EQ(4,array[0]);
-	EXPECT_EQ(0,array[1]);
-	EXPECT_EQ(3,array[2]);
-}
 /**
  * Test the fifo
  */
