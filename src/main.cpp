@@ -14,10 +14,10 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include "ArduinoJson.h"
-#include "testJson.h"
+#include "CalvinInProgress/testJson.h"
 #include "blinkLED.h"
 #include "uart.h"
-#include "calvinRuntime.h"
+#include "CalvinInProgress/calvinRuntime.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 

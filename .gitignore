@@ -9,3 +9,4 @@ language.settings.xml
 .project
 Calvin.exe.stackdump
 /GTest/
+/Release/
