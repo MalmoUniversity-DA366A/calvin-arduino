@@ -1,7 +1,7 @@
 #Eclipse with google test
 
 ###Step 1 Install testrunner
-First you need to install a testrunner for eclipse. The by far esiest 
+First you need to install a testrunner for eclipse. The by far easiest  
 way to do so is to open Help->Install New Software and click on add
 Name: Eclipse testrunner
 Location: https://raw.githubusercontent.com/xgsa/cdt-tests-runner/tests_runner_demo/testsrunner/org.eclipse.cdt.testsrunner-updatesite/site.xml
@@ -10,7 +10,7 @@ Restart Eclipse
 
 ###Step 2 Install Cygwin
 Download Cygwin from [here](https://www.cygwin.com/install.html) and run setup-x86_64.exe 
-to install. Click on next untill you get to the Select package screen. You need the gcc 
+to install. Click on next until you get to the Select package screen. You need the gcc 
 package and the make package, best way to find them is to search.
 gcc
 ![alt text](http://i.stack.imgur.com/wFapq.jpg "Logo Title Text 1")
@@ -19,8 +19,8 @@ make
 
 ###Step 3 Download and build Google Test project
 
-Download the latest relase of GoogleTest from [here](https://code.google.com/p/googletest/downloads/list) extract the files into C:\Development
-(if u choose a diffrent directory don't forget to change the compiler include path in Eclipse )
+Download the latest release of GoogleTest from [here](https://code.google.com/p/googletest/downloads/list) extract the files into C:\Development
+(if u choose a different directory don't forget to change the compiler include path in Eclipse )
 Open the Cygwin terminal, cd to GoogleTest make directory on your drive (c:/<<yourpath>>/gtest-1.7.0/make/)
 Type "make" to build the project. Then create an archived library out of the gtest-all.o file.
 Type the following in the terminal:
@@ -47,7 +47,7 @@ Right click C/C++ Unit and select new.
 All the filed in the main tab should now be filled. If not choose a name.
 Under C/C++ application enter: Mock\Calvin.exe
 Project should be Calvin. Click on the C/C++ Testing tap and choose Google Test Runner.
-Click appaly and Run.
+Click apply and Run.
 Now watch the automagic.
 
 #Eclipse with google test for Mac os
