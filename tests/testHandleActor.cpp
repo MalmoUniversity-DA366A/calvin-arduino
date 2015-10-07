@@ -2,7 +2,7 @@
  * testHandleActor.cpp
  *
  *  Created on: 7 okt. 2015
- *      Author: Daniel
+ *      Author: Daniel Nordahl
  */
 
 #include "../src/CalvinDone/CalvinMini.h"

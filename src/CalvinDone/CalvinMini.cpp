@@ -210,6 +210,7 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 #ifdef ARDUINO
 	handleMsg(value,reply,request);
 #endif
+	reply.set("Value",			value);
 }
 
 void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
@@ -221,6 +222,17 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
 	reply.set("value",			"ACK");
 	reply.set("from_rt_uuid",	"calvin-miniscule");
 	reply.set("to_rt_uuid",		msg.get("from_rt_uuid"));
+}
+
+void CalvinMini::handleSetupPorts(JsonObject &msg, JsonObject &reply,
+		JsonObject &request)
+{
+	JsonObject &state = msg.get("state");
+
+	request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
+	request.set("from_rt_uuid","calvin-miniscule");
+	request.set("to_rt_uuid",1);
+
 }
 
 /**
