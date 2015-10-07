@@ -24,7 +24,6 @@ class ActorTest : public ::testing::Test {
 
 TEST(ActorTest,structTest)
 {
-  CalvinMini actorstd;
   actor newActor;
   fifo actorFifo;
   EXPECT_EQ(0,initFifo(&actorFifo));
@@ -94,7 +93,6 @@ TEST(ActorTest,TestFifo)
   const char* test1 = "calvin";
   const char* test2 = "base";
   const char* test3 = "base1";
-  const char* test4 = "base2";
   EXPECT_EQ(SUCCESS,initFifo(&actorFifo));
   EXPECT_EQ(SUCCESS,fifoAdd(&actorFifo,test1));
   EXPECT_STREQ(test1,fifoPop(&actorFifo));

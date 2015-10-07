@@ -179,18 +179,32 @@ rStatus CalvinMini::process(const char* token){
 
 /**
  * Function for setting the Json reply back to Calvin-Base when the request message from
- * Calvin-Base is "Token"
+ * Calvin-Base is "Token". Tokens are recived as int's but the fifo only handles
+ * strings, so they are converted before they are sent off to process. Tokens can
+ * only be 20 characters long!. If the token fifo is full a NACK will be returned,
+ * token has to be sent one more time.
  * @param msg is the JsonObject that is message from Calvin-Base
  * @param reply is the JsonObject with the reply message from Calvin-Arduino
  */
 void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 {
-  process(msg.get("token"));
+  /*Current version of calvin mini only process strings*/
+  char tokenData[20];				//No more that 20 chars!!!!
+  rStatus fifoStatus;
+  JsonObject &token = msg.get("token");
+  sprintf(tokenData,"%d",(uint32_t)token.get("data"));
+  fifoStatus = process(tokenData);
   reply.set("cmd",      "TOKEN_REPLY");
   reply.set("sequencenbr",  msg.get("sequencenbr"));
   reply.set("port_id",    msg.get("port_id"));
   reply.set("peer_port_id",   msg.get("peer_port_id"));
-  reply.set("value",      "ACK");
+  if(fifoStatus == SUCCESS)
+  {
+	  reply.set("value",      "ACK");
+  }else
+  {
+	  reply.set("value",      "NACK");	//Fifo is full, please come again
+  }
 }
 
 /**
@@ -210,6 +224,7 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 #ifdef ARDUINO
 	handleMsg(value,reply,request);
 #endif
+	reply.set("Value",			value);
 }
 
 void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
@@ -221,6 +236,27 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
 	reply.set("value",			"ACK");
 	reply.set("from_rt_uuid",	"calvin-miniscule");
 	reply.set("to_rt_uuid",		msg.get("from_rt_uuid"));
+}
+
+/**
+ * Setup ports. The current version of calvin arduino only uses
+ * one port, so this function is mostly present to please calvin
+ * base.
+ * @param msg input message
+ * @param reply Calvin base reply list
+ * @param request Calvin base reply list
+ */
+void CalvinMini::handleSetupPorts(JsonObject &request)
+{
+	request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
+	request.set("from_rt_uuid","calvin-miniscule");
+	request.set("to_rt_uuid",1);
+	request.set("port_id",1);
+	request.set("peer_actor_id",1);
+	request.set("peer_port_name","");
+	request.set("peer_port_dir","");
+	request.set("tunnel_id","");
+	request.set("cmd", "PORT_CONNECT");
 }
 
 /**
@@ -258,8 +294,19 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
       handleActorNew(msg, reply);
+      handleSetupPorts(request);
       #ifdef ARDUINO
       Serial.println("ACTOR_NEW");
+
+      char replyTemp[512] = {};
+      reply.printTo(replyTemp,512);
+      char requestTemp[512] = {};
+      request.printTo(requestTemp,512);
+
+      String str(replyTemp);
+      String str2(requestTemp);
+      addToMessageOut(str);
+      addToMessageOut(str2);
       #endif
       return 2;
   }
@@ -268,14 +315,22 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       handleTunnelData(msg, reply, request);
       #ifdef ARDUINO
       Serial.println("TUNNEL_DATA");
+      char replyTemp[512] = {};
+      reply.printTo(replyTemp,512);
+      String str(replyTemp);
+      addToMessageOut(str);
       #endif
       return 3;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
-      // reply object
+      handleToken(msg,reply);
       #ifdef ARDUINO
       Serial.println("TOKEN");
+      char replyTemp[512] = {};
+      reply.printTo(replyTemp,512);
+      String str(replyTemp);
+      addToMessageOut(str);
       #endif
       return 4;
   }
@@ -496,7 +551,7 @@ void CalvinMini::loop()
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
-
+          globalActor.fireActor;
           // 6: Läs av utlistan
           for(int i = 0;i < nextMessage;i++)
           {

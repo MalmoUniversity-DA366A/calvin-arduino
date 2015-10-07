@@ -18,22 +18,24 @@ protected:
 
 TEST(test_HandleToken, testProcess) {
 	// Create an instance of the Token
-	CalvinMini token;
+	CalvinMini mini;
 	actorInit();
 	// Create two empty JsonObject with an StaticJsonBuffer
 	StaticJsonBuffer<400> jsonBuffer;
 	JsonObject &reply = jsonBuffer.createObject();
 	JsonObject &msg = jsonBuffer.createObject();
+	JsonObject &token = jsonBuffer.createObject();
 
 	// Add String values for testing, remove in the final project.
 	msg["sequencenbr"] = "1234";
 	msg["port_id"] = "4321";
 	msg["peer_port_id"] = "5678";
-	msg["token"] = "6666";
+	token.set("data",6666);
+	msg.set("token",token);
 
 	// Initiate the handleToken function so that JsonObject reply
 	// is filled.
-	token.handleToken(msg, reply);
+	mini.handleToken(msg, reply);
 
 	EXPECT_EQ(4, StdOut());
 }
