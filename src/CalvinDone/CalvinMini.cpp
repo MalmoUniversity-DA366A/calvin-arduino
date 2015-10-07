@@ -185,7 +185,12 @@ rStatus CalvinMini::process(const char* token){
  */
 void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 {
-  process(msg.get("token"));
+  /*Current version of calvin mini only process strings*/
+  char tokenData[20];
+  JsonObject &token = msg.get("token");
+  sprintf(tokenData,"%d",(uint32_t)token.get("data"));
+
+  process(tokenData);
   reply.set("cmd",      "TOKEN_REPLY");
   reply.set("sequencenbr",  msg.get("sequencenbr"));
   reply.set("port_id",    msg.get("port_id"));
@@ -232,11 +237,8 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
  * @param reply Calvin base reply list
  * @param request Calvin base reply list
  */
-void CalvinMini::handleSetupPorts(JsonObject &msg, JsonObject &reply,
-		JsonObject &request)
+void CalvinMini::handleSetupPorts(JsonObject &request)
 {
-	JsonObject &state = msg.get("state");
-
 	request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
 	request.set("from_rt_uuid","calvin-miniscule");
 	request.set("to_rt_uuid",1);
@@ -283,8 +285,19 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
       handleActorNew(msg, reply);
+      handleSetupPorts(request);
       #ifdef ARDUINO
       Serial.println("ACTOR_NEW");
+
+      char replyTemp[512] = {};
+      reply.printTo(replyTemp,512);
+      char requestTemp[512] = {};
+      request.printTo(requestTemp,512);
+
+      String str(replyTemp);
+      String str2(requestTemp);
+      addToMessageOut(str);
+      addToMessageOut(str2);
       #endif
       return 2;
   }
@@ -293,12 +306,16 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       handleTunnelData(msg, reply, request);
       #ifdef ARDUINO
       Serial.println("TUNNEL_DATA");
+      char replyTemp[512] = {};
+      reply.printTo(replyTemp,512);
+      String str(replyTemp);
+      addToMessageOut(str);
       #endif
       return 3;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
-      // reply object
+      handleToken(msg,reply);
       #ifdef ARDUINO
       Serial.println("TOKEN");
       #endif

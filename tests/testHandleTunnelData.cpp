@@ -22,7 +22,6 @@ TEST(testHandleTunnelData, testSize) {
 	JsonObject &reply = jsonBuffer.createObject();
 	JsonObject &msg = jsonBuffer.createObject();
 	JsonObject &request = jsonBuffer.createObject();
-	JsonObject &policy = jsonBuffer.createObject();
 
 	msg["to_rt_uuid"] = "1234";
 	msg["from_rt_uuid"] = "3456";
@@ -40,7 +39,7 @@ TEST(testHandleTunnelData, testContainsKey) {
 	JsonObject &reply = jsonBuffer.createObject();
 	JsonObject &msg = jsonBuffer.createObject();
 	JsonObject &request = jsonBuffer.createObject();
-	JsonObject &policy = jsonBuffer.createObject();
+
 
 	msg["to_rt_uuid"] = "1234";
 	msg["from_rt_uuid"] = "3456";
@@ -61,7 +60,6 @@ TEST(testHandleTunnelData, testValues) {
 	JsonObject &reply = jsonBuffer.createObject();
 	JsonObject &msg = jsonBuffer.createObject();
 	JsonObject &request = jsonBuffer.createObject();
-	JsonObject &policy = jsonBuffer.createObject();
 
 
 	msg["to_rt_uuid"] = "1234";
