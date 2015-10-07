@@ -72,7 +72,6 @@ public:
   String recvMsg(void);
   void sendMsg(const char *str, size_t length);
   char* jsonSerialize(const char *str);
-  String stringBuilderJsonObject(JsonObject &reply);
   #endif
 };
 
