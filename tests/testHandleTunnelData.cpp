@@ -21,11 +21,13 @@ TEST(testHandleTunnelData, testSize) {
 	StaticJsonBuffer<1000> jsonBuffer;
 	JsonObject &reply = jsonBuffer.createObject();
 	JsonObject &msg = jsonBuffer.createObject();
+	JsonObject &request = jsonBuffer.createObject();
+	JsonObject &policy = jsonBuffer.createObject();
 
 	msg["to_rt_uuid"] = "1234";
 	msg["from_rt_uuid"] = "3456";
 
-	calvinMini.handleTunnelData(msg, reply);
+	calvinMini.handleTunnelData(msg, reply, request, policy);
 
 	EXPECT_EQ(5, reply.size());
 }
@@ -36,11 +38,13 @@ TEST(testHandleTunnelData, testContainsKey) {
 	StaticJsonBuffer<1000> jsonBuffer;
 	JsonObject &reply = jsonBuffer.createObject();
 	JsonObject &msg = jsonBuffer.createObject();
+	JsonObject &request = jsonBuffer.createObject();
+	JsonObject &policy = jsonBuffer.createObject();
 
 	msg["to_rt_uuid"] = "1234";
 	msg["from_rt_uuid"] = "3456";
 
-	calvinMini.handleTunnelData(msg, reply);
+	calvinMini.handleTunnelData(msg, reply, request, policy);
 
 	EXPECT_TRUE(reply.containsKey("to_rt_uuid"));
 	EXPECT_TRUE(reply.containsKey("from_rt_uuid"));
@@ -55,16 +59,19 @@ TEST(testHandleTunnelData, testValues) {
 	StaticJsonBuffer<1000> jsonBuffer;
 	JsonObject &reply = jsonBuffer.createObject();
 	JsonObject &msg = jsonBuffer.createObject();
+	JsonObject &request = jsonBuffer.createObject();
+	JsonObject &policy = jsonBuffer.createObject();
+
 
 	msg["to_rt_uuid"] = "1234";
 	msg["from_rt_uuid"] = "3456";
 
-	calvinMini.handleTunnelData(msg, reply);
+	calvinMini.handleTunnelData(msg, reply, request, policy);
 
 	EXPECT_STREQ("1234", reply.get("from_rt_uuid"));
 	EXPECT_STREQ("3456", reply.get("to_rt_uuid"));
 	EXPECT_STREQ("TUNNEL_DATA", reply.get("cmd"));
-	EXPECT_STREQ("", reply.get("tunnel_id"));
+	EXPECT_STREQ("NULL", reply.get("tunnel_id"));
 	EXPECT_STREQ("foo", reply.get("value"));
 }
 #endif

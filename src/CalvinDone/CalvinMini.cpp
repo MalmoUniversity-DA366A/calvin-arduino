@@ -202,13 +202,17 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
  *
  * Author: Jesper Hansen
  */
-void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply)
+void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request,JsonObject &policy )
 {
+	JsonObject &value = msg.get("value");
 	reply.set("to_rt_uuid", 	msg.get("from_rt_uuid"));
 	reply.set("from_rt_uuid", 	msg.get("to_rt_uuid"));
 	reply.set("cmd", 			"TUNNEL_DATA");
-	reply.set("tunnel_id",		""); // None in python
+	reply.set("tunnel_id",		"NULL"); // None in python
 	reply.set("value",			"foo"); // Look in Calvin-Mini.py
+#ifdef ARDUINO
+	handleMsg(value,reply,request,policy);
+#endif
 }
 
 void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
@@ -241,6 +245,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
+	  handleTunnelData(msg,reply,request,policy);
 	  return 3;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
