@@ -1,4 +1,3 @@
-#ifdef ARDUINO
 /*
  * calvinRuntime.cpp
  *
@@ -6,17 +5,23 @@
  */
 #include <SPI.h>
 #include <Ethernet.h>
+#include <util.h>
 #include "calvinRuntime.h"
 #include "testJson.h"
 #include <socket.h>
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-//IPAddress ip(192,168,0,5);
-IPAddress ip(192,168,1,146);
+IPAddress ip(192,168,0,5);
+//IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
+testJson jsonTest;
+
+const int messageOutLength = 4;
+String messageOut[messageOutLength] = {};
+int nextMessage = 0;
 
 /**
  * Setup TCP connection and receive
@@ -24,48 +29,41 @@ EthernetClient client;
  */
 void calvinRuntime::setupConnection()
 {
-  //getIPFromRouter(); // Doesn't work with shield
-  Ethernet.begin(mac, ip);
-  printIp();
-  server.begin();
+  setupServer();
   while(true)
   {
       client = server.available();
       if(client) // Wait for client
       {
-          Serial.println("Reading...");
+          Serial.println("Connected...");
           String str = recvMsg();
-          Serial.println(str);
 
-          // Jsonobject for recieving a join request
           StaticJsonBuffer<4096> jsonBuffer;
           JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-
-          // JsonObjects for replying a join request
           JsonObject &reply = jsonBuffer.createObject();
           JsonObject &request = jsonBuffer.createObject();
-          JsonObject &policy = jsonBuffer.createObject();
+          handleMsg(msg, reply, request);
 
-          handleMsg(msg, reply, request, policy);
-
-          // Test purpose
-          testJson json;
-          json.checkJson(msg);
-          json.checkJson(reply);
-          json.checkJson(request);
-
-          // Print JsonObject and send to Calvin
-          String replyTemp = stringBuilderJsonObject(reply);
-          Serial.println("Sending...");
-          sendMsg(replyTemp.c_str());
-
-          String requestTemp = stringBuilderJsonObject(request);
-          Serial.println("Sending...");
-          sendMsg(requestTemp.c_str());
-
-          String tunnelReply = recvMsg();
+          for(int i = 0;i < nextMessage;i++)
+          {
+              sendMsg(messageOut[i].c_str(),messageOut[i].length());
+              messageOut[i] = "";
+          }
+          nextMessage = 0;
       }
   }
+}
+
+/**
+ * Adds messages to a global array and
+ * creates the array size for sending
+ * @param reply String
+ */
+void calvinRuntime::addToMessageOut(String reply)
+{
+  messageOut[nextMessage] = reply;
+  if(nextMessage < messageOutLength)
+    nextMessage = nextMessage+1;
 }
 
 /**
@@ -74,37 +72,50 @@ void calvinRuntime::setupConnection()
  */
 String calvinRuntime::recvMsg()
 {
+  Serial.println("Reading...");
   char temp[MAX_LENGTH+1] = {};
   String str = "";
+  byte data[4];
   int found = 0;
+  int count = 0;
+  int sizeOfMsg;
   while(!found)
   {
         int size = client.readBytes(temp, MAX_LENGTH);
+        data[count] = *temp;
+        count++;
         if(*temp == '{')
         {
-            temp[size] = '\0';  // Null terminate char
             str += temp;
             found = 1;
         }
   }
-  while(*temp != '}')
+  sizeOfMsg = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
+  for(int i = 0;i < sizeOfMsg-1;i++)
   {
-        int size = client.readBytes(temp, MAX_LENGTH);
-        temp[size] = '\0';  // Null terminate char
-        str += temp;
+      int size = client.readBytes(temp, MAX_LENGTH);
+      temp[size] = '\0';  // Null terminate char
+      str += temp;
   }
   return str;
 }
 
 /**
  * Reply message to calvin base
- * @param str char pointer
+ * @param str char pointer of String
+ * @param length size of String
  */
-void calvinRuntime::sendMsg(const char *str)
+void calvinRuntime::sendMsg(const char *str, size_t length)
 {
-  char *jsonChar = jsonSerialize(str);
-  server.write(jsonChar);
-  delete[] jsonChar;
+  uint32_t hex[4] = {};
+  hex[0] = (length & 0xFF000000);
+  hex[1] = (length & 0x00FF0000);
+  hex[2] = (length & 0x0000FF00);
+  hex[3] = (length & 0x000000FF);
+
+  for(int i = 0; i< 4;i++)
+    server.write(hex[i]);
+  server.write(str);
 }
 
 /**
@@ -121,12 +132,10 @@ void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
 }
 
 /**
- * Method for setting up a tunnel using JSON message back to Calvin-Base,
- * JSON is added to the JsonObject request that is added to the reply list.
- * @param &msg JsonObject received from Calvin-Base
- * @param &request JsonObject that is added to the "reply" list
- * @param &policy JsonObject that is an empty JsonObject
- *
+ * Create a new tunnel request
+ * @param msg JsonObject
+ * @param request JsonObject
+ * @param policy JsonObject
  */
 void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
@@ -135,8 +144,8 @@ void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request, Json
   request["to_rt_uuid"] = msg.get("id");
   request["cmd"] = "TUNNEL_NEW";
   request["tunnel_id"] = "fake-tunnel";
+  request["policy"] = policy; // Unused
   request["type"] = "token";
-  //request["policy"] = policy;
 }
 
 /**
@@ -145,37 +154,76 @@ void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request, Json
  * @param reply JsonObject
  * @param request JsonObject
  */
-void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy)
+void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
   if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
   {
+      // JsonObject for replying a join request
+      StaticJsonBuffer<200> jsonBuffer;
+      JsonObject &policy = jsonBuffer.createObject();
       handleJoin(msg,reply);
       handleSetupTunnel(msg, request, policy);
+
+      // Print JsonObject and send to Calvin
+      Serial.println("Sending...");
+      String replyTemp = stringBuilderJsonObject(reply);
+      String requestTemp = stringBuilderJsonObject(request);
+
+      addToMessageOut(replyTemp);
+      addToMessageOut(requestTemp);
   }
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
-
+      // reply object + request object
+      Serial.println("ACTOR_NEW");
   }
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
-
+      // reply object
+      Serial.println("TUNNEL_DATA");
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
-
+      // reply object
+      Serial.println("TOKEN");
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
   {
-
+      // reply array
+      Serial.println("TOKEN_REPLY");
   }
   else if(!strcmp(msg.get("cmd"),"REPLY"))
   {
-
+      JsonObject &value = msg["value"];
+      if(!strcmp(value.get("status"),"ACK"))
+      {
+        value.printTo(Serial);
+      }
+      else
+      {
+        Serial.println("NACK");
+      }
+      while(true)
+      {
+          int i=0;
+          i++;
+          delay(1000);
+      }
   }
   else
   {
       Serial.println("UNKNOWN CMD");
   }
+}
+/**
+ * Start a server connection
+ */
+void calvinRuntime::setupServer()
+{
+  //getIPFromRouter(); // Doesn't work with shield
+  Ethernet.begin(mac, ip);
+  printIp();
+  server.begin();
 }
 
 /**
@@ -235,7 +283,7 @@ String calvinRuntime::jsonDeserialize(char *temp)
 char* calvinRuntime::jsonSerialize(const char *str)
 {
   const char *json = str;
-  char *temp = new char[512];
+  char *temp = new char[256];
   int counter = 0;
   for(int i = 0; json[i] != '\0'; i++)
   {
@@ -290,6 +338,54 @@ String calvinRuntime::stringBuilderJsonObject(JsonObject &reply)
            }
            str += "]";
       }
+      else if(it->value.is<JsonObject&>())
+        {
+          JsonObject &object = it->value.asObject();
+          str += "{";
+          unsigned int innercount = 0;
+          for(JsonObject::iterator it=object.begin(); it!=object.end();++it)
+          {
+              if(it->value.is<JsonArray&>())
+              {
+                  JsonArray &array = it->value.asArray();
+                  str += "[";
+                  for(unsigned int i = 0; i < array.size(); i++)
+                  {
+                      if(array.get(i).operator String())
+                      {
+                          str += "\"";
+                          str += array.get(i).asString();
+                          str += "\"";
+                      }
+                      else
+                      {
+                          str += array.get(i).as<int>();
+                      }
+                      if(i != array.size() - 1)
+                      {
+                          str += ",";
+                      }
+               }
+               str += "]";
+              }
+              else if(it->value.operator String())
+              {
+                  str += "\"";
+                  str += it->value.asString();
+                  str += "\"";
+              }
+              else
+              {
+                  str += it->value.as<int>();
+              }
+              if(count != (object.size() - 1))
+              {
+                  str += ",";
+              }
+              innercount++;
+          }
+          str += "}";
+        }
       else if(it->value.operator String())
       {
           str += "\"";
@@ -309,4 +405,3 @@ String calvinRuntime::stringBuilderJsonObject(JsonObject &reply)
   str += "}";
   return str;
 }
-#endif

@@ -19,6 +19,7 @@
 #include "uart.h"
 #include "CalvinInProgress/calvinRuntime.h"
 
+
 LiquidCrystal lcd(8,9,4,5,6,7);
 
 void testRunner(void);
@@ -54,8 +55,6 @@ int main(void) {
 
 	init_board();
 	testRunner();
-	//Serial.begin(115200);
-	//testJsonCode();
 
 	// Test function for blink L LED on Due connected to pin 13
 	blinkLED();
