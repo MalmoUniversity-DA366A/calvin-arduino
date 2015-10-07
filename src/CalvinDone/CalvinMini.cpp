@@ -17,12 +17,13 @@ fifo actorFifo;
  */
 int8_t StdOut(){
 	uint8_t inFifo;
+	const char* token;
 	inFifo = lengthOfData(globalActor.inportsFifo[0]);
 	if(inFifo > 0)
 	{
-		;//pop token
+		token = fifoPop(globalActor.inportsFifo[0]);
 	}
-	return standardOut(fifoPop(globalActor.inportsFifo[0]));
+	return standardOut(token);
 }
 
 /**
