@@ -17,6 +17,11 @@ IPAddress ip(192,168,0,5);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
+testJson jsonTest;
+
+const int messageOutLength = 4;
+String messageOut[messageOutLength] = {};
+int nextMessage = 0;
 
 /**
  * Setup TCP connection and receive
@@ -24,10 +29,7 @@ EthernetClient client;
  */
 void calvinRuntime::setupConnection()
 {
-  //getIPFromRouter(); // Doesn't work with shield
-  Ethernet.begin(mac, ip);
-  printIp();
-  server.begin();
+  setupServer();
   while(true)
   {
       client = server.available();
@@ -36,46 +38,32 @@ void calvinRuntime::setupConnection()
           Serial.println("Connected...");
           String str = recvMsg();
 
-          // Jsonobject for recieving a join request
           StaticJsonBuffer<4096> jsonBuffer;
           JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-
-          // JsonObject for replying a join request
           JsonObject &reply = jsonBuffer.createObject();
           JsonObject &request = jsonBuffer.createObject();
-          JsonObject &policy = jsonBuffer.createObject();
+          handleMsg(msg, reply, request);
 
-          handleMsg(msg, reply, request, policy);
-
-          // Test purpose
-          testJson json;
-          json.checkJson(msg);
-          json.checkJson(reply);
-          json.checkJson(request);
-
-          // Print JsonObject and send to Calvin
-          String replyTemp = stringBuilderJsonObject(reply);
-          Serial.println("Sending...");
-          sendMsg(replyTemp.c_str(),replyTemp.length());
-          String requestTemp = stringBuilderJsonObject(request);
-          sendMsg(requestTemp.c_str(),requestTemp.length());
-
-          // Receive tunnel reply should be a new run in the loop
-          String tunnelReply = recvMsg();
-          JsonObject &msg2 = jsonBuffer.parseObject(tunnelReply.c_str());
-          handleMsg(msg2, reply, request, policy);
-          JsonObject &value = msg2["value"];
-          if(!strcmp(value.get("status"),"ACK"))
+          for(int i = 0;i < nextMessage;i++)
           {
-              Serial.println();
-              value.printTo(Serial);
+              sendMsg(messageOut[i].c_str(),messageOut[i].length());
+              messageOut[i] = "";
           }
-          else
-          {
-              Serial.println("NACK");
-          }
+          nextMessage = 0;
       }
   }
+}
+
+/**
+ * Adds messages to a global array and
+ * creates the array size for sending
+ * @param reply String
+ */
+void calvinRuntime::addToMessageOut(String reply)
+{
+  messageOut[nextMessage] = reply;
+  if(nextMessage < messageOutLength)
+    nextMessage = nextMessage+1;
 }
 
 /**
@@ -103,7 +91,7 @@ String calvinRuntime::recvMsg()
         }
   }
   sizeOfMsg = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
-  for(int i=0;i<sizeOfMsg-1;i++)
+  for(int i = 0;i < sizeOfMsg-1;i++)
   {
       int size = client.readBytes(temp, MAX_LENGTH);
       temp[size] = '\0';  // Null terminate char
@@ -114,7 +102,8 @@ String calvinRuntime::recvMsg()
 
 /**
  * Reply message to calvin base
- * @param str char pointer
+ * @param str char pointer of String
+ * @param length size of String
  */
 void calvinRuntime::sendMsg(const char *str, size_t length)
 {
@@ -146,6 +135,7 @@ void calvinRuntime::handleJoin(JsonObject &msg, JsonObject &reply)
  * Create a new tunnel request
  * @param msg JsonObject
  * @param request JsonObject
+ * @param policy JsonObject
  */
 void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
@@ -164,37 +154,76 @@ void calvinRuntime::handleSetupTunnel(JsonObject &msg, JsonObject &request, Json
  * @param reply JsonObject
  * @param request JsonObject
  */
-void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy)
+void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
   if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
   {
+      // JsonObject for replying a join request
+      StaticJsonBuffer<200> jsonBuffer;
+      JsonObject &policy = jsonBuffer.createObject();
       handleJoin(msg,reply);
       handleSetupTunnel(msg, request, policy);
+
+      // Print JsonObject and send to Calvin
+      Serial.println("Sending...");
+      String replyTemp = stringBuilderJsonObject(reply);
+      String requestTemp = stringBuilderJsonObject(request);
+
+      addToMessageOut(replyTemp);
+      addToMessageOut(requestTemp);
   }
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
+      // reply object + request object
       Serial.println("ACTOR_NEW");
   }
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
+      // reply object
       Serial.println("TUNNEL_DATA");
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
+      // reply object
       Serial.println("TOKEN");
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
   {
+      // reply array
       Serial.println("TOKEN_REPLY");
   }
   else if(!strcmp(msg.get("cmd"),"REPLY"))
   {
-      Serial.println("REPLY");
+      JsonObject &value = msg["value"];
+      if(!strcmp(value.get("status"),"ACK"))
+      {
+        value.printTo(Serial);
+      }
+      else
+      {
+        Serial.println("NACK");
+      }
+      while(true)
+      {
+          int i=0;
+          i++;
+          delay(1000);
+      }
   }
   else
   {
       Serial.println("UNKNOWN CMD");
   }
+}
+/**
+ * Start a server connection
+ */
+void calvinRuntime::setupServer()
+{
+  //getIPFromRouter(); // Doesn't work with shield
+  Ethernet.begin(mac, ip);
+  printIp();
+  server.begin();
 }
 
 /**

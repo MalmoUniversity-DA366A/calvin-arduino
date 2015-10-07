@@ -13,9 +13,11 @@ public:
   String jsonToString(void);
   void printIp(void);
   void getIPFromRouter(void);
+  void setupServer(void);
   void handleJoin(JsonObject &msg, JsonObject &reply);
-  void handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy);
+  void handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request);
   void handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy);
+  void addToMessageOut(String reply);
   String recvMsg(void);
   void sendMsg(const char *str, size_t length);
   String jsonDeserialize(char *temp);
