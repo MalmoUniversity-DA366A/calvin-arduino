@@ -54,10 +54,6 @@ void init_board(){
 int main(void) {
 
 	init_board();
-	testRunner();
-
-	// Test function for blink L LED on Due connected to pin 13
-	blinkLED();
 	Serial.begin(115200);
 	calvinRuntime json;
 	json.setupConnection();
