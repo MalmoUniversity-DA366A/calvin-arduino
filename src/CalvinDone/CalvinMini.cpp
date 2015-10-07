@@ -33,14 +33,15 @@ fifo actorFifo;
  * Current standard out is the lcd screen connected to arduino due
  */
 int8_t StdOut(){
-  uint8_t inFifo;
-  const char* token;
-  inFifo = lengthOfData(globalActor.inportsFifo[0]);
-  if(inFifo > 0)
-  {
-    token = fifoPop(globalActor.inportsFifo[0]);
-  }
-  return standardOut(token);
+	uint8_t inFifo;
+	const char* token;
+	token = "null";
+	inFifo = lengthOfData(globalActor.inportsFifo[0]);
+	if(inFifo > 0)
+	{
+		token = fifoPop(globalActor.inportsFifo[0]);
+	}
+	return standardOut(token);
 }
 
 /**
@@ -68,14 +69,16 @@ rStatus actorInit(){
  * @return return 1 if successful.
  */
 rStatus CalvinMini::createActor(JsonObject &msg){
-  rStatus allOk = FAIL;
-  globalActor.type = msg["type"];
-  globalActor.name = msg["name"];
-  globalActor.id = msg["id"];
+	rStatus allOk = FAIL;
+	JsonObject &state = msg.get("state");
+	JsonObject &name = state.get("actor_state");
+	globalActor.type = state.get("actor_type");
+	globalActor.name = name.get("name");
+	globalActor.id = name.get("id");
 
-  actorInit();
-  allOk = SUCCESS;
-  return allOk;
+	allOk = SUCCESS;
+	actorInit();
+	return allOk;
 }
 
 extern "C"{
@@ -197,13 +200,28 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
  *
  * Author: Jesper Hansen
  */
-void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply)
+void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request )
 {
-  reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
-  reply.set("from_rt_uuid",   msg.get("to_rt_uuid"));
-  reply.set("cmd",      "TUNNEL_DATA");
-  reply.set("tunnel_id",    ""); // None in python
-  reply.set("value",      "foo"); // Look in Calvin-Mini.py
+	JsonObject &value = msg.get("value");
+	reply.set("to_rt_uuid", 	msg.get("from_rt_uuid"));
+	reply.set("from_rt_uuid", 	msg.get("to_rt_uuid"));
+	reply.set("cmd", 			"TUNNEL_DATA");
+	reply.set("tunnel_id",		"NULL"); // None in python
+	reply.set("value",			"foo"); // Look in Calvin-Mini.py
+#ifdef ARDUINO
+	handleMsg(value,reply,request);
+#endif
+}
+
+void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
+{
+	createActor(msg);
+
+	reply.set("cmd",			"REPLY");
+	reply.set("msg_uuid",		msg.get("msg_uuid"));
+	reply.set("value",			"ACK");
+	reply.set("from_rt_uuid",	"calvin-miniscule");
+	reply.set("to_rt_uuid",		msg.get("from_rt_uuid"));
 }
 
 /**

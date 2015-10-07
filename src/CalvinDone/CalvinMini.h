@@ -58,10 +58,11 @@ public:
   int8_t lengthOfData(fifo*);
   void handleJoin(JsonObject &msg, JsonObject &reply);
   void handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy);
-  void handleTunnelData(JsonObject &msg, JsonObject &reply);
+  void handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request);
   int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request);
   void loop(void);
   void setupConnection(void);
+  void handleActorNew(JsonObject &msg, JsonObject &reply);
   #ifdef ARDUINO
   String jsonToString(void);
   void printIp(void);

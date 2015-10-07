@@ -31,7 +31,6 @@ TEST(test_handleMessage, handleMsg) {
 	// Test ACTOR_NEW in handleMsg
 	msg["cmd"] = "ACTOR_NEW";
 	EXPECT_EQ(2, messageHandler.handleMsg(msg, reply, request));
-
 	// Test TUNNEL_DATA in handleMsg
 	msg["cmd"] = "TUNNEL_DATA";
 	EXPECT_EQ(3, messageHandler.handleMsg(msg, reply, request));
@@ -52,5 +51,8 @@ TEST(test_handleMessage, handleMsg) {
 	EXPECT_EQ(7, messageHandler.handleMsg(msg, reply, request));
 
 }
+
+
+
 
 #endif
