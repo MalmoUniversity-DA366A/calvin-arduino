@@ -12,8 +12,8 @@
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-//IPAddress ip(192,168,0,5);
-IPAddress ip(192,168,1,146);
+IPAddress ip(192,168,0,5);
+//IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
@@ -55,17 +55,25 @@ void calvinRuntime::setupConnection()
 
           // Print JsonObject and send to Calvin
           String replyTemp = stringBuilderJsonObject(reply);
-          //String sendReply = replyTemp.length();
-          //sendReply += replyTemp;
           Serial.println("Sending...");
           sendMsg(replyTemp.c_str(),replyTemp.length());
           String requestTemp = stringBuilderJsonObject(request);
-          //String sendRequest = requestTemp.length();
-          //sendRequest += requestTemp;
-          //Serial.println("Sending...");
           sendMsg(requestTemp.c_str(),requestTemp.length());
 
+          // Receive tunnel reply should be a new run in the loop
           String tunnelReply = recvMsg();
+          JsonObject &msg2 = jsonBuffer.parseObject(tunnelReply.c_str());
+          handleMsg(msg2, reply, request, policy);
+          JsonObject &value = msg2["value"];
+          if(!strcmp(value.get("status"),"ACK"))
+          {
+              Serial.println();
+              value.printTo(Serial);
+          }
+          else
+          {
+              Serial.println("NACK");
+          }
       }
   }
 }
@@ -110,19 +118,12 @@ String calvinRuntime::recvMsg()
  */
 void calvinRuntime::sendMsg(const char *str, size_t length)
 {
-  //char *jsonChar = jsonSerialize(str);
-    //char numstr[length+21]; // enough to hold all numbers up to 64-bits
-    //uint32_t nlength = htonl(length);
   uint32_t hex[4] = {};
   hex[0] = (length & 0xFF000000);
   hex[1] = (length & 0x00FF0000);
   hex[2] = (length & 0x0000FF00);
   hex[3] = (length & 0x000000FF);
-  //Serial.println(hex);
 
-    //sprintf(numstr, "%x%x%x%x%s", NULL,NULL,NULL,length,str);
-    //server.write(numstr);
-    //server.write(nlength);
   for(int i = 0; i< 4;i++)
     server.write(hex[i]);
   server.write(str);
@@ -172,23 +173,23 @@ void calvinRuntime::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &re
   }
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
-
+      Serial.println("ACTOR_NEW");
   }
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
-
+      Serial.println("TUNNEL_DATA");
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
-
+      Serial.println("TOKEN");
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
   {
-
+      Serial.println("TOKEN_REPLY");
   }
   else if(!strcmp(msg.get("cmd"),"REPLY"))
   {
-
+      Serial.println("REPLY");
   }
   else
   {
