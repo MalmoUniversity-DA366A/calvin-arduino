@@ -240,9 +240,9 @@ int CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &reques
   }
   else
   {
-#ifdef ARDUINO
-      //Serial.println("UNKNOWN CMD");
-#endif
+
+      standardOut("UNKNOWN CMD");
+
 	  return 7;
   }
 }
