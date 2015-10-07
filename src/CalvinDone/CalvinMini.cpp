@@ -327,6 +327,10 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       handleToken(msg,reply);
       #ifdef ARDUINO
       Serial.println("TOKEN");
+      char replyTemp[512] = {};
+      reply.printTo(replyTemp,512);
+      String str(replyTemp);
+      addToMessageOut(str);
       #endif
       return 4;
   }
