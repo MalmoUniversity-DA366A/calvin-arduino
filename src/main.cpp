@@ -16,7 +16,6 @@
 #include "ArduinoJson.h"
 #include "CalvinInProgress/testJson.h"
 #include "blinkLED.h"
-#include "unity.h"
 #include "uart.h"
 #include "CalvinInProgress/calvinRuntime.h"
 
@@ -32,17 +31,7 @@ void init_board(void);
 void testRunner(void)
 {
 
-	// Start unit test
-	UnityBegin("");
 
-	// Run ExampelCode tests
-	Unity.TestFile = "..system/include/test/test_ExampelCode.h";
-	RUN_TEST(test_ExampelCode);
-	RUN_TEST(test_ExampelCode2);
-
-
-	// End unit test
-	UnityEnd();
 }
 
 /**
@@ -64,6 +53,12 @@ void init_board(){
 int main(void) {
 
 	init_board();
+	testRunner();
+	//Serial.begin(115200);
+	//testJsonCode();
+
+	// Test function for blink L LED on Due connected to pin 13
+	blinkLED();
 	Serial.begin(115200);
 	calvinRuntime json;
 	json.setupConnection();

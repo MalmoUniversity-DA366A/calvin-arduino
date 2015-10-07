@@ -10,12 +10,12 @@
 #include "ArduinoJson.h"
 
 class ActorTest : public ::testing::Test {
-	protected:
-	 virtual void SetUp(){
-	 }
+  protected:
+   virtual void SetUp(){
+   }
 
-	 virtual void TearDown(){
-	 }
+   virtual void TearDown(){
+   }
 };
 
 /**
@@ -24,122 +24,99 @@ class ActorTest : public ::testing::Test {
 
 TEST(ActorTest,structTest)
 {
-	CalvinMini actorstd;
-	actor newActor;
+  CalvinMini actorstd;
+  actor newActor;
+  fifo actorFifo;
+  EXPECT_EQ(0,initFifo(&actorFifo));
+  //Test struct
+  newActor.type = "Daniel";
+  newActor.name = "Hej";
+  newActor.id = "1";
 
-	//Test struct
-	newActor.type = "Daniel";
-	newActor.name = "Hej";
-	newActor.id = "1";
-	newActor.outport = "7411";
-	newActor.inport = "1337";
-	EXPECT_EQ("Daniel",newActor.type);
-	EXPECT_EQ("Hej",newActor.name);
-	EXPECT_EQ("1",newActor.id);
-	EXPECT_EQ("7411",newActor.outport);
-	EXPECT_EQ("1337",newActor.inport);
+  /*Test inport fifo*/
+  newActor.inportsFifo[0] = &actorFifo;
+  EXPECT_EQ(0,fifoAdd(newActor.inportsFifo[0],"Add"));
+  EXPECT_STREQ("Add",fifoPop(newActor.inportsFifo[0]));
+  /*Test outportfifo*/
+  newActor.outportsFifo[0] = &actorFifo;
+  EXPECT_EQ(0,fifoAdd(newActor.inportsFifo[0],"Add"));
+  EXPECT_STREQ("Add",fifoPop(newActor.inportsFifo[0]));
+
+  EXPECT_EQ("Daniel",newActor.type);
+  EXPECT_EQ("Hej",newActor.name);
+  EXPECT_EQ("1",newActor.id);
+
+}
+
+TEST(ActorTest,Struct){
+
+  actor newTest;
+  fifo actorFifo;
+  EXPECT_EQ(SUCCESS,initFifo(&actorFifo));
+  newTest.inportsFifo[0] = &actorFifo;
+  EXPECT_EQ(SUCCESS,fifoAdd(newTest.inportsFifo[0],"Calvin"));
+  EXPECT_STREQ("Calvin",fifoPop(newTest.inportsFifo[0]));
 
 }
 
 TEST(ActorTest,createActor)
 {
-	CalvinMini actorstd;
-	StaticJsonBuffer<2000> jsonBuffer;
-	char str[] = "{\"type\":\"actor\",\"name\":\"actor1\","
-			"\"id\":\"89\",\"fifo\":\"12\"}";
-	JsonObject &root = jsonBuffer.parseObject(str);
-	EXPECT_EQ(1,actorstd.createActor(root));
+  CalvinMini actorstd;
+  StaticJsonBuffer<2000> jsonBuffer;
+  char str[] = "{\"type\":\"actor\",\"name\":\"actor1\","
+      "\"id\":\"89\",\"fifo\":\"12\"}";
+  JsonObject &root = jsonBuffer.parseObject(str);
+  EXPECT_EQ(SUCCESS,actorstd.createActor(root));
 }
 
 
 TEST(ActorTest,processTest)
 {
-	CalvinMini actorstd;
-	actorInit();
-	EXPECT_EQ(0,actorstd.process("Test1"));
-	EXPECT_EQ(0,actorstd.process("Test2"));
-	EXPECT_EQ(0,actorstd.process("Test3"));
-	EXPECT_EQ(0,actorstd.process("Test1"));
-	EXPECT_EQ(0,actorstd.process("Test2"));
-	EXPECT_EQ(0,actorstd.process("Test3"));
-	EXPECT_EQ(0,actorstd.process("Test2"));
-	EXPECT_EQ(-1,actorstd.process("Test3"));
+  CalvinMini actorstd;
+  EXPECT_EQ(SUCCESS,actorInit());
+  EXPECT_EQ(SUCCESS,actorstd.process("Test1"));
+  EXPECT_EQ(SUCCESS,actorstd.process("Test2"));
+  EXPECT_EQ(SUCCESS,actorstd.process("Test3"));
+  EXPECT_EQ(SUCCESS,actorstd.process("Test1"));
+  EXPECT_EQ(SUCCESS,actorstd.process("Test2"));
+  EXPECT_EQ(SUCCESS,actorstd.process("Test3"));
+  EXPECT_EQ(SUCCESS,actorstd.process("Test2"));
+  EXPECT_EQ(FAIL,actorstd.process("Test3"));
 
 }
 
-
-/**
- * Testing actor key search function
- */
-TEST(ActorTest,testKeys)
-{
-	actor globalActor;
-	CalvinMini actorstd;
-	int8_t* array;
-
-	globalActor.ports[0].key = "e4tt";
-	globalActor.ports[1].key = "e22tt";
-	globalActor.ports[2].key = "etdt";
-	globalActor.ports[3].key = "esstft";
-	globalActor.ports[4].key = "ett";
-	globalActor.ports[4].portName[0].key = "sex";
-	globalActor.ports[4].portName[1].key = "se2x";
-	globalActor.ports[4].portName[2].key = "se2x";
-	globalActor.ports[4].portName[3].key = "s2ex";
-	globalActor.ports[4].portName[4].key = "se2x";
-
-	globalActor.ports[4].portName[0].fifo[0].key = "sex";
-	globalActor.ports[4].portName[0].fifo[1].key  = "se2x";
-	globalActor.ports[4].portName[0].fifo[2].key = "se2x";
-	globalActor.ports[4].portName[0].fifo[3].key  = "sju";
-	globalActor.ports[4].portName[0].fifo[4].key  = "se2x";
-
-	array = actorstd.searchForKeys(&globalActor,"ett","sex","sju");
-	EXPECT_EQ(4,array[0]);
-	EXPECT_EQ(0,array[1]);
-	EXPECT_EQ(3,array[2]);
-}
 /**
  * Test the fifo
  */
 TEST(ActorTest,TestFifo)
 {
-	fifo actorFifo;
-	const char* test1 = "calvin";
-	const char* test2 = "base";
-	const char* test3 = "base1";
-	const char* test4 = "base2";
-	EXPECT_EQ(0,initFifo(&actorFifo));
-	EXPECT_EQ(0,fifoAdd(&actorFifo,test1));
-	EXPECT_STREQ(test1,fifoPop(&actorFifo));
-	EXPECT_EQ(0,fifoAdd(&actorFifo,test1));
-	EXPECT_EQ(0,fifoAdd(&actorFifo,test2));
-	EXPECT_EQ(0,fifoAdd(&actorFifo,test3));
-	EXPECT_STREQ(test1,fifoPop(&actorFifo));
-	EXPECT_STREQ(test2,fifoPop(&actorFifo));
-	EXPECT_STREQ(test3,fifoPop(&actorFifo));
+  fifo actorFifo;
+  const char* test1 = "calvin";
+  const char* test2 = "base";
+  const char* test3 = "base1";
+  const char* test4 = "base2";
+  EXPECT_EQ(SUCCESS,initFifo(&actorFifo));
+  EXPECT_EQ(SUCCESS,fifoAdd(&actorFifo,test1));
+  EXPECT_STREQ(test1,fifoPop(&actorFifo));
+  EXPECT_EQ(SUCCESS,fifoAdd(&actorFifo,test1));
+  EXPECT_EQ(SUCCESS,fifoAdd(&actorFifo,test2));
+  EXPECT_EQ(SUCCESS,fifoAdd(&actorFifo,test3));
+  EXPECT_STREQ(test1,fifoPop(&actorFifo));
+  EXPECT_STREQ(test2,fifoPop(&actorFifo));
+  EXPECT_STREQ(test3,fifoPop(&actorFifo));
 
 
-	for( int i = 0 ; i < 7 ; i++ ){
-		EXPECT_EQ(0,fifoAdd(&actorFifo,test1));
-	}
-	/*If fifo size is 8 this is where it fills upp size-1*/
-	EXPECT_EQ(-1,fifoAdd(&actorFifo,test1));
+  for( int i = 0 ; i < 7 ; i++ ){
+    EXPECT_EQ(SUCCESS,fifoAdd(&actorFifo,test1));
+  }
+  /*If fifo size is 8 this is where it fills upp size-1*/
+  EXPECT_EQ(FAIL,fifoAdd(&actorFifo,test1));
 
-	/*Now we pop it*/
-	for( int i = 0 ; i < 7 ; i++ ){
-		EXPECT_STREQ(test1,fifoPop(&actorFifo));
-	}
-	/*It should be full by now*/
-	EXPECT_STREQ("Null",fifoPop(&actorFifo));;
+  /*Now we pop it*/
+  for( int i = 0 ; i < 7 ; i++ ){
+    EXPECT_STREQ(test1,fifoPop(&actorFifo));
+  }
+  /*It should be full by now*/
+  EXPECT_STREQ("Null",fifoPop(&actorFifo));;
 
 }
-
-
-
-
-
-
-
-
-
