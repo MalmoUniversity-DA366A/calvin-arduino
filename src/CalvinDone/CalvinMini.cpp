@@ -18,6 +18,7 @@ fifo actorFifo;
 int8_t StdOut(){
 	uint8_t inFifo;
 	const char* token;
+	token = "null";
 	inFifo = lengthOfData(globalActor.inportsFifo[0]);
 	if(inFifo > 0)
 	{
