@@ -15,14 +15,15 @@ fifo actorFifo;
 /**
  * Current standard out is the lcd screen connected to arduino due
  */
-int StdOut(){
+int8_t StdOut(){
 	uint8_t inFifo;
+	const char* token;
 	inFifo = lengthOfData(globalActor.inportsFifo[0]);
 	if(inFifo > 0)
 	{
-		;//pop token
+		token = fifoPop(globalActor.inportsFifo[0]);
 	}
-	return standardOut(fifoPop(globalActor.inportsFifo[0]));
+	return standardOut(token);
 }
 
 /**
@@ -31,15 +32,16 @@ int StdOut(){
  *  Apparently c++ handles this different from c.
  */
 extern "C"{
-int actorInit(){
-	globalActor.fireActor = &StdOut;
+rStatus actorInit(){
+	rStatus allOk = FAIL;
 
+	globalActor.fireActor = &StdOut;
 	/*This sets up the fifo for the actor, not sure
 	 *if it should be done here but for now it works*/
-	initFifo(&actorFifo);
+	allOk = initFifo(&actorFifo);
 	globalActor.inportsFifo[0] = &actorFifo;
 
-	return 1;
+	return allOk;
 }
 }
 
@@ -48,14 +50,14 @@ int actorInit(){
  * @param msg json list
  * @return return 1 if successful.
  */
-uint8_t CalvinMini::createActor(JsonObject &msg){
-	int allOk = 0;
+rStatus CalvinMini::createActor(JsonObject &msg){
+	rStatus allOk = FAIL;
 	globalActor.type = msg["type"];
 	globalActor.name = msg["name"];
 	globalActor.id = msg["id"];
 
 	actorInit();
-	allOk = 1;
+	allOk = SUCCESS;
 	return allOk;
 }
 
@@ -70,12 +72,12 @@ extern "C"{
  *
  * Copyright 2012 Elecia White,978-1-449-30214-6"
  */
-int initFifo(fifo *fif)
+rStatus initFifo(fifo *fif)
 {
 	fif->size = FIFO_SIZE;
 	fif->read = 0;
 	fif->write = 0;
-	return 0;
+	return SUCCESS;
 }
 /**
  * Used by Add and Pop to determine fifo length.
@@ -87,7 +89,7 @@ int initFifo(fifo *fif)
  *
  * @return Fifo length
  */
-int lengthOfData(fifo *fif)
+int8_t lengthOfData(fifo *fif)
 {
 	return ((fif->write - fif->read) & (fif->size -1));
 }
@@ -102,16 +104,16 @@ int lengthOfData(fifo *fif)
  * Copyright 2012 Elecia White,978-1-449-30214-6"
  * @return returns 0 if the fifo is full
  */
-int fifoAdd(fifo *fif, const char* element){
+rStatus fifoAdd(fifo *fif, const char* element){
 
 	if(lengthOfData(fif) == (fif->size-1))
 	{
-		return -1;			//fifo full;
+		return FAIL;			//fifo full;
 	}
 	fif->element[fif->write] = element;
 	fif->write = (fif->write + 1) & (fif->size - 1);
 
-	return 0;				//all is well
+	return SUCCESS;				//all is well
 }
 
 /**
@@ -148,9 +150,9 @@ const char* fifoPop(fifo *fif){
  * @return if data vas added to fifo this function returns
  * 1, if something went wrong it returns 0.
  */
-int CalvinMini::process(const char* token){
-	int allOk;
-	allOk = -1;
+rStatus CalvinMini::process(const char* token){
+	rStatus allOk;
+	allOk = FAIL;
 	allOk = fifoAdd(globalActor.inportsFifo[0],token);
 	return allOk;
 }
@@ -212,7 +214,7 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply)
  * @param reply JsonObject
  * @param request JsonObject
  */
-int CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy)
+int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy)
 {
   if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
   {
@@ -240,9 +242,9 @@ int CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &reques
   }
   else
   {
-#ifdef ARDUINO
-      //Serial.println("UNKNOWN CMD");
-#endif
+
+	 standardOut("UNKNOWN CMD");
+
 	  return 7;
   }
 }
@@ -266,4 +268,3 @@ void loop()
 		// 7: Skicka utmeddelande
 	}
 }
-
