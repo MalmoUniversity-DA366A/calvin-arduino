@@ -207,7 +207,6 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 	reply.set("from_rt_uuid", 	msg.get("to_rt_uuid"));
 	reply.set("cmd", 			"TUNNEL_DATA");
 	reply.set("tunnel_id",		"NULL"); // None in python
-	reply.set("value",			"foo"); // Look in Calvin-Mini.py
 #ifdef ARDUINO
 	handleMsg(value,reply,request);
 #endif
@@ -243,16 +242,22 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       // Print JsonObject and send to Calvin
       #ifdef ARDUINO
       Serial.println("Sending...");
-      String replyTemp = stringBuilderJsonObject(reply);
-      String requestTemp = stringBuilderJsonObject(request);
-      addToMessageOut(replyTemp);
-      addToMessageOut(requestTemp);
+
+      char replyTemp[512] = {};
+      reply.printTo(replyTemp,512);
+      char requestTemp[512] = {};
+      request.printTo(requestTemp,512);
+
+      String str(replyTemp);
+      String str2(requestTemp);
+      addToMessageOut(str);
+      addToMessageOut(str2);
       #endif
       return 1;
   }
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
-      // reply object + request object
+      handleActorNew(msg, reply);
       #ifdef ARDUINO
       Serial.println("ACTOR_NEW");
       #endif
@@ -260,7 +265,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
-      // reply object
+      handleTunnelData(msg, reply, request);
       #ifdef ARDUINO
       Serial.println("TUNNEL_DATA");
       #endif
@@ -288,7 +293,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       JsonObject &value = msg["value"];
       if(!strcmp(value.get("status"),"ACK"))
       {
-          value.printTo(Serial);
+          String test = value.get("status");
+          Serial.println(test.c_str());
       }
       else
       {
@@ -465,113 +471,6 @@ char* CalvinMini::jsonSerialize(const char *str)
   }
   temp[counter] = '\0';
   return temp;
-}
-
-/**
- * Builds a string from a JsonObject
- * by iterating trough the object
- * @param reply JsonObject
- * @return String
- */
-String CalvinMini::stringBuilderJsonObject(JsonObject &reply)
-{
-  String str = "{";
-  unsigned int count = 0;
-  for(JsonObject::iterator it=reply.begin(); it!=reply.end();++it)
-  {
-      str += "\"";
-      str += it->key;
-      str += "\"";
-      str += ":";
-      if(it->value.is<JsonArray&>())
-      {
-          JsonArray &array = it->value.asArray();
-          str += "[";
-          for(unsigned int i = 0; i < array.size(); i++)
-          {
-              if(array.get(i).operator String())
-              {
-                  str += "\"";
-                  str += array.get(i).asString();
-                  str += "\"";
-              }
-              else
-              {
-                  str += array.get(i).as<int>();
-              }
-              if(i != array.size() - 1)
-              {
-                  str += ",";
-              }
-           }
-           str += "]";
-      }
-      else if(it->value.is<JsonObject&>())
-        {
-          JsonObject &object = it->value.asObject();
-          str += "{";
-          unsigned int innercount = 0;
-          for(JsonObject::iterator it=object.begin(); it!=object.end();++it)
-          {
-              if(it->value.is<JsonArray&>())
-              {
-                  JsonArray &array = it->value.asArray();
-                  str += "[";
-                  for(unsigned int i = 0; i < array.size(); i++)
-                  {
-                      if(array.get(i).operator String())
-                      {
-                          str += "\"";
-                          str += array.get(i).asString();
-                          str += "\"";
-                      }
-                      else
-                      {
-                          str += array.get(i).as<int>();
-                      }
-                      if(i != array.size() - 1)
-                      {
-                          str += ",";
-                      }
-               }
-               str += "]";
-              }
-              else if(it->value.operator String())
-              {
-                  str += "\"";
-                  str += it->value.asString();
-                  str += "\"";
-              }
-              else
-              {
-                  str += it->value.as<int>();
-              }
-              if(count != (object.size() - 1))
-              {
-                  str += ",";
-              }
-              innercount++;
-          }
-          str += "}";
-        }
-      else if(it->value.operator String())
-      {
-          str += "\"";
-          str += it->value.asString();
-          str += "\"";
-      }
-      else
-      {
-          str += it->value.as<int>();
-      }
-      if(count != (reply.size() - 1))
-      {
-        str += ",";
-      }
-      count++;
-  }
-  str += "}";
-  return str;
 }
 
 void CalvinMini::loop()
