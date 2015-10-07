@@ -32,6 +32,10 @@ TEST(test_handleMessage, handleMsg) {
 	// Test ACTOR_NEW in handleMsg
 	msg["cmd"] = "ACTOR_NEW";
 	EXPECT_EQ(2, messageHandler.handleMsg(msg, reply, request, policy));
+	// Test if size of reply is correct
+	EXPECT_EQ(5, reply.size());
+	// Test if reply contains the key that is added to reply
+
 
 	// Test TUNNEL_DATA in handleMsg
 	msg["cmd"] = "TUNNEL_DATA";
@@ -53,5 +57,8 @@ TEST(test_handleMessage, handleMsg) {
 	EXPECT_EQ(7, messageHandler.handleMsg(msg, reply, request, policy));
 
 }
+
+
+
 
 #endif

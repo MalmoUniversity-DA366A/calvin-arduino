@@ -53,12 +53,14 @@ rStatus actorInit(){
  */
 rStatus CalvinMini::createActor(JsonObject &msg){
 	rStatus allOk = FAIL;
-	globalActor.type = msg["type"];
-	globalActor.name = msg["name"];
-	globalActor.id = msg["id"];
+	JsonObject &state = msg.get("state");
+	JsonObject &name = state.get("actor_state");
+	globalActor.type = state.get("actor_type");
+	globalActor.name = name.get("name");
+	globalActor.id = name.get("id");
 
-	actorInit();
 	allOk = SUCCESS;
+	actorInit();
 	return allOk;
 }
 
@@ -209,6 +211,17 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply)
 	reply.set("value",			"foo"); // Look in Calvin-Mini.py
 }
 
+void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
+{
+	createActor(msg);
+
+	reply.set("cmd",			"REPLY");
+	reply.set("msg_uuid",		msg.get("msg_uuid"));
+	reply.set("value",			"ACK");
+	reply.set("from_rt_uuid",	"calvin-miniscule");
+	reply.set("to_rt_uuid",		msg.get("from_rt_uuid"));
+}
+
 /**
  * Handle all different messages
  * @param msg JsonObject
@@ -223,6 +236,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
+	  handleActorNew(msg, reply);
 	  return 2;
   }
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))

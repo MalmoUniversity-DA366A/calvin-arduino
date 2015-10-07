@@ -58,6 +58,7 @@ public:
 	void handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy);
 	void handleTunnelData(JsonObject &msg, JsonObject &reply);
 	int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy);
+	void handleActorNew(JsonObject &msg, JsonObject &reply);
 	void loop();
 };
 
