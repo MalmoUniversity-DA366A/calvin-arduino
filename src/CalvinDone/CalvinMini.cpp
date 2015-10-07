@@ -224,6 +224,14 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
 	reply.set("to_rt_uuid",		msg.get("from_rt_uuid"));
 }
 
+/**
+ * Setup ports. The current version of calvin arduino only uses
+ * one port, so this function is mostly present to please calvin
+ * base.
+ * @param msg input message
+ * @param reply Calvin base reply list
+ * @param request Calvin base reply list
+ */
 void CalvinMini::handleSetupPorts(JsonObject &msg, JsonObject &reply,
 		JsonObject &request)
 {
@@ -232,7 +240,12 @@ void CalvinMini::handleSetupPorts(JsonObject &msg, JsonObject &reply,
 	request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
 	request.set("from_rt_uuid","calvin-miniscule");
 	request.set("to_rt_uuid",1);
-
+	request.set("port_id",1);
+	request.set("peer_actor_id",1);
+	request.set("peer_port_name","");
+	request.set("peer_port_dir","");
+	request.set("tunnel_id","");
+	request.set("cmd", "PORT_CONNECT");
 }
 
 /**
@@ -508,7 +521,7 @@ void CalvinMini::loop()
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
-
+          globalActor.fireActor;
           // 6: Läs av utlistan
           for(int i = 0;i < nextMessage;i++)
           {
