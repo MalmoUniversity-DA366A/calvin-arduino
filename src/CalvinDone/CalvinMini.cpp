@@ -8,6 +8,23 @@
 #include "CalvinMini.h"
 #include <inttypes.h>
 
+#ifdef ARDUINO
+#include <SPI.h>
+#include <Ethernet.h>
+#include <util.h>
+
+//byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
+IPAddress ip(192,168,0,5);
+//IPAddress ip(192,168,1,146);
+uint16_t slaveport = 5002;
+EthernetServer server(slaveport);
+EthernetClient client;
+
+const int messageOutLength = 4;
+String messageOut[messageOutLength] = {};
+int nextMessage = 0;
+#endif
 
 actor globalActor;
 fifo actorFifo;
@@ -174,25 +191,6 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 }
 
 /**
- * Method for setting up a tunnel using JSON message back to Calvin-Base,
- * JSON is added to the JsonObject request that is added to the reply list.
- * @param &msg JsonObject received from Calvin-Base
- * @param &request JsonObject that is added to the "reply" list
- * @param &policy JsonObject that is an empty JsonObject
- *
- */
-void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
-{
-  request.set("msg_uuid", "MSG-12345678-9101-1123-1415-161718192021");
-  request.set("from_rt_uuid", "calvin-miniscule");
-  request.set("to_rt_uuid", msg.get("id"));
-  request.set("cmd", "TUNNEL_NEW");
-  request.set("tunnel_id", "fake-tunnel");
-  request.set("type", "token");
-  request.set("policy", policy);
-}
-
-/**
  * Method for handle the tunnel data using JSON, JSON is added to the JsonObject reference reply
  * @param &msg JsonObject received from Calvin-Base
  * @param &reply JsonObject that is added to the "reply" list
@@ -214,57 +212,383 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply)
  * @param reply JsonObject
  * @param request JsonObject
  */
-int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy)
+int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
   if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
   {
-    return 1;
+      // JsonObject for replying a join request
+      StaticJsonBuffer<200> jsonBuffer;
+      JsonObject &policy = jsonBuffer.createObject();
+      handleJoin(msg,reply);
+      handleSetupTunnel(msg, request, policy);
+
+      // Print JsonObject and send to Calvin
+      #ifdef ARDUINO
+      Serial.println("Sending...");
+      String replyTemp = stringBuilderJsonObject(reply);
+      String requestTemp = stringBuilderJsonObject(request);
+      addToMessageOut(replyTemp);
+      addToMessageOut(requestTemp);
+      #endif
+      return 1;
   }
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
-    return 2;
+      // reply object + request object
+      #ifdef ARDUINO
+      Serial.println("ACTOR_NEW");
+      #endif
+      return 2;
   }
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
-    return 3;
+      // reply object
+      #ifdef ARDUINO
+      Serial.println("TUNNEL_DATA");
+      #endif
+      return 3;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
-    return 4;
+      // reply object
+      #ifdef ARDUINO
+      Serial.println("TOKEN");
+      #endif
+      return 4;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
   {
-    return 5;
+      // reply array
+      #ifdef ARDUINO
+      Serial.println("TOKEN_REPLY");
+      #endif
+      return 5;
   }
   else if(!strcmp(msg.get("cmd"),"REPLY"))
   {
-    return 6;
+      #ifdef ARDUINO
+      JsonObject &value = msg["value"];
+      if(!strcmp(value.get("status"),"ACK"))
+      {
+          value.printTo(Serial);
+      }
+      else
+      {
+          Serial.println("NACK");
+      }
+      #endif
+      return 6;
   }
   else
   {
-
-   standardOut("UNKNOWN CMD");
-
-    return 7;
+      #ifdef ARDUINO
+      Serial.println("UNKNOWN CMD");
+      #endif
+      standardOut("UNKNOWN CMD");
+      return 7;
   }
 }
 
-void loop()
+#ifdef ARDUINO
+/**
+ * Adds messages to a global array and
+ * creates the array size for sending
+ * @param reply String
+ */
+void CalvinMini::addToMessageOut(String reply)
 {
+  messageOut[nextMessage] = reply;
+  if(nextMessage < messageOutLength)
+    nextMessage = nextMessage+1;
+}
+
+/**
+ * Receive message from calvin base
+ * @return String
+ */
+String CalvinMini::recvMsg()
+{
+  Serial.println("Reading...");
+  char temp[MAX_LENGTH+1] = {};
+  String str = "";
+  byte data[4];
+  int found = 0;
+  int count = 0;
+  int sizeOfMsg;
+  while(!found)
+  {
+        int size = client.readBytes(temp, MAX_LENGTH);
+        data[count] = *temp;
+        count++;
+        if(*temp == '{')
+        {
+            str += temp;
+            found = 1;
+        }
+  }
+  sizeOfMsg = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
+  for(int i = 0;i < sizeOfMsg-1;i++)
+  {
+      int size = client.readBytes(temp, MAX_LENGTH);
+      temp[size] = '\0';  // Null terminate char
+      str += temp;
+  }
+  return str;
+}
+
+/**
+ * Reply message to calvin base
+ * @param str char pointer of String
+ * @param length size of String
+ */
+void CalvinMini::sendMsg(const char *str, size_t length)
+{
+  uint32_t hex[4] = {};
+  hex[0] = (length & 0xFF000000);
+  hex[1] = (length & 0x00FF0000);
+  hex[2] = (length & 0x0000FF00);
+  hex[3] = (length & 0x000000FF);
+
+  for(int i = 0; i< 4;i++)
+  {
+    server.write(hex[i]);
+  }
+  server.write(str);
+}
+#endif
+/**
+ * Create a reply message
+ * @param msg JsonObject
+ * @param reply JsonObject
+ */
+void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply)
+{
+  reply["cmd"] = "JOIN_REPLAY";
+  reply["id"] = "calvin-miniscule";
+  reply["sid"] = msg.get("sid");
+  reply["serializer"] = "json";
+}
+
+/**
+ * Method for setting up a tunnel using JSON message back to Calvin-Base,
+ * JSON is added to the JsonObject request that is added to the reply list.
+ * @param &msg JsonObject received from Calvin-Base
+ * @param &request JsonObject that is added to the "reply" list
+ * @param &policy JsonObject that is an empty JsonObject
+ */
+void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
+{
+  request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
+  request["from_rt_uuid"] = "calvin-miniscule";
+  request["to_rt_uuid"] = msg.get("id");
+  request["cmd"] = "TUNNEL_NEW";
+  request["tunnel_id"] = "fake-tunnel";
+  request["policy"] = policy; // Unused
+  request["type"] = "token";
+}
+
+#ifdef ARDUINO
+/**
+ * Start a server connection
+ */
+void CalvinMini::setupServer()
+{
+  //getIPFromRouter(); // Doesn't work with shield
+  Ethernet.begin(mac, ip);
+  printIp();
+  server.begin();
+}
+
+/**
+ * Prints the IP-address assigned to the Ethernet shield.
+ */
+void CalvinMini::printIp()
+{
+    Serial.println(Ethernet.localIP());
+}
+
+/**
+ * Assign an IP-address to the Ethernet shield.
+ */
+void CalvinMini::getIPFromRouter()
+{
+    // Disable SD
+    pinMode(4,OUTPUT);
+    digitalWrite(4,HIGH);
+    if (Ethernet.begin(mac) == 0)
+    {
+        Serial.println("Failed to configure Ethernet using DHCP");
+        // Set static IP-address if fail
+        Ethernet.begin(mac, ip);
+    }
+}
+
+/**
+ * Serializes a String to Json syntax.
+ * From this: {"sensor":"gps","time":1351824120}
+ * To this: {\"sensor\":\"gps\",\"time\":1351824120}
+ * @param str char* pointer
+ * @return char* pointer
+ */
+char* CalvinMini::jsonSerialize(const char *str)
+{
+  const char *json = str;
+  char *temp = new char[256];
+  int counter = 0;
+  for(int i = 0; json[i] != '\0'; i++)
+  {
+      if(json[i] == '\"')
+      {
+          temp[counter] = '\\';
+          counter++;
+      }
+      temp[counter] = json[i];
+      counter++;
+  }
+  temp[counter] = '\0';
+  return temp;
+}
+
+/**
+ * Builds a string from a JsonObject
+ * by iterating trough the object
+ * @param reply JsonObject
+ * @return String
+ */
+String CalvinMini::stringBuilderJsonObject(JsonObject &reply)
+{
+  String str = "{";
+  unsigned int count = 0;
+  for(JsonObject::iterator it=reply.begin(); it!=reply.end();++it)
+  {
+      str += "\"";
+      str += it->key;
+      str += "\"";
+      str += ":";
+      if(it->value.is<JsonArray&>())
+      {
+          JsonArray &array = it->value.asArray();
+          str += "[";
+          for(unsigned int i = 0; i < array.size(); i++)
+          {
+              if(array.get(i).operator String())
+              {
+                  str += "\"";
+                  str += array.get(i).asString();
+                  str += "\"";
+              }
+              else
+              {
+                  str += array.get(i).as<int>();
+              }
+              if(i != array.size() - 1)
+              {
+                  str += ",";
+              }
+           }
+           str += "]";
+      }
+      else if(it->value.is<JsonObject&>())
+        {
+          JsonObject &object = it->value.asObject();
+          str += "{";
+          unsigned int innercount = 0;
+          for(JsonObject::iterator it=object.begin(); it!=object.end();++it)
+          {
+              if(it->value.is<JsonArray&>())
+              {
+                  JsonArray &array = it->value.asArray();
+                  str += "[";
+                  for(unsigned int i = 0; i < array.size(); i++)
+                  {
+                      if(array.get(i).operator String())
+                      {
+                          str += "\"";
+                          str += array.get(i).asString();
+                          str += "\"";
+                      }
+                      else
+                      {
+                          str += array.get(i).as<int>();
+                      }
+                      if(i != array.size() - 1)
+                      {
+                          str += ",";
+                      }
+               }
+               str += "]";
+              }
+              else if(it->value.operator String())
+              {
+                  str += "\"";
+                  str += it->value.asString();
+                  str += "\"";
+              }
+              else
+              {
+                  str += it->value.as<int>();
+              }
+              if(count != (object.size() - 1))
+              {
+                  str += ",";
+              }
+              innercount++;
+          }
+          str += "}";
+        }
+      else if(it->value.operator String())
+      {
+          str += "\"";
+          str += it->value.asString();
+          str += "\"";
+      }
+      else
+      {
+          str += it->value.as<int>();
+      }
+      if(count != (reply.size() - 1))
+      {
+        str += ",";
+      }
+      count++;
+  }
+  str += "}";
+  return str;
+}
+
+void CalvinMini::loop()
+{
+  setupServer();
   while(1)
   {
-    // 1: Kontrollera anslutna sockets
+      // 1: Kontrollera anslutna sockets
+      client = server.available();
+      // 2: Fixa koppling
+      if(client) // Wait for client
+      {
+          // 3: Läs av meddelande
+          Serial.println("Connected...");
+          String str = recvMsg();
 
-    // 2: Fixa koppling
+          StaticJsonBuffer<4096> jsonBuffer;
+          JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+          JsonObject &reply = jsonBuffer.createObject();
+          JsonObject &request = jsonBuffer.createObject();
 
-    // 3: L�s av meddelande
+          // 4: Hantera meddelande
+          handleMsg(msg, reply, request);
 
-    // 4: Hantera meddelande
+          // 5: Fire Actors
 
-    // 5: Fire Actors
-
-    // 6: L�s av utlistan
-
-    // 7: Skicka utmeddelande
+          // 6: Läs av utlistan
+          for(int i = 0;i < nextMessage;i++)
+          {
+              // 7: Skicka utmeddelande
+              sendMsg(messageOut[i].c_str(),messageOut[i].length());
+              messageOut[i] = "";
+          }
+          nextMessage = 0;
+      }
   }
 }
+#endif

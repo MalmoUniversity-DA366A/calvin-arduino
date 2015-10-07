@@ -14,10 +14,9 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include "ArduinoJson.h"
-#include "CalvinInProgress/testJson.h"
+#include "CalvinDone/CalvinMini.h"
 #include "blinkLED.h"
 #include "uart.h"
-#include "CalvinInProgress/calvinRuntime.h"
 
 
 LiquidCrystal lcd(8,9,4,5,6,7);
@@ -55,8 +54,8 @@ int main(void) {
 
 	init_board();
 	Serial.begin(115200);
-	calvinRuntime json;
-	json.setupConnection();
+	CalvinMini mini;
+	mini.loop();
 }
 #else
 

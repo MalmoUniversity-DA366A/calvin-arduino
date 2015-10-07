@@ -35,7 +35,7 @@ TEST(testHandleSetupTunnel, testSetStringInMethod) {
 	calvinMini.handleSetupTunnel(msg ,request, policy);
 
 	// Test for checking if the string value in the JsonObject is equal to the set string
-	EXPECT_STREQ("MSG-12345678-9101-1123-1415-161718192021", request.get("msg_uuid"));
+	EXPECT_STREQ("MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6", request.get("msg_uuid"));
 	EXPECT_STREQ("calvin-miniscule", request.get("from_rt_uuid"));
 	EXPECT_STREQ(msg.get("id"), request.get("to_rt_uuid"));
 	EXPECT_STREQ("TUNNEL_NEW", request.get("cmd"));

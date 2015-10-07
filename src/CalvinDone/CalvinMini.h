@@ -1,6 +1,7 @@
 #ifndef CALVINDONE_CALVINMINI_H_
 #define CALVINDONE_CALVINMINI_H_
 
+#define MAX_LENGTH 1
 #include <stdio.h>
 #include "ArduinoJson.h"
 #define standardOut(x)    strlen(x)
@@ -55,10 +56,23 @@ public:
   rStatus process(const char*);
   void handleToken(JsonObject &msg, JsonObject &reply);
   int8_t lengthOfData(fifo*);
+  void handleJoin(JsonObject &msg, JsonObject &reply);
   void handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy);
   void handleTunnelData(JsonObject &msg, JsonObject &reply);
-  int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, JsonObject &policy);
-  void loop();
+  int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request);
+  void loop(void);
+  void setupConnection(void);
+  #ifdef ARDUINO
+  String jsonToString(void);
+  void printIp(void);
+  void getIPFromRouter(void);
+  void setupServer(void);
+  void addToMessageOut(String reply);
+  String recvMsg(void);
+  void sendMsg(const char *str, size_t length);
+  char* jsonSerialize(const char *str);
+  String stringBuilderJsonObject(JsonObject &reply);
+  #endif
 };
 
 
