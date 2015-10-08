@@ -26,6 +26,9 @@ String messageOut[messageOutLength] = {};
 int nextMessage = 0;
 #endif
 
+#define RT_ID "calvin-miniscule"
+#define tunnel_id "fake-tunnel"
+
 actor globalActor;
 fifo actorFifo;
 
@@ -218,9 +221,9 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 {
 	JsonObject &value = msg.get("value");
 	reply.set("to_rt_uuid", 	msg.get("from_rt_uuid"));
-	reply.set("from_rt_uuid", 	msg.get("to_rt_uuid"));
+	reply.set("from_rt_uuid", 	RT_ID);
 	reply.set("cmd", 			"TUNNEL_DATA");
-	reply.set("tunnel_id",		"NULL"); // None in python
+	reply.set("tunnel_id",		tunnel_id); // None in python
 #ifdef ARDUINO
 	handleMsg(value,reply,request);
 #endif
@@ -234,7 +237,7 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
 	reply.set("cmd",			"REPLY");
 	reply.set("msg_uuid",		msg.get("msg_uuid"));
 	reply.set("value",			"ACK");
-	reply.set("from_rt_uuid",	"calvin-miniscule");
+	reply.set("from_rt_uuid",	RT_ID);
 	reply.set("to_rt_uuid",		msg.get("from_rt_uuid"));
 }
 
@@ -249,13 +252,13 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
 void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
 {
 	request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
-	request.set("from_rt_uuid","calvin-miniscule");
+	request.set("from_rt_uuid", RT_ID);
 	request.set("to_rt_uuid",msg.get("from_rt_uuid"));
 	request.set("port_id","1");
 	request.set("peer_actor_id","1");
 	request.set("peer_port_name","1");
 	request.set("peer_port_dir","1");
-	request.set("tunnel_id","1");
+	request.set("tunnel_id", tunnel_id);
 	request.set("cmd", "PORT_CONNECT");
 }
 
@@ -267,6 +270,8 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
  */
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
+  char replyTemp[512] = {};
+  char requestTemp[512] = {};
   if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
   {
       // JsonObject for replying a join request
@@ -277,11 +282,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 
       // Print JsonObject and send to Calvin
       #ifdef ARDUINO
-      Serial.println("Sending...");
-
-      char replyTemp[512] = {};
       reply.printTo(replyTemp,512);
-      char requestTemp[512] = {};
       request.printTo(requestTemp,512);
 
       String str(replyTemp);
@@ -296,11 +297,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       handleActorNew(msg, reply);
       handleSetupPorts(msg,request);
       #ifdef ARDUINO
-      Serial.println("ACTOR_NEW");
-
-      char replyTemp[512] = {};
       reply.printTo(replyTemp,512);
-      char requestTemp[512] = {};
       request.printTo(requestTemp,512);
 
       String str(replyTemp);
@@ -314,8 +311,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   {
       handleTunnelData(msg, reply, request);
       #ifdef ARDUINO
-      Serial.println("TUNNEL_DATA");
-      char replyTemp[512] = {};
       reply.printTo(replyTemp,512);
       String str(replyTemp);
       addToMessageOut(str);
@@ -326,8 +321,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   {
       handleToken(msg,reply);
       #ifdef ARDUINO
-      Serial.println("TOKEN");
-      char replyTemp[512] = {};
       reply.printTo(replyTemp,512);
       String str(replyTemp);
       addToMessageOut(str);
@@ -337,9 +330,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
   {
       // reply array
-      #ifdef ARDUINO
-      Serial.println("TOKEN_REPLY");
-      #endif
       return 5;
   }
   else if(!strcmp(msg.get("cmd"),"REPLY"))
@@ -360,9 +350,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else
   {
-      #ifdef ARDUINO
-      Serial.println("UNKNOWN CMD");
-      #endif
       standardOut("UNKNOWN CMD");
       return 7;
   }
@@ -443,7 +430,7 @@ void CalvinMini::sendMsg(const char *str, size_t length)
 void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply)
 {
   reply["cmd"] = "JOIN_REPLY";
-  reply["id"] = "calvin-miniscule";
+  reply["id"] = RT_ID;
   reply["sid"] = msg.get("sid");
   reply["serializer"] = "json";
 }
@@ -458,10 +445,10 @@ void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply)
 void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
   request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
-  request["from_rt_uuid"] = "calvin-miniscule";
+  request["from_rt_uuid"] = RT_ID;
   request["to_rt_uuid"] = msg.get("id");
   request["cmd"] = "TUNNEL_NEW";
-  request["tunnel_id"] = "fake-tunnel";
+  request["tunnel_id"] = tunnel_id;
   request["policy"] = policy; // Unused
   request["type"] = "token";
 }
