@@ -9,6 +9,8 @@
 #define QUEUE_SIZE      10
 #define FIFO_SIZE     8     //Must be a power of two
 #define NUMBER_OF_PORTS     2
+#define RT_ID "calvin-arduino"
+#define tunnel_id "fake-tunnel"
 
 extern "C"{
 /*
@@ -64,6 +66,7 @@ public:
   void setupConnection(void);
   void handleActorNew(JsonObject &msg, JsonObject &reply);
   void handleSetupPorts(JsonObject &msg,JsonObject &request);
+  void sendMsg(const char *str, uint32_t length);
   #ifdef ARDUINO
   String jsonToString(void);
   void printIp(void);
@@ -71,7 +74,6 @@ public:
   void setupServer(void);
   void addToMessageOut(String reply);
   String recvMsg(void);
-  void sendMsg(const char *str, size_t length);
   char* jsonSerialize(const char *str);
   #endif
 };

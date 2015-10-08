@@ -1,4 +1,4 @@
-/*
+/**
  * This is the Calvin mini library for Arduino due
  *
  *Created on: 5 okt. 2015
@@ -16,8 +16,8 @@
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,5);
-//IPAddress ip(192,168,1,146);
+//IPAddress ip(192,168,0,5);
+IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
@@ -27,9 +27,6 @@ const int messageOutLength = 4;
 String messageOut[messageOutLength] = {};
 int nextMessage = 0;
 #endif
-
-#define RT_ID "calvin-miniscule"
-#define tunnel_id "fake-tunnel"
 
 actor globalActor;
 fifo actorFifo;
@@ -253,11 +250,16 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
  */
 void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
 {
-	request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
+  JsonObject &token = msg["state"]["actor_state"]["inports"]["token"];
+  String port_id = token.get("id");
+  JsonObject &inports = msg["state"]["prev_connections"]["inports"];
+  JsonArray &array = inports[port_id];
+  String peer_port_id = array.get(1);
+  request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
 	request.set("from_rt_uuid", RT_ID);
 	request.set("to_rt_uuid",msg.get("from_rt_uuid"));
-	request.set("port_id","1");
-	request.set("peer_port_id","1");
+	request.set("port_id", port_id);
+	request.set("peer_port_id", peer_port_id);
 	request.set("peer_actor_id", NULL);
 	request.set("peer_port_name", NULL);
 	request.set("peer_port_dir", NULL);
@@ -285,8 +287,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 
       // Print JsonObject and send to Calvin
       #ifdef ARDUINO
-      reply.printTo(replyTemp,512);
-      request.printTo(requestTemp,512);
+      reply.printTo(replyTemp,2048);
+      request.printTo(requestTemp,2048);
 
       String str(replyTemp);
       String str2(requestTemp);
@@ -302,15 +304,15 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       handleActorNew(msg, reply);
       handleSetupPorts(msg,request);
       #ifdef ARDUINO
-      reply.printTo(replyTemp,512);
-      request.printTo(requestTemp,512);
+      reply.printTo(replyTemp,2048);
+      request.printTo(requestTemp,2048);
 
       String str(replyTemp);
       String str2(requestTemp);
       addToMessageOut(str);
       addToMessageOut(str2);
       lcdOut.clear();
-      lcdOut.write("JOIN_ACTOR_NEW");
+      lcdOut.write("ACTOR_NEW");
       #endif
       return 2;
   }
@@ -318,7 +320,9 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   {
       handleTunnelData(msg, reply, request);
       #ifdef ARDUINO
-      reply.printTo(replyTemp,512);
+      lcdOut.clear();
+      lcdOut.write("In Tunnel_Data");
+      reply.printTo(replyTemp,2048);
       String str(replyTemp);
       addToMessageOut(str);
       lcdOut.clear();
@@ -330,7 +334,9 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   {
       handleToken(msg,reply);
       #ifdef ARDUINO
-      reply.printTo(replyTemp,512);
+      lcdOut.clear();
+      lcdOut.write("In Token");
+      reply.printTo(replyTemp,2048);
       String str(replyTemp);
       addToMessageOut(str);
       lcdOut.clear();
@@ -394,7 +400,7 @@ String CalvinMini::recvMsg()
   int sizeOfMsg;
   while(!found)
   {
-        int size = client.readBytes(temp, MAX_LENGTH);
+        client.readBytes(temp, MAX_LENGTH);
         data[count] = *temp;
         count++;
         if(*temp == '{')
@@ -412,27 +418,25 @@ String CalvinMini::recvMsg()
   }
   return str;
 }
-
+#endif
 /**
  * Reply message to calvin base
  * @param str char pointer of String
  * @param length size of String
  */
-void CalvinMini::sendMsg(const char *str, size_t length)
+void CalvinMini::sendMsg(const char *str, uint32_t length)
 {
-  uint32_t hex[4] = {};
+  unsigned char hex[4] = {};
   hex[0] = (length & 0xFF000000);
   hex[1] = (length & 0x00FF0000);
-  hex[2] = (length & 0x0000FF00);
+  hex[2] = (length & 0x0000FF00) / 0x000000FF;
   hex[3] = (length & 0x000000FF);
-
-  for(int i = 0; i< 4;i++)
-  {
-    server.write(hex[i]);
-  }
+#ifdef ARDUINO
+  server.write(hex,4);
   server.write(str);
-}
 #endif
+}
+
 /**
  * Create a reply message
  * @param msg JsonObject
