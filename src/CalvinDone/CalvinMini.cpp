@@ -257,7 +257,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
-      Serial.println("In ACTOR_NEW");
       handleActorNew(msg, reply);
       return 2;
   }
