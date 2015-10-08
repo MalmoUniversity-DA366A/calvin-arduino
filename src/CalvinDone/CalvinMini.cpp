@@ -12,6 +12,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <util.h>
+#include <LiquidCrystal.h>
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
@@ -20,6 +21,7 @@ IPAddress ip(192,168,0,5);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
+LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
 
 const int messageOutLength = 4;
 String messageOut[messageOutLength] = {};
@@ -289,6 +291,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       String str2(requestTemp);
       addToMessageOut(str);
       addToMessageOut(str2);
+      lcdOut.clear();
+      lcdOut.write("JOIN_REQUEST");
       #endif
       return 1;
   }
@@ -304,6 +308,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       String str2(requestTemp);
       addToMessageOut(str);
       addToMessageOut(str2);
+      lcdOut.clear();
+      lcdOut.write("JOIN_ACTOR_NEW");
       #endif
       return 2;
   }
@@ -314,6 +320,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       reply.printTo(replyTemp,512);
       String str(replyTemp);
       addToMessageOut(str);
+      lcdOut.clear();
+      lcdOut.write("TUNNEL_DATA");
       #endif
       return 3;
   }
@@ -324,6 +332,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       reply.printTo(replyTemp,512);
       String str(replyTemp);
       addToMessageOut(str);
+      lcdOut.clear();
+      lcdOut.write("TOKEN");
       #endif
       return 4;
   }

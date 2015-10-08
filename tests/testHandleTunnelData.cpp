@@ -67,10 +67,10 @@ TEST(testHandleTunnelData, testValues) {
 
 	calvinMini.handleTunnelData(msg, reply, request);
 
-	EXPECT_STREQ("1234", reply.get("from_rt_uuid"));
+	EXPECT_STREQ("calvin-miniscule", reply.get("from_rt_uuid"));
 	EXPECT_STREQ("3456", reply.get("to_rt_uuid"));
 	EXPECT_STREQ("TUNNEL_DATA", reply.get("cmd"));
-	EXPECT_STREQ("NULL", reply.get("tunnel_id"));
+	EXPECT_STREQ("fake-tunnel", reply.get("tunnel_id"));
 	//EXPECT_STREQ("foo", reply.get("value"));
 }
 #endif
