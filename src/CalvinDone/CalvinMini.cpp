@@ -231,6 +231,8 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
  */
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
+  char replyTemp[512] = {};
+  char requestTemp[512] = {};
   if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
   {
       // JsonObject for replying a join request
@@ -243,9 +245,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       #ifdef ARDUINO
       Serial.println("Sending...");
 
-      char replyTemp[512] = {};
       reply.printTo(replyTemp,512);
-      char requestTemp[512] = {};
       request.printTo(requestTemp,512);
 
       String str(replyTemp);
@@ -257,34 +257,23 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
+      Serial.println("In ACTOR_NEW");
       handleActorNew(msg, reply);
-      #ifdef ARDUINO
-      Serial.println("ACTOR_NEW");
-      #endif
       return 2;
   }
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
       handleTunnelData(msg, reply, request);
-      #ifdef ARDUINO
-      Serial.println("TUNNEL_DATA");
-      #endif
       return 3;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
       // reply object
-      #ifdef ARDUINO
-      Serial.println("TOKEN");
-      #endif
       return 4;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
   {
       // reply array
-      #ifdef ARDUINO
-      Serial.println("TOKEN_REPLY");
-      #endif
       return 5;
   }
   else if(!strcmp(msg.get("cmd"),"REPLY"))
@@ -305,9 +294,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else
   {
-      #ifdef ARDUINO
-      Serial.println("UNKNOWN CMD");
-      #endif
       standardOut("UNKNOWN CMD");
       return 7;
   }
@@ -341,7 +327,7 @@ String CalvinMini::recvMsg()
   int sizeOfMsg;
   while(!found)
   {
-        int size = client.readBytes(temp, MAX_LENGTH);
+        client.readBytes(temp, MAX_LENGTH);
         data[count] = *temp;
         count++;
         if(*temp == '{')
@@ -357,6 +343,7 @@ String CalvinMini::recvMsg()
       temp[size] = '\0';  // Null terminate char
       str += temp;
   }
+  Serial.println(temp);
   return str;
 }
 
@@ -367,15 +354,15 @@ String CalvinMini::recvMsg()
  */
 void CalvinMini::sendMsg(const char *str, size_t length)
 {
-  uint32_t hex[4] = {};
-  hex[0] = (length & 0xFF000000);
-  hex[1] = (length & 0x00FF0000);
-  hex[2] = (length & 0x0000FF00);
-  hex[3] = (length & 0x000000FF);
+  byte binary[4] = {};
+  binary[0] = (length & 0xFF000000);
+  binary[1] = (length & 0x00FF0000);
+  binary[2] = (length & 0x0000FF00);
+  binary[3] = (length & 0x000000FF);
 
   for(int i = 0; i< 4;i++)
   {
-    server.write(hex[i]);
+    server.write(binary[i]);
   }
   server.write(str);
 }
@@ -387,7 +374,7 @@ void CalvinMini::sendMsg(const char *str, size_t length)
  */
 void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply)
 {
-  reply["cmd"] = "JOIN_REPLAY";
+  reply["cmd"] = "JOIN_REPLY";
   reply["id"] = "calvin-miniscule";
   reply["sid"] = msg.get("sid");
   reply["serializer"] = "json";
@@ -489,6 +476,7 @@ void CalvinMini::loop()
 
           StaticJsonBuffer<4096> jsonBuffer;
           JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+          msg.printTo(Serial);
           JsonObject &reply = jsonBuffer.createObject();
           JsonObject &request = jsonBuffer.createObject();
 
