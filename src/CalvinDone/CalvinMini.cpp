@@ -545,12 +545,12 @@ void CalvinMini::loop()
   setupServer();
   while(1)
   {
-      // 1: Kontrollera anslutna sockets
+      // 1: Check connected sockets
       client = server.available();
-      // 2: Fixa koppling
+      // 2: Fix connection
       if(client) // Wait for client
       {
-          // 3: Läs av meddelande
+          // 3: Read message
           Serial.println("Connected...");
           String str = recvMsg();
 
@@ -559,15 +559,15 @@ void CalvinMini::loop()
           JsonObject &reply = jsonBuffer.createObject();
           JsonObject &request = jsonBuffer.createObject();
 
-          // 4: Hantera meddelande
+          // 4: Handle message
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
           globalActor.fireActor;
-          // 6: Läs av utlistan
+          // 6: Read outgoing message
           for(int i = 0;i < nextMessage;i++)
           {
-              // 7: Skicka utmeddelande
+              // 7: Send outgoing message
               sendMsg(messageOut[i].c_str(),messageOut[i].length());
               messageOut[i] = "";
           }
