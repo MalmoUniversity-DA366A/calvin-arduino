@@ -36,7 +36,7 @@ TEST(SetupPortTest,HandlePorts)
 	EXPECT_STREQ(request.get("from_rt_uuid"),"calvin-miniscule");
 	EXPECT_EQ((int)request.get("to_rt_uuid"),0);
 	EXPECT_EQ((int)request.get("port_id"),1);
-	EXPECT_EQ((int)request.get("peer_actor_id"),1);
+	EXPECT_EQ((int)request.get("peer_actor_id"),0);
 	EXPECT_STREQ(request.get("cmd"),"PORT_CONNECT");
 
 }
