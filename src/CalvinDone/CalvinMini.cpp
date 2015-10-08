@@ -257,9 +257,10 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
 	request.set("from_rt_uuid", RT_ID);
 	request.set("to_rt_uuid",msg.get("from_rt_uuid"));
 	request.set("port_id","1");
-	request.set("peer_actor_id","1");
-	request.set("peer_port_name","1");
-	request.set("peer_port_dir","1");
+	request.set("peer_port_id","1");
+	request.set("peer_actor_id", NULL);
+	request.set("peer_port_name", NULL);
+	request.set("peer_port_dir", NULL);
 	request.set("tunnel_id", tunnel_id);
 	request.set("cmd", "PORT_CONNECT");
 }
@@ -272,8 +273,8 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
  */
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
-  char replyTemp[512] = {};
-  char requestTemp[512] = {};
+  char replyTemp[2048] = {};
+  char requestTemp[2048] = {};
   if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
   {
       // JsonObject for replying a join request
