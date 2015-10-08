@@ -11,6 +11,7 @@
 #define NUMBER_OF_PORTS     2
 #define RT_ID "calvin-arduino"
 #define tunnel_id "fake-tunnel"
+typedef unsigned char BYTE;
 
 extern "C"{
 /*
@@ -66,8 +67,11 @@ public:
   void setupConnection(void);
   void handleActorNew(JsonObject &msg, JsonObject &reply);
   void handleSetupPorts(JsonObject &msg,JsonObject &request);
-  void sendMsg(const char *str, uint32_t length);
+#ifdef _MOCK_
+  BYTE* sendMsg(const char *str, uint32_t length);
+#endif
   #ifdef ARDUINO
+  void sendMsg(const char *str, uint32_t length);
   String jsonToString(void);
   void printIp(void);
   void getIPFromRouter(void);

@@ -424,9 +424,16 @@ String CalvinMini::recvMsg()
  * @param str char pointer of String
  * @param length size of String
  */
+#ifdef _MOCK_
+BYTE* CalvinMini::sendMsg(const char *str, uint32_t length)
+{
+  BYTE *hex = new unsigned char[4];
+#endif
+#ifdef ARDUINO
 void CalvinMini::sendMsg(const char *str, uint32_t length)
 {
-  unsigned char hex[4] = {};
+  BYTE hex[4] = {};
+#endif
   hex[0] = (length & 0xFF000000);
   hex[1] = (length & 0x00FF0000);
   hex[2] = (length & 0x0000FF00) / 0x000000FF;
@@ -434,6 +441,9 @@ void CalvinMini::sendMsg(const char *str, uint32_t length)
 #ifdef ARDUINO
   server.write(hex,4);
   server.write(str);
+#endif
+#ifdef _MOCK_
+  return hex;
 #endif
 }
 

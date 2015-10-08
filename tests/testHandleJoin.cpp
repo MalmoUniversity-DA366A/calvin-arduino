@@ -1,5 +1,5 @@
 /*
- * testJson.cpp
+ * testHandleJoin.cpp
  *
  *      Author: Peter Johansson
  */
