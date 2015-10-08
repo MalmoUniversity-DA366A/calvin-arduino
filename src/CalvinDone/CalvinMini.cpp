@@ -35,15 +35,15 @@ fifo actorFifo;
  * Current standard out is the lcd screen connected to arduino due
  */
 int8_t StdOut(){
-	uint8_t inFifo;
-	const char* token;
-	token = "null";
-	inFifo = lengthOfData(globalActor.inportsFifo[0]);
-	if(inFifo > 0)
-	{
-		token = fifoPop(globalActor.inportsFifo[0]);
-	}
-	return standardOut(token);
+  uint8_t inFifo;
+  const char* token;
+  token = "null";
+  inFifo = lengthOfData(globalActor.inportsFifo[0]);
+  if(inFifo > 0)
+  {
+    token = fifoPop(globalActor.inportsFifo[0]);
+  }
+  return standardOut(token);
 }
 
 /**
@@ -71,16 +71,16 @@ rStatus actorInit(){
  * @return return 1 if successful.
  */
 rStatus CalvinMini::createActor(JsonObject &msg){
-	rStatus allOk = FAIL;
-	JsonObject &state = msg.get("state");
-	JsonObject &name = state.get("actor_state");
-	globalActor.type = state.get("actor_type");
-	globalActor.name = name.get("name");
-	globalActor.id = name.get("id");
+  rStatus allOk = FAIL;
+  JsonObject &state = msg.get("state");
+  JsonObject &name = state.get("actor_state");
+  globalActor.type = state.get("actor_type");
+  globalActor.name = name.get("name");
+  globalActor.id = name.get("id");
 
-	allOk = SUCCESS;
-	actorInit();
-	return allOk;
+  allOk = SUCCESS;
+  actorInit();
+  return allOk;
 }
 
 extern "C"{
@@ -191,7 +191,7 @@ rStatus CalvinMini::process(const char* token){
 void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 {
   /*Current version of calvin mini only process strings*/
-  char tokenData[16];				//No more that 16 chars!!!!
+  char tokenData[16];       //No more that 16 chars!!!!
   rStatus fifoStatus;
   JsonObject &token = msg.get("token");
   sprintf(tokenData,"%d",(uint32_t)token.get("data"));
@@ -202,10 +202,10 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
   reply.set("peer_port_id",   msg.get("peer_port_id"));
   if(fifoStatus == SUCCESS)
   {
-	  reply.set("value",      "ACK");
+    reply.set("value",      "ACK");
   }else
   {
-	  reply.set("value",      "NACK");	//Fifo is full, please come again
+    reply.set("value",      "NACK");  //Fifo is full, please come again
   }
 }
 
@@ -218,26 +218,26 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
  */
 void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request )
 {
-	JsonObject &value = msg.get("value");
-	reply.set("to_rt_uuid", 	msg.get("from_rt_uuid"));
-	reply.set("from_rt_uuid", 	RT_ID);
-	reply.set("cmd", 			"TUNNEL_DATA");
-	reply.set("tunnel_id",		tunnel_id); // None in python
+  JsonObject &value = msg.get("value");
+  reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
+  reply.set("from_rt_uuid",   RT_ID);
+  reply.set("cmd",      "TUNNEL_DATA");
+  reply.set("tunnel_id",    tunnel_id); // None in python
 #ifdef ARDUINO
-	handleMsg(value,reply,request);
+  handleMsg(value,reply,request);
 #endif
-	reply.set("Value",			value);
+  reply.set("Value",      value);
 }
 
 void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
 {
-	createActor(msg);
+  createActor(msg);
 
-	reply.set("cmd",			"REPLY");
-	reply.set("msg_uuid",		msg.get("msg_uuid"));
-	reply.set("value",			"ACK");
-	reply.set("from_rt_uuid",	RT_ID);
-	reply.set("to_rt_uuid",		msg.get("from_rt_uuid"));
+  reply.set("cmd",      "REPLY");
+  reply.set("msg_uuid",   msg.get("msg_uuid"));
+  reply.set("value",      "ACK");
+  reply.set("from_rt_uuid", RT_ID);
+  reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
 }
 
 /**
@@ -256,15 +256,15 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
   JsonArray &array = inports[port_id];
   String peer_port_id = array.get(1);
   request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
-	request.set("from_rt_uuid", RT_ID);
-	request.set("to_rt_uuid",msg.get("from_rt_uuid"));
-	request.set("port_id", port_id);
-	request.set("peer_port_id", peer_port_id);
-	request.set("peer_actor_id", NULL);
-	request.set("peer_port_name", NULL);
-	request.set("peer_port_dir", NULL);
-	request.set("tunnel_id", tunnel_id);
-	request.set("cmd", "PORT_CONNECT");
+  request.set("from_rt_uuid", RT_ID);
+  request.set("to_rt_uuid",msg.get("from_rt_uuid"));
+  request.set("port_id", port_id);
+  request.set("peer_port_id", peer_port_id);
+  request.set("peer_actor_id", NULL);
+  request.set("peer_port_name", NULL);
+  request.set("peer_port_dir", NULL);
+  request.set("tunnel_id", tunnel_id);
+  request.set("cmd", "PORT_CONNECT");
 }
 
 /**

@@ -1,4 +1,4 @@
-###Join request
+###Migrate Actor
 
 **Terminal commands**
 
@@ -16,9 +16,11 @@
     calvinip://&lt;ip-address&gt;:&lt;port&gt; (invite arduino runtime
     to join a mesh)
     
--   cscontrol http://localhost:5001 nodes list (check node list for aduino id)
+-   Step into calvin-base folder
+    
+-   cscontrol http://localhost:5001 deploy &lt;scriptname.calvin&gt;
 
--   sudo killall python (if something went wrong and have to start a
-    new runtime)
+-   Start a new command window and repeat step 1
 
--   deactivate (to exit Calvin virtual environment)
+-   cscontrol http://localhost:5001 actor migrate
+    &lt;actor-id&gt; &lt;arduino-id&gt;
