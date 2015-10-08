@@ -1,4 +1,4 @@
-/*
+/**
  * This is the Calvin mini library for Arduino due
  *
  *Created on: 5 okt. 2015
@@ -12,14 +12,16 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <util.h>
+#include <LiquidCrystal.h>
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,5);
-//IPAddress ip(192,168,1,146);
+//IPAddress ip(192,168,0,5);
+IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
+LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
 
 const int messageOutLength = 4;
 String messageOut[messageOutLength] = {};
@@ -179,18 +181,32 @@ rStatus CalvinMini::process(const char* token){
 
 /**
  * Function for setting the Json reply back to Calvin-Base when the request message from
- * Calvin-Base is "Token"
+ * Calvin-Base is "Token". Tokens are recived as int's but the fifo only handles
+ * strings, so they are converted before they are sent off to process. Tokens can
+ * only be 16 characters long!. If the token fifo is full a NACK will be returned,
+ * token has to be sent one more time.
  * @param msg is the JsonObject that is message from Calvin-Base
  * @param reply is the JsonObject with the reply message from Calvin-Arduino
  */
 void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 {
-  process(msg.get("token"));
+  /*Current version of calvin mini only process strings*/
+  char tokenData[16];       //No more that 16 chars!!!!
+  rStatus fifoStatus;
+  JsonObject &token = msg.get("token");
+  sprintf(tokenData,"%d",(uint32_t)token.get("data"));
+  fifoStatus = process(tokenData);
   reply.set("cmd",      "TOKEN_REPLY");
   reply.set("sequencenbr",  msg.get("sequencenbr"));
   reply.set("port_id",    msg.get("port_id"));
   reply.set("peer_port_id",   msg.get("peer_port_id"));
-  reply.set("value",      "ACK");
+  if(fifoStatus == SUCCESS)
+  {
+    reply.set("value",      "ACK");
+  }else
+  {
+    reply.set("value",      "NACK");  //Fifo is full, please come again
+  }
 }
 
 /**
@@ -200,16 +216,17 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
  *
  * Author: Jesper Hansen
  */
-void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply, JsonObject &request)
+void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request )
 {
   JsonObject &value = msg.get("value");
   reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
-  reply.set("from_rt_uuid",   msg.get("to_rt_uuid"));
+  reply.set("from_rt_uuid",   RT_ID);
   reply.set("cmd",      "TUNNEL_DATA");
-  reply.set("tunnel_id",    "NULL"); // None in python
+  reply.set("tunnel_id",    tunnel_id); // None in python
 #ifdef ARDUINO
   handleMsg(value,reply,request);
 #endif
+  reply.set("Value",      value);
 }
 
 void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
@@ -219,8 +236,35 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
   reply.set("cmd",      "REPLY");
   reply.set("msg_uuid",   msg.get("msg_uuid"));
   reply.set("value",      "ACK");
-  reply.set("from_rt_uuid", "calvin-miniscule");
+  reply.set("from_rt_uuid", RT_ID);
   reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
+}
+
+/**
+ * Setup ports. The current version of calvin arduino only uses
+ * one port, so this function is mostly present to please calvin
+ * base.
+ * @param msg input message
+ * @param reply Calvin base reply list
+ * @param request Calvin base reply list
+ */
+void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
+{
+  JsonObject &token = msg["state"]["actor_state"]["inports"]["token"];
+  String port_id = token.get("id");
+  JsonObject &inports = msg["state"]["prev_connections"]["inports"];
+  JsonArray &array = inports[port_id];
+  String peer_port_id = array.get(1);
+  request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
+  request.set("from_rt_uuid", RT_ID);
+  request.set("to_rt_uuid",msg.get("from_rt_uuid"));
+  request.set("port_id", port_id);
+  request.set("peer_port_id", peer_port_id);
+  request.set("peer_actor_id", NULL);
+  request.set("peer_port_name", NULL);
+  request.set("peer_port_dir", NULL);
+  request.set("tunnel_id", tunnel_id);
+  request.set("cmd", "PORT_CONNECT");
 }
 
 /**
@@ -231,8 +275,8 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
  */
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
-  char replyTemp[512] = {};
-  char requestTemp[512] = {};
+  char replyTemp[2048] = {};
+  char requestTemp[2048] = {};
   if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
   {
       // JsonObject for replying a join request
@@ -243,31 +287,61 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 
       // Print JsonObject and send to Calvin
       #ifdef ARDUINO
-      Serial.println("Sending...");
-
-      reply.printTo(replyTemp,512);
-      request.printTo(requestTemp,512);
+      reply.printTo(replyTemp,2048);
+      request.printTo(requestTemp,2048);
 
       String str(replyTemp);
       String str2(requestTemp);
       addToMessageOut(str);
       addToMessageOut(str2);
+      lcdOut.clear();
+      lcdOut.write("JOIN_REQUEST");
       #endif
       return 1;
   }
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
       handleActorNew(msg, reply);
+      handleSetupPorts(msg,request);
+      #ifdef ARDUINO
+      reply.printTo(replyTemp,2048);
+      request.printTo(requestTemp,2048);
+
+      String str(replyTemp);
+      String str2(requestTemp);
+      addToMessageOut(str);
+      addToMessageOut(str2);
+      lcdOut.clear();
+      lcdOut.write("ACTOR_NEW");
+      #endif
       return 2;
   }
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
       handleTunnelData(msg, reply, request);
+      #ifdef ARDUINO
+      lcdOut.clear();
+      lcdOut.write("In Tunnel_Data");
+      reply.printTo(replyTemp,2048);
+      String str(replyTemp);
+      addToMessageOut(str);
+      lcdOut.clear();
+      lcdOut.write("TUNNEL_DATA");
+      #endif
       return 3;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
-      // reply object
+      handleToken(msg,reply);
+      #ifdef ARDUINO
+      lcdOut.clear();
+      lcdOut.write("In Token");
+      reply.printTo(replyTemp,2048);
+      String str(replyTemp);
+      addToMessageOut(str);
+      lcdOut.clear();
+      lcdOut.write("TOKEN");
+      #endif
       return 4;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
@@ -342,30 +416,27 @@ String CalvinMini::recvMsg()
       temp[size] = '\0';  // Null terminate char
       str += temp;
   }
-  Serial.println(temp);
   return str;
 }
-
+#endif
 /**
  * Reply message to calvin base
  * @param str char pointer of String
  * @param length size of String
  */
-void CalvinMini::sendMsg(const char *str, size_t length)
+void CalvinMini::sendMsg(const char *str, uint32_t length)
 {
-  byte binary[4] = {};
-  binary[0] = (length & 0xFF000000);
-  binary[1] = (length & 0x00FF0000);
-  binary[2] = (length & 0x0000FF00);
-  binary[3] = (length & 0x000000FF);
-
-  for(int i = 0; i< 4;i++)
-  {
-    server.write(binary[i]);
-  }
+  unsigned char hex[4] = {};
+  hex[0] = (length & 0xFF000000);
+  hex[1] = (length & 0x00FF0000);
+  hex[2] = (length & 0x0000FF00) / 0x000000FF;
+  hex[3] = (length & 0x000000FF);
+#ifdef ARDUINO
+  server.write(hex,4);
   server.write(str);
-}
 #endif
+}
+
 /**
  * Create a reply message
  * @param msg JsonObject
@@ -374,7 +445,7 @@ void CalvinMini::sendMsg(const char *str, size_t length)
 void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply)
 {
   reply["cmd"] = "JOIN_REPLY";
-  reply["id"] = "calvin-miniscule";
+  reply["id"] = RT_ID;
   reply["sid"] = msg.get("sid");
   reply["serializer"] = "json";
 }
@@ -389,10 +460,10 @@ void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply)
 void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
   request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
-  request["from_rt_uuid"] = "calvin-miniscule";
+  request["from_rt_uuid"] = RT_ID;
   request["to_rt_uuid"] = msg.get("id");
   request["cmd"] = "TUNNEL_NEW";
-  request["tunnel_id"] = "fake-tunnel";
+  request["tunnel_id"] = tunnel_id;
   request["policy"] = policy; // Unused
   request["type"] = "token";
 }
@@ -475,7 +546,6 @@ void CalvinMini::loop()
 
           StaticJsonBuffer<4096> jsonBuffer;
           JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-          msg.printTo(Serial);
           JsonObject &reply = jsonBuffer.createObject();
           JsonObject &request = jsonBuffer.createObject();
 
@@ -483,7 +553,7 @@ void CalvinMini::loop()
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
-
+          globalActor.fireActor;
           // 6: Läs av utlistan
           for(int i = 0;i < nextMessage;i++)
           {
