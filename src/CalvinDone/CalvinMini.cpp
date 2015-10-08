@@ -246,16 +246,16 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
  * @param reply Calvin base reply list
  * @param request Calvin base reply list
  */
-void CalvinMini::handleSetupPorts(JsonObject &request)
+void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
 {
 	request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
 	request.set("from_rt_uuid","calvin-miniscule");
-	request.set("to_rt_uuid",1);
-	request.set("port_id",1);
-	request.set("peer_actor_id",1);
-	request.set("peer_port_name","");
-	request.set("peer_port_dir","");
-	request.set("tunnel_id","");
+	request.set("to_rt_uuid",msg.get("from_rt_uuid"));
+	request.set("port_id","1");
+	request.set("peer_actor_id","1");
+	request.set("peer_port_name","1");
+	request.set("peer_port_dir","1");
+	request.set("tunnel_id","1");
 	request.set("cmd", "PORT_CONNECT");
 }
 
@@ -294,7 +294,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
       handleActorNew(msg, reply);
-      handleSetupPorts(request);
+      handleSetupPorts(msg,request);
       #ifdef ARDUINO
       Serial.println("ACTOR_NEW");
 
@@ -442,7 +442,7 @@ void CalvinMini::sendMsg(const char *str, size_t length)
  */
 void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply)
 {
-  reply["cmd"] = "JOIN_REPLAY";
+  reply["cmd"] = "JOIN_REPLY";
   reply["id"] = "calvin-miniscule";
   reply["sid"] = msg.get("sid");
   reply["serializer"] = "json";

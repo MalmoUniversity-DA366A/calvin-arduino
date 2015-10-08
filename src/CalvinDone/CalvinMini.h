@@ -63,7 +63,7 @@ public:
   void loop(void);
   void setupConnection(void);
   void handleActorNew(JsonObject &msg, JsonObject &reply);
-  void handleSetupPorts(JsonObject &request);
+  void handleSetupPorts(JsonObject &msg,JsonObject &request);
   #ifdef ARDUINO
   String jsonToString(void);
   void printIp(void);
