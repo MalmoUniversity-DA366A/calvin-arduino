@@ -394,7 +394,7 @@ String CalvinMini::recvMsg()
   Serial.println("Reading...");
   char temp[MAX_LENGTH+1] = {};
   String str = "";
-  byte data[4];
+  BYTE data[4];
   int found = 0;
   int count = 0;
   int sizeOfMsg;
