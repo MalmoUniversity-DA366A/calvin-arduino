@@ -181,7 +181,7 @@ rStatus CalvinMini::process(const char* token){
  * Function for setting the Json reply back to Calvin-Base when the request message from
  * Calvin-Base is "Token". Tokens are recived as int's but the fifo only handles
  * strings, so they are converted before they are sent off to process. Tokens can
- * only be 20 characters long!. If the token fifo is full a NACK will be returned,
+ * only be 16 characters long!. If the token fifo is full a NACK will be returned,
  * token has to be sent one more time.
  * @param msg is the JsonObject that is message from Calvin-Base
  * @param reply is the JsonObject with the reply message from Calvin-Arduino
@@ -189,7 +189,7 @@ rStatus CalvinMini::process(const char* token){
 void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 {
   /*Current version of calvin mini only process strings*/
-  char tokenData[20];				//No more that 20 chars!!!!
+  char tokenData[16];				//No more that 16 chars!!!!
   rStatus fifoStatus;
   JsonObject &token = msg.get("token");
   sprintf(tokenData,"%d",(uint32_t)token.get("data"));
