@@ -216,7 +216,7 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
  *
  * Author: Jesper Hansen
  */
-void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request )
+void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request)
 {
   JsonObject &value = msg.get("value");
   reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
@@ -226,7 +226,7 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 #ifdef ARDUINO
   handleMsg(value,reply,request);
 #endif
-  reply.set("Value",      value);
+  reply.set("value",      value);
 }
 
 void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
@@ -332,13 +332,10 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
-      handleToken(msg,reply);
+      handleToken(msg,request);
       #ifdef ARDUINO
       lcdOut.clear();
       lcdOut.write("In Token");
-      reply.printTo(replyTemp,2048);
-      String str(replyTemp);
-      addToMessageOut(str);
       lcdOut.clear();
       lcdOut.write("TOKEN");
       #endif
