@@ -226,7 +226,7 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 #ifdef ARDUINO
   handleMsg(value,reply,request);
 #endif
-  reply.set("value",      value);
+  reply.set("value",      request);
 }
 
 void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
