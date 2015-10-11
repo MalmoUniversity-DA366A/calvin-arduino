@@ -268,7 +268,7 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
 }
 
 /**
- * Handle all different messages
+ * Handles all different messages from Calvin-base
  * @param msg JsonObject
  * @param reply JsonObject
  * @param request JsonObject
@@ -335,8 +335,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       handleToken(msg,request);
       #ifdef ARDUINO
       lcdOut.clear();
-      lcdOut.write("In Token");
-      lcdOut.clear();
       lcdOut.write("TOKEN");
       #endif
       return 4;
@@ -371,9 +369,11 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 
 #ifdef ARDUINO
 /**
- * Adds messages to a global array and
- * creates the array size for sending
+ * Adds messages to a global messageOut array
+ * and creates the array size for sending
  * @param reply String
+ *
+ *  Author: Andreas Elvstam
  */
 void CalvinMini::addToMessageOut(String reply)
 {
@@ -383,8 +383,12 @@ void CalvinMini::addToMessageOut(String reply)
 }
 
 /**
- * Receive message from calvin base
+ * Reads the length of the message from Calvin base
+ * before reading the actual JSON message.
+ * Message is returned as a String
  * @return String
+ *
+ *  Author: Peter Johansson
  */
 String CalvinMini::recvMsg()
 {
@@ -417,9 +421,12 @@ String CalvinMini::recvMsg()
 }
 #endif
 /**
- * Reply message to calvin base
- * @param str char pointer of String
- * @param length size of String
+ * Creates a hexadecimal value of the reply message length
+ * and sends it before the reply message to Calvin-base
+ * @param str char pointer of message
+ * @param length size of message
+ *
+ *  Author: Peter Johansson
  */
 #ifdef _MOCK_
 BYTE* CalvinMini::sendMsg(const char *str, uint32_t length)
@@ -445,7 +452,7 @@ void CalvinMini::sendMsg(const char *str, uint32_t length)
 }
 
 /**
- * Create a reply message
+ * Creates a reply message for a join request
  * @param msg JsonObject
  * @param reply JsonObject
  */
@@ -477,7 +484,7 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 
 #ifdef ARDUINO
 /**
- * Start a server connection
+ * Starts a server connection
  */
 void CalvinMini::setupServer()
 {
@@ -488,7 +495,7 @@ void CalvinMini::setupServer()
 }
 
 /**
- * Prints the IP-address assigned to the Ethernet shield.
+ * Prints the IP-address assigned to the Ethernet shield
  */
 void CalvinMini::printIp()
 {
@@ -496,7 +503,7 @@ void CalvinMini::printIp()
 }
 
 /**
- * Assign an IP-address to the Ethernet shield.
+ * Assign an IP-address to the Ethernet shield
  */
 void CalvinMini::getIPFromRouter()
 {
@@ -537,6 +544,9 @@ char* CalvinMini::jsonSerialize(const char *str)
   return temp;
 }
 
+/**
+ * Main loop
+ */
 void CalvinMini::loop()
 {
   setupServer();

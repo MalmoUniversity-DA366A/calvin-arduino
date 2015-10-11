@@ -72,7 +72,6 @@ public:
 #endif
   #ifdef ARDUINO
   void sendMsg(const char *str, uint32_t length);
-  String jsonToString(void);
   void printIp(void);
   void getIPFromRouter(void);
   void setupServer(void);
