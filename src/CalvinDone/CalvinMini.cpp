@@ -26,7 +26,7 @@ LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
 #endif
 
 const int messageOutLength = 4;
-string messageOut[messageOutLength] = {};
+String messageOut[messageOutLength] = {};
 int nextMessage = 0;
 
 actor globalActor;
@@ -205,8 +205,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       reply.printTo(replyTemp,2048);
       request.printTo(requestTemp,2048);
 
-      string str(replyTemp);
-      string str2(requestTemp);
+      String str(replyTemp);
+      String str2(requestTemp);
       addToMessageOut(str);
       addToMessageOut(str2);
       #ifdef ARDUINO
@@ -223,8 +223,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       reply.printTo(replyTemp,2048);
       request.printTo(requestTemp,2048);
 
-      string str(replyTemp);
-      string str2(requestTemp);
+      String str(replyTemp);
+      String str2(requestTemp);
       addToMessageOut(str);
       addToMessageOut(str2);
       #ifdef ARDUINO
@@ -240,7 +240,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       //lcdOut.clear();
       //lcdOut.write("In Tunnel_Data");
       reply.printTo(replyTemp,2048);
-      string str(replyTemp);
+      String str(replyTemp);
       addToMessageOut(str);
       #ifdef ARDUINO
       //lcdOut.clear();
@@ -288,7 +288,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
 }
 
-void CalvinMini::addToMessageOut(string reply)
+void CalvinMini::addToMessageOut(String reply)
 {
   messageOut[nextMessage] = reply;
   if(nextMessage < messageOutLength)

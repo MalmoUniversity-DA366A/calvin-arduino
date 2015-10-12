@@ -209,7 +209,7 @@ public:
    * creates the array size for sending
    * @param reply String
    */
-  void addToMessageOut(string reply);
+  void addToMessageOut(String reply);
 #ifdef ARDUINO
   /**
    * Prints the IP-address assigned to the Ethernet shield.
