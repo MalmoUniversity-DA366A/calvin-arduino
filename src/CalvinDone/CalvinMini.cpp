@@ -31,9 +31,6 @@ int nextMessage = 0;
 actor globalActor;
 fifo actorFifo;
 
-/**
- * Current standard out is the lcd screen connected to arduino due
- */
 int8_t StdOut(){
   uint8_t inFifo;
   const char* token;
@@ -46,11 +43,6 @@ int8_t StdOut(){
   return standardOut(token);
 }
 
-/**
- *  What's up with the external C you might wonder,
- *  well thats the only way i could ad a function pointer to a strut,
- *  Apparently c++ handles this different from c.
- */
 extern "C"{
 rStatus actorInit(){
   rStatus allOk = FAIL;
@@ -65,11 +57,6 @@ rStatus actorInit(){
 }
 }
 
-/**
- * Create an new actor.
- * @param msg json list
- * @return return 1 if successful.
- */
 rStatus CalvinMini::createActor(JsonObject &msg){
   rStatus allOk = FAIL;
   JsonObject &state = msg.get("state");
@@ -84,16 +71,6 @@ rStatus CalvinMini::createActor(JsonObject &msg){
 }
 
 extern "C"{
-/**
- * This Function initiate the fifo must be
- * called prior to using the fifo.
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- *
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- */
 rStatus initFifo(fifo *fif)
 {
   fif->size = FIFO_SIZE;
@@ -101,31 +78,12 @@ rStatus initFifo(fifo *fif)
   fif->write = 0;
   return SUCCESS;
 }
-/**
- * Used by Add and Pop to determine fifo length.
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- *
- * @return Fifo length
- */
+
 int8_t lengthOfData(fifo *fif)
 {
   return ((fif->write - fif->read) & (fif->size -1));
 }
 
-/**
- * Adds a new element to the fifo
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- *
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- * @return returns 0 if the fifo is full
- */
 rStatus fifoAdd(fifo *fif, const char* element){
 
   if(lengthOfData(fif) == (fif->size-1))
@@ -138,17 +96,6 @@ rStatus fifoAdd(fifo *fif, const char* element){
   return SUCCESS;       //all is well
 }
 
-/**
- * Return and removes the oldest element in the fifo.
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- *
- * @Return Returns fifo element, returns NULL if fifo is
- * empty.
- */
 const char* fifoPop(fifo *fif){
 
   const char* ret;
@@ -165,13 +112,7 @@ const char* fifoPop(fifo *fif){
 }
 
 }
-/**
- * Process an incomming token and add the token data to
- * an actor fifo.
- * @param Token data as a string
- * @return if data vas added to fifo this function returns
- * 1, if something went wrong it returns 0.
- */
+
 rStatus CalvinMini::process(const char* token){
   rStatus allOk;
   allOk = FAIL;
@@ -179,15 +120,6 @@ rStatus CalvinMini::process(const char* token){
   return allOk;
 }
 
-/**
- * Function for setting the Json reply back to Calvin-Base when the request message from
- * Calvin-Base is "Token". Tokens are recived as int's but the fifo only handles
- * strings, so they are converted before they are sent off to process. Tokens can
- * only be 16 characters long!. If the token fifo is full a NACK will be returned,
- * token has to be sent one more time.
- * @param msg is the JsonObject that is message from Calvin-Base
- * @param reply is the JsonObject with the reply message from Calvin-Arduino
- */
 void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 {
   /*Current version of calvin mini only process strings*/
@@ -209,13 +141,6 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
   }
 }
 
-/**
- * Method for handle the tunnel data using JSON, JSON is added to the JsonObject reference reply
- * @param &msg JsonObject received from Calvin-Base
- * @param &reply JsonObject that is added to the "reply" list
- *
- * Author: Jesper Hansen
- */
 void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request)
 {
   JsonObject &value = msg.get("value");
@@ -240,14 +165,6 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
   reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
 }
 
-/**
- * Setup ports. The current version of calvin arduino only uses
- * one port, so this function is mostly present to please calvin
- * base.
- * @param msg input message
- * @param reply Calvin base reply list
- * @param request Calvin base reply list
- */
 void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
 {
   JsonObject &token = msg["state"]["actor_state"]["inports"]["token"];
@@ -267,12 +184,6 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
   request.set("cmd", "PORT_CONNECT");
 }
 
-/**
- * Handle all different messages
- * @param msg JsonObject
- * @param reply JsonObject
- * @param request JsonObject
- */
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
   char replyTemp[2048] = {};
@@ -370,11 +281,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 }
 
 #ifdef ARDUINO
-/**
- * Adds messages to a global array and
- * creates the array size for sending
- * @param reply String
- */
 void CalvinMini::addToMessageOut(String reply)
 {
   messageOut[nextMessage] = reply;
@@ -382,10 +288,6 @@ void CalvinMini::addToMessageOut(String reply)
     nextMessage = nextMessage+1;
 }
 
-/**
- * Receive message from calvin base
- * @return String
- */
 String CalvinMini::recvMsg()
 {
   Serial.println("Reading...");
@@ -416,11 +318,6 @@ String CalvinMini::recvMsg()
   return str;
 }
 #endif
-/**
- * Reply message to calvin base
- * @param str char pointer of String
- * @param length size of String
- */
 #ifdef _MOCK_
 BYTE* CalvinMini::sendMsg(const char *str, uint32_t length)
 {
@@ -444,11 +341,6 @@ void CalvinMini::sendMsg(const char *str, uint32_t length)
 #endif
 }
 
-/**
- * Create a reply message
- * @param msg JsonObject
- * @param reply JsonObject
- */
 void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply)
 {
   reply["cmd"] = "JOIN_REPLY";
@@ -457,13 +349,6 @@ void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply)
   reply["serializer"] = "json";
 }
 
-/**
- * Method for setting up a tunnel using JSON message back to Calvin-Base,
- * JSON is added to the JsonObject request that is added to the reply list.
- * @param &msg JsonObject received from Calvin-Base
- * @param &request JsonObject that is added to the "reply" list
- * @param &policy JsonObject that is an empty JsonObject
- */
 void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
   request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
@@ -476,9 +361,6 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 }
 
 #ifdef ARDUINO
-/**
- * Start a server connection
- */
 void CalvinMini::setupServer()
 {
   //getIPFromRouter(); // Doesn't work with shield
@@ -487,17 +369,11 @@ void CalvinMini::setupServer()
   server.begin();
 }
 
-/**
- * Prints the IP-address assigned to the Ethernet shield.
- */
 void CalvinMini::printIp()
 {
     Serial.println(Ethernet.localIP());
 }
 
-/**
- * Assign an IP-address to the Ethernet shield.
- */
 void CalvinMini::getIPFromRouter()
 {
     // Disable SD
@@ -511,13 +387,6 @@ void CalvinMini::getIPFromRouter()
     }
 }
 
-/**
- * Serializes a String to Json syntax.
- * From this: {"sensor":"gps","time":1351824120}
- * To this: {\"sensor\":\"gps\",\"time\":1351824120}
- * @param str char* pointer
- * @return char* pointer
- */
 char* CalvinMini::jsonSerialize(const char *str)
 {
   const char *json = str;
