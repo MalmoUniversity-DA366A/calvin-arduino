@@ -40,8 +40,10 @@ int8_t StdOut(){
   {
     token = fifoPop(globalActor.inportsFifo[0]);
   }
+  #ifdef ARDUINO
   lcdOut.clear();
   lcdOut.write(token);
+  #endif
   return standardOut(token);
 }
 
