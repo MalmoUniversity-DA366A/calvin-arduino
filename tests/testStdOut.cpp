@@ -8,13 +8,13 @@
 #include "gtest/gtest.h"
 #include "../src/CalvinDone/CalvinMini.h"
 
-class testMessageOut : public ::testing::Test {
+class testStdOut : public ::testing::Test {
 protected:
 	virtual void SetUp() {}
 	virtual void TearDown() {}
 };
 
-TEST(testMessageOut, testStdOut)
+TEST(testStdOut, testStandardOut)
 {
     CalvinMini mini;
     String str = "{\"to_rt_uuid\": \"calvin-arduino\", \"from_rt_uuid\": \"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"state\": {\"prev_connections\": {\"actor_name\": \"test3:snk\""
@@ -46,7 +46,7 @@ TEST(testMessageOut, testStdOut)
     EXPECT_STREQ("PORT_CONNECT", request["cmd"]);
 }
 
-TEST(testMessageOut, testStdOutToken)
+TEST(testStdOut, testStandardOutToken)
 {
     CalvinMini mini;
     String str = "{\"to_rt_uuid\": \"calvin-arduino\", \"from_rt_uuid\": \"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"cmd\": \"TUNNEL_DATA\", \"value\": {\"sequencenbr\": 13, \"token\": {\"data\": 105"
