@@ -16,8 +16,8 @@
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-//IPAddress ip(192,168,0,5);
-IPAddress ip(192,168,1,146);
+IPAddress ip(192,168,0,5);
+//IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
@@ -40,6 +40,8 @@ int8_t StdOut(){
   {
     token = fifoPop(globalActor.inportsFifo[0]);
   }
+  lcdOut.clear();
+  lcdOut.write(token);
   return standardOut(token);
 }
 
@@ -231,13 +233,13 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   {
       handleTunnelData(msg, reply, request);
       #ifdef ARDUINO
-      lcdOut.clear();
-      lcdOut.write("In Tunnel_Data");
+      //lcdOut.clear();
+      //lcdOut.write("In Tunnel_Data");
       reply.printTo(replyTemp,2048);
       String str(replyTemp);
       addToMessageOut(str);
-      lcdOut.clear();
-      lcdOut.write("TUNNEL_DATA");
+      //lcdOut.clear();
+      //lcdOut.write("TUNNEL_DATA");
       #endif
       return 3;
   }
@@ -246,9 +248,9 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       handleToken(msg,request);
       #ifdef ARDUINO
       lcdOut.clear();
-      lcdOut.write("In Token");
-      lcdOut.clear();
-      lcdOut.write("TOKEN");
+      //lcdOut.write("In Token");
+      //lcdOut.clear();
+      //lcdOut.write("TOKEN");
       #endif
       return 4;
   }
@@ -429,7 +431,8 @@ void CalvinMini::loop()
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
-          globalActor.fireActor;
+          //globalActor.fireActor;
+          StdOut();
           // 6: Read outgoing message
           for(int i = 0;i < nextMessage;i++)
           {
