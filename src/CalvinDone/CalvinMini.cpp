@@ -420,6 +420,7 @@ String CalvinMini::recvMsg()
   return str;
 }
 #endif
+
 /**
  * Creates a hexadecimal value of the reply message length
  * and sends it before the reply message to Calvin-base
@@ -428,16 +429,9 @@ String CalvinMini::recvMsg()
  *
  *  Author: Peter Johansson
  */
-#ifdef _MOCK_
-BYTE* CalvinMini::sendMsg(const char *str, uint32_t length)
-{
-  BYTE *hex = new unsigned char[4];
-#endif
-#ifdef ARDUINO
-void CalvinMini::sendMsg(const char *str, uint32_t length)
+int CalvinMini::sendMsg(const char *str, uint32_t length)
 {
   BYTE hex[4] = {};
-#endif
   hex[0] = (length & 0xFF000000);
   hex[1] = (length & 0x00FF0000);
   hex[2] = (length & 0x0000FF00) / 0x000000FF;
@@ -446,9 +440,10 @@ void CalvinMini::sendMsg(const char *str, uint32_t length)
   server.write(hex,4);
   server.write(str);
 #endif
-#ifdef _MOCK_
-  return hex;
-#endif
+  if(length == (hex[2]*256 + hex[3]))
+    return 1;
+  else
+    return 0;
 }
 
 /**
@@ -516,32 +511,6 @@ void CalvinMini::getIPFromRouter()
         // Set static IP-address if fail
         Ethernet.begin(mac, ip);
     }
-}
-
-/**
- * Serializes a String to Json syntax.
- * From this: {"sensor":"gps","time":1351824120}
- * To this: {\"sensor\":\"gps\",\"time\":1351824120}
- * @param str char* pointer
- * @return char* pointer
- */
-char* CalvinMini::jsonSerialize(const char *str)
-{
-  const char *json = str;
-  char *temp = new char[256];
-  int counter = 0;
-  for(int i = 0; json[i] != '\0'; i++)
-  {
-      if(json[i] == '\"')
-      {
-          temp[counter] = '\\';
-          counter++;
-      }
-      temp[counter] = json[i];
-      counter++;
-  }
-  temp[counter] = '\0';
-  return temp;
 }
 
 /**

@@ -64,20 +64,15 @@ public:
   void handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request);
   int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request);
   void loop(void);
-  void setupConnection(void);
   void handleActorNew(JsonObject &msg, JsonObject &reply);
   void handleSetupPorts(JsonObject &msg,JsonObject &request);
-#ifdef _MOCK_
-  BYTE* sendMsg(const char *str, uint32_t length);
-#endif
+  int sendMsg(const char *str, uint32_t length);
   #ifdef ARDUINO
-  void sendMsg(const char *str, uint32_t length);
   void printIp(void);
   void getIPFromRouter(void);
   void setupServer(void);
   void addToMessageOut(String reply);
   String recvMsg(void);
-  char* jsonSerialize(const char *str);
   #endif
 };
 
