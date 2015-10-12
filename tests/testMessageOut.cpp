@@ -14,10 +14,10 @@ protected:
 	virtual void TearDown() {}
 };
 
-TEST(testMessageOut, testActorNew)
+TEST(testMessageOut, testStdOut)
 {
     CalvinMini mini;
-    String str = "{\"to_rt_uuid\": \"calvin-miniscule\", \"from_rt_uuid\": \"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"state\": {\"prev_connections\": {\"actor_name\": \"test3:snk\""
+    String str = "{\"to_rt_uuid\": \"calvin-arduino\", \"from_rt_uuid\": \"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"state\": {\"prev_connections\": {\"actor_name\": \"test3:snk\""
                  ", \"inports\": {\"eca87eb7-ffde-4207-b363-31f0ab760050\": [\"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"fa46a0e5-388e-45fc-b615-b8e3ed3d9594\"]}"
                  ", \"actor_id\": \"551cdc91-633e-4f70-954d-8e28589a8e44\", \"outports\": {}}, \"actor_type\": \"io.StandardOut\", \"actor_state\": {\"store_tokens\": false"
                  ", \"name\": \"test3:snk\", \"inports\": {\"token\": {\"name\": \"token\", \"fifo\": {\"write_pos\": 13, \"readers\": [\"eca87eb7-ffde-4207-b363-31f0ab760050\"]"
@@ -31,13 +31,22 @@ TEST(testMessageOut, testActorNew)
     JsonObject &reply = jsonBuffer.createObject();
     JsonObject &request = jsonBuffer.createObject();
 
-    int success = mini.handleMsg(msg, reply, request);
+    mini.handleMsg(msg, reply, request);
+    JsonObject &actor_state = msg["state"]["actor_state"];
 
-    // Test if cmd 'ACTOR_NEW' is triggered
-    EXPECT_EQ(2, success);
+    // Test if actor_type stdOut is triggered
+    EXPECT_STREQ("io.StandardOut", msg["state"]["actor_type"]);
+
+    // Test if actor_state is store tokens
+    // which should be false when actor is stdOut
+    EXPECT_FALSE(actor_state.get("store_tokens"));
+
+    // Test if PORT_CONNECT is returned cmd
+    // which it should be after an actor migrate
+    EXPECT_STREQ("PORT_CONNECT", request["cmd"]);
 }
 
-TEST(testMessageOut, testToken)
+TEST(testMessageOut, testStdOutToken)
 {
     CalvinMini mini;
     String str = "{\"to_rt_uuid\": \"calvin-miniscule\", \"from_rt_uuid\": \"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"cmd\": \"TUNNEL_DATA\", \"value\": {\"sequencenbr\": 13, \"token\": {\"data\": 105"
@@ -48,23 +57,23 @@ TEST(testMessageOut, testToken)
     JsonObject &reply = jsonBuffer.createObject();
     JsonObject &request = jsonBuffer.createObject();
 
-    int success = mini.handleMsg(msg, reply, request);
+    mini.handleMsg(msg, reply, request);
     JsonObject &value = msg.get("value");
-    int success2 = mini.handleMsg(value,reply,request);
+    mini.handleMsg(value,reply,request);
 
     JsonObject &tokenFromBase = msg.get("token");
     JsonObject &tokenInArduino = request.get("token");
     int dataFromBase = tokenFromBase.get("data");
     int dataInArduino = tokenInArduino.get("data");
 
-    // Test if cmd 'TUNNEL_DATA' is triggered
-    EXPECT_EQ(3, success);
-
-    // Test if cmd 'TOKEN' is triggered
-    EXPECT_EQ(4, success2);
-
     // Test if token is handled right
     EXPECT_EQ(dataFromBase, dataInArduino);
+
+    // Test if TUNNEL_DATA is returned as cmd
+    EXPECT_STREQ("TUNNEL_DATA",reply.get("cmd"));
+
+    // Test if nested TOKEN_REPLY is returned as cmd
+    EXPECT_STREQ("TOKEN_REPLY", request.get("cmd"));
 }
 
 #endif
