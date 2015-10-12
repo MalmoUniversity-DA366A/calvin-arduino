@@ -3,6 +3,7 @@
 
 #define MAX_LENGTH 1
 #include <stdio.h>
+#include <string>
 #include "ArduinoJson.h"
 #define standardOut(x)    strlen(x)
 #define ACTOR_SIZE      5
@@ -202,6 +203,13 @@ public:
    * @param length size of String
    */
   int sendMsg(const char *str, uint32_t length);
+
+  /**
+   * Adds messages to a global array and
+   * creates the array size for sending
+   * @param reply String
+   */
+  void addToMessageOut(string reply);
 #ifdef ARDUINO
   /**
    * Prints the IP-address assigned to the Ethernet shield.
@@ -217,13 +225,6 @@ public:
    * Start a server connection
    */
   void setupServer(void);
-
-  /**
-   * Adds messages to a global array and
-   * creates the array size for sending
-   * @param reply String
-   */
-  void addToMessageOut(String reply);
 
   /**
    * Receive message from calvin base

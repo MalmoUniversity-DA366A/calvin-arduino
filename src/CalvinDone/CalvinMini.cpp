@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "CalvinMini.h"
 #include <inttypes.h>
+#include <string>
 
 #ifdef ARDUINO
 #include <SPI.h>
@@ -22,11 +23,11 @@ uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
 LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
+#endif
 
 const int messageOutLength = 4;
-String messageOut[messageOutLength] = {};
+string messageOut[messageOutLength] = {};
 int nextMessage = 0;
-#endif
 
 actor globalActor;
 fifo actorFifo;
@@ -201,14 +202,14 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       handleSetupTunnel(msg, request, policy);
 
       // Print JsonObject and send to Calvin
-      #ifdef ARDUINO
       reply.printTo(replyTemp,2048);
       request.printTo(requestTemp,2048);
 
-      String str(replyTemp);
-      String str2(requestTemp);
+      string str(replyTemp);
+      string str2(requestTemp);
       addToMessageOut(str);
       addToMessageOut(str2);
+      #ifdef ARDUINO
       lcdOut.clear();
       lcdOut.write("JOIN_REQUEST");
       #endif
@@ -218,14 +219,15 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   {
       handleActorNew(msg, reply);
       handleSetupPorts(msg,request);
-      #ifdef ARDUINO
+
       reply.printTo(replyTemp,2048);
       request.printTo(requestTemp,2048);
 
-      String str(replyTemp);
-      String str2(requestTemp);
+      string str(replyTemp);
+      string str2(requestTemp);
       addToMessageOut(str);
       addToMessageOut(str2);
+      #ifdef ARDUINO
       lcdOut.clear();
       lcdOut.write("ACTOR_NEW");
       #endif
@@ -234,12 +236,13 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
       handleTunnelData(msg, reply, request);
-      #ifdef ARDUINO
+
       //lcdOut.clear();
       //lcdOut.write("In Tunnel_Data");
       reply.printTo(replyTemp,2048);
-      String str(replyTemp);
+      string str(replyTemp);
       addToMessageOut(str);
+      #ifdef ARDUINO
       //lcdOut.clear();
       //lcdOut.write("TUNNEL_DATA");
       #endif
@@ -285,14 +288,14 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
 }
 
-#ifdef ARDUINO
-void CalvinMini::addToMessageOut(String reply)
+void CalvinMini::addToMessageOut(string reply)
 {
   messageOut[nextMessage] = reply;
   if(nextMessage < messageOutLength)
     nextMessage = nextMessage+1;
 }
 
+#ifdef ARDUINO
 String CalvinMini::recvMsg()
 {
   Serial.println("Reading...");
