@@ -49,7 +49,7 @@ TEST(testMessageOut, testStdOut)
 TEST(testMessageOut, testStdOutToken)
 {
     CalvinMini mini;
-    String str = "{\"to_rt_uuid\": \"calvin-miniscule\", \"from_rt_uuid\": \"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"cmd\": \"TUNNEL_DATA\", \"value\": {\"sequencenbr\": 13, \"token\": {\"data\": 105"
+    String str = "{\"to_rt_uuid\": \"calvin-arduino\", \"from_rt_uuid\": \"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"cmd\": \"TUNNEL_DATA\", \"value\": {\"sequencenbr\": 13, \"token\": {\"data\": 105"
                  ", \"type\": \"Token\"}, \"cmd\": \"TOKEN\", \"port_id\": \"fa46a0e5-388e-45fc-b615-b8e3ed3d9594\", \"peer_port_id\": \"eca87eb7-ffde-4207-b363-31f0ab760050\"}, \"tunnel_id\": \"fake-tunnel\"}";
 
     StaticJsonBuffer<4096> jsonBuffer;
