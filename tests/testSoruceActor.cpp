@@ -20,3 +20,11 @@ TEST(testSoruceActor,testSetup)
 	EXPECT_EQ(0,mini.actorInit());
 }
 
+TEST(testSourceActor,testIntFifo){
+	SourceActor mini;
+	intFifo testFifo;
+	mini.initFifo(&testFifo);
+	EXPECT_EQ(SUCCESS,mini.fifoAdd(&testFifo,1337));
+	EXPECT_EQ(1337,mini.fifoPop(&testFifo));
+}
+
