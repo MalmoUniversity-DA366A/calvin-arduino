@@ -21,8 +21,23 @@ class SourceActor{
 public:
 	rStatus actorInit();
 	int actorCount();
-	rStatus fifoAdd(intFifo*, uint32_t);
+	/**
+	 * Actor int fifo stores 32 bit integer values.
+	 * @param reference to int fifo buffer
+	 * @param value to be added
+	 * @return returns SUCCESS if value was added to the fifo
+	 * FAIL if not.
+	 */
+	rStatus fifoAdd(intFifo*, uint32_t);¨
+	/**
+	 * Actor integer fifo stores 32 bit integer values.
+	 * @param reference to integer fifo
+	 * @return SUCCESS if value was popped from fifo. FAIL if fifo is empty
+	 */
 	uint32_t fifoPop(intFifo*);
+	/**
+	 * Used to determine length of fifo
+	 */
 	int8_t lengthOfIntData(intFifo*);
 	rStatus initFifo(intFifo*);
 };
