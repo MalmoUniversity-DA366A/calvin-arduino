@@ -40,3 +40,27 @@ TEST(testSourceActor,testIntFifo){
 
 }
 
+TEST(testSourceActor,testActorCounter){
+	SourceActor mini;
+	actor source;
+	intFifo sourceFifo;
+
+	source.count = 0;
+	EXPECT_EQ(0,source.count);
+
+	source.inportsFifo[0] = &sourceFifo;
+	mini.initFifo(&sourceFifo);
+	EXPECT_EQ(SUCCESS,mini.actorCount(&source));
+	EXPECT_EQ(1,mini.fifoPop(source.inportsFifo[0]));
+
+	source.count = 0;
+	EXPECT_EQ(0,source.count);
+
+	for(int i = 0; i <= 100; i++){
+		EXPECT_EQ(SUCCESS,mini.actorCount(&source));
+		EXPECT_EQ((i+1),mini.fifoPop(source.inportsFifo[0]));
+	}
+
+
+}
+

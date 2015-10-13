@@ -7,8 +7,19 @@
 
 #ifndef SRC_CALVININPROGRESS_SOURCEACTOR_H_
 #define SRC_CALVININPROGRESS_SOURCEACTOR_H_
-#include "../CalvinDone/CalvinMini.h"
+//#include "../CalvinDone/CalvinMini.h"
 #include "inttypes.h"
+
+#define standardOut(x)    strlen(x)
+#define ACTOR_SIZE      5
+#define QUEUE_SIZE      10
+#define FIFO_SIZE     8     //Must be a power of two
+#define NUMBER_OF_PORTS     2
+
+typedef enum{
+  SUCCESS,
+  FAIL
+}rStatus;
 
 typedef struct ibuffert{
 	uint32_t element[8];
@@ -17,10 +28,21 @@ typedef struct ibuffert{
 	int write;
 }intFifo;
 
+typedef struct actors{
+  const char* type;
+  const char* name;
+  const char* id;
+  const char* fifo;
+  uint32_t count;
+  int8_t (*fireActor)();
+  struct ibuffert *inportsFifo[NUMBER_OF_PORTS];
+  struct ibuffert *outportsFifo[NUMBER_OF_PORTS];
+}actor;
+
 class SourceActor{
 public:
 	rStatus actorInit();
-	int actorCount();
+	rStatus actorCount(actor*);
 	/**
 	 * Actor int fifo stores 32 bit integer values.
 	 * @param reference to int fifo buffer
@@ -28,7 +50,7 @@ public:
 	 * @return returns SUCCESS if value was added to the fifo
 	 * FAIL if not.
 	 */
-	rStatus fifoAdd(intFifo*, uint32_t);¨
+	rStatus fifoAdd(intFifo*, uint32_t);
 	/**
 	 * Actor integer fifo stores 32 bit integer values.
 	 * @param reference to integer fifo
