@@ -36,6 +36,7 @@ typedef struct actors{
   const char* name;
   const char* id;
   const char* fifo;
+  uint32_t count;
   int8_t (*fireActor)();
   struct buffert *inportsFifo[NUMBER_OF_PORTS];
   struct buffert *outportsFifo[NUMBER_OF_PORTS];

@@ -7,13 +7,57 @@
  */
 
 #include "SourceActor.h"
+#include "../CalvinDone/CalvinMini.h"
 
-int SourceActor::actorInit(){
+actor actorTest;
+intFifo testFifo;
 
+rStatus SourceActor::actorInit(){
+	rStatus allOk = FAIL;
+	allOk = initFifo(&testFifo);
+	return allOk;
 }
 
 int SourceActor::actorCount(){
 
 }
 
+rStatus SourceActor::initFifo(intFifo *fif)
+{
+  fif->size = FIFO_SIZE;
+  fif->read = 0;
+  fif->write = 0;
+  return SUCCESS;
+}
 
+rStatus SourceActor::fifoAdd(intFifo *fif, uint32_t element){
+
+  if(lengthOfIntData(fif) == (fif->size-1))
+  {
+    return FAIL;      //fifo full;
+  }
+  fif->element[fif->write] = element;
+  fif->write = (fif->write + 1) & (fif->size - 1);
+
+  return SUCCESS;       //all is well
+}
+
+uint32_t SourceActor::fifoPop(intFifo *fif){
+
+  uint32_t ret;
+
+  if(lengthOfIntData(fif) == 0)
+  {
+    return (uint32_t)FAIL;    //fifo empty
+  }
+
+  ret = fif->element[fif->read];
+  fif->read = (fif->read + 1) & (fif->size - 1);
+
+  return ret;
+}
+
+int8_t SourceActor::lengthOfIntData(intFifo *fif)
+{
+  return ((fif->write - fif->read) & (fif->size -1));
+}
