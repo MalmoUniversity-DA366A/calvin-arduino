@@ -47,17 +47,40 @@ int8_t StdOut(){
   return standardOut(tokenData);
 }
 
+rStatus actorCount(actor *inputActor)
+{
+	rStatus allOk = FAIL;
+	uint32_t count;
+	++(inputActor->count);
+	count = inputActor->count;
+	allOk = fifoAdd(inputActor->inportsFifo[0],count);
+
+	return allOk;
+}
+
 extern "C"{
-rStatus actorInit(){
+rStatus actorInit(actor *inputActor){
   rStatus allOk = FAIL;
 
   globalActor.fireActor = &StdOut;
   /*This sets up the fifo for the actor, not sure
    *if it should be done here but for now it works*/
+  inputActor->inportsFifo[0] = &actorFifo;
   allOk = initFifo(&actorFifo);
-  globalActor.inportsFifo[0] = &actorFifo;
+  //globalActor.inportsFifo[0] = &actorFifo;
 
   return allOk;
+}
+rStatus actorInitTest(){
+	rStatus allOk = FAIL;
+
+	globalActor.fireActor = &StdOut;
+	/*This sets up the fifo for the actor, not sure
+	 *if it should be done here but for now it works*/
+	allOk = initFifo(&actorFifo);
+	globalActor.inportsFifo[0] = &actorFifo;
+
+	  return allOk;
 }
 }
 
@@ -70,7 +93,7 @@ rStatus CalvinMini::createActor(JsonObject &msg){
   globalActor.id = name.get("id");
 
   allOk = SUCCESS;
-  actorInit();
+  actorInit(&globalActor);
   return allOk;
 }
 
@@ -126,11 +149,8 @@ rStatus CalvinMini::process(uint32_t token){
 
 void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 {
-  /*Current version of calvin mini only process strings*/
-  //char tokenData[16];       //No more that 16 chars!!!!
   rStatus fifoStatus;
   JsonObject &token = msg.get("token");
-  //sprintf(tokenData,"%d",(uint32_t)token.get("data"));
   fifoStatus = process((uint32_t)token.get("data"));
   reply.set("cmd",      "TOKEN_REPLY");
   reply.set("sequencenbr",  msg.get("sequencenbr"));
@@ -253,9 +273,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       #ifdef ARDUINO
       lcdOut.clear();
       lcdOut.write("TOKEN");
-      //lcdOut.write("In Token");
-      //lcdOut.clear();
-      //lcdOut.write("TOKEN");
       #endif
       return 4;
   }
@@ -392,6 +409,7 @@ void CalvinMini::getIPFromRouter()
 void CalvinMini::loop()
 {
   lcdOut.write("Hej Calvin");
+  initFifo(&actorFifo);
   setupServer();
   while(1)
   {

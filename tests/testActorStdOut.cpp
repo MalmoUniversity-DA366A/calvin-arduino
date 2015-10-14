@@ -72,7 +72,7 @@ TEST(ActorTest,createActor)
 TEST(ActorTest,processTest)
 {
   CalvinMini actorstd;
-  EXPECT_EQ(SUCCESS,actorInit());
+  EXPECT_EQ(SUCCESS,actorInitTest());
   EXPECT_EQ(SUCCESS,actorstd.process(1337));
   EXPECT_EQ(SUCCESS,actorstd.process(1337));
   EXPECT_EQ(SUCCESS,actorstd.process(1337));
