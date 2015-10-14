@@ -41,7 +41,7 @@ typedef struct actors{
 
 class SourceActor{
 public:
-	rStatus actorInit();
+	rStatus actorInit(actor*);
 	rStatus actorCount(actor*);
 	/**
 	 * Actor int fifo stores 32 bit integer values.

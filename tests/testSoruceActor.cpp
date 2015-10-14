@@ -17,7 +17,10 @@ protected:
 TEST(testSoruceActor,testSetup)
 {
 	SourceActor mini;
-	EXPECT_EQ(0,mini.actorInit());
+	actor testActor;
+	intFifo fifo;
+	testActor.inportsFifo[0] = &fifo;
+	EXPECT_EQ(0,mini.actorInit(&testActor));
 }
 
 TEST(testSourceActor,testIntFifo){

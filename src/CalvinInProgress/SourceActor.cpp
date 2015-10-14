@@ -12,10 +12,10 @@
 actor actorTest;
 intFifo testFifo;
 
-rStatus SourceActor::actorInit()
+rStatus SourceActor::actorInit(actor *inputActor)
 {
 	rStatus allOk = FAIL;
-	allOk = initFifo(&testFifo);
+	allOk = initFifo(inputActor->inportsFifo[0]);
 	return allOk;
 }
 
@@ -24,11 +24,8 @@ rStatus SourceActor::actorCount(actor *inputActor)
 	rStatus allOk = FAIL;
 	uint32_t count;
 	++(inputActor->count);
-
 	count = inputActor->count;
-	struct ibuffert *p_fif = inputActor->inportsFifo[0];
-
-	allOk = fifoAdd(p_fif,count);
+	allOk = fifoAdd(inputActor->inportsFifo[0],count);
 
 	return allOk;
 }
