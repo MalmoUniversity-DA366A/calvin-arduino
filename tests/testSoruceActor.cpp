@@ -6,7 +6,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "../src/CalvinInProgress/SourceActor.h"
+#include "../src/CalvinDone/CalvinMini.h"
 
 class testSourceActor : public ::testing::Test {
 protected:
@@ -16,52 +16,52 @@ protected:
 
 TEST(testSoruceActor,testSetup)
 {
-	SourceActor mini;
+	CalvinMini mini;
 	actor testActor;
-	intFifo fifo;
-	testActor.inportsFifo[0] = &fifo;
-	EXPECT_EQ(0,mini.actorInit(&testActor));
+	fifo testfifo;
+	testActor.inportsFifo[0] = &testfifo;
+	EXPECT_EQ(0,actorInit(&testActor));
 }
 
 TEST(testSourceActor,testIntFifo){
-	SourceActor mini;
-	intFifo testFifo;
-	mini.initFifo(&testFifo);
-	EXPECT_EQ(SUCCESS,mini.fifoAdd(&testFifo,1337));
-	EXPECT_EQ(1337,mini.fifoPop(&testFifo));
+	CalvinMini mini;
+	fifo testFifo;
+	initFifo(&testFifo);
+	EXPECT_EQ(SUCCESS,fifoAdd(&testFifo,1337));
+	EXPECT_EQ(1337,fifoPop(&testFifo));
 
-	EXPECT_EQ(FAIL,mini.fifoPop(&testFifo));
+	EXPECT_EQ(FAIL,fifoPop(&testFifo));
 
 	for(int i = 0; i < 7; i++){
-		EXPECT_EQ(SUCCESS,mini.fifoAdd(&testFifo,i));
+		EXPECT_EQ(SUCCESS,fifoAdd(&testFifo,i));
 	}
-	EXPECT_EQ(FAIL,mini.fifoAdd(&testFifo,1337));
+	EXPECT_EQ(FAIL,fifoAdd(&testFifo,1337));
 
 	for(int i = 0; i < 7; i++){
-			EXPECT_EQ(i,mini.fifoPop(&testFifo));
+			EXPECT_EQ(i,fifoPop(&testFifo));
 	}
 
 }
 
 TEST(testSourceActor,testActorCounter){
-	SourceActor mini;
+	CalvinMini mini;
 	actor source;
-	intFifo sourceFifo;
+	fifo sourceFifo;
 
 	source.count = 0;
 	EXPECT_EQ(0,source.count);
 
 	source.inportsFifo[0] = &sourceFifo;
-	mini.initFifo(&sourceFifo);
-	EXPECT_EQ(SUCCESS,mini.actorCount(&source));
-	EXPECT_EQ(1,mini.fifoPop(source.inportsFifo[0]));
+	initFifo(&sourceFifo);
+	EXPECT_EQ(SUCCESS,actorCount(&source));
+	EXPECT_EQ(1,fifoPop(source.inportsFifo[0]));
 
 	source.count = 0;
 	EXPECT_EQ(0,source.count);
 
 	for(int i = 0; i <= 100; i++){
-		EXPECT_EQ(SUCCESS,mini.actorCount(&source));
-		EXPECT_EQ((i+1),mini.fifoPop(source.inportsFifo[0]));
+		EXPECT_EQ(SUCCESS,actorCount(&source));
+		EXPECT_EQ((i+1),fifoPop(source.inportsFifo[0]));
 	}
 
 
