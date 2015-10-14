@@ -34,18 +34,17 @@ fifo actorFifo;
 
 int8_t StdOut(){
   uint8_t inFifo;
-  const char* token;
-  token = "null";
+  char tokenData[16];
   inFifo = lengthOfData(globalActor.inportsFifo[0]);
   if(inFifo > 0)
   {
-    token = fifoPop(globalActor.inportsFifo[0]);
+	sprintf(tokenData,"%d",(uint32_t)fifoPop(globalActor.inportsFifo[0]));
   }
 #ifdef ARDUINO
   lcdOut.clear();
-  lcdOut.write(token);
+  lcdOut.write(tokenData);
 #endif
-  return standardOut(token);
+  return standardOut(tokenData);
 }
 
 extern "C"{
@@ -89,7 +88,7 @@ int8_t lengthOfData(fifo *fif)
   return ((fif->write - fif->read) & (fif->size -1));
 }
 
-rStatus fifoAdd(fifo *fif, const char* element){
+rStatus fifoAdd(fifo *fif, uint32_t element){
 
   if(lengthOfData(fif) == (fif->size-1))
   {
@@ -101,13 +100,13 @@ rStatus fifoAdd(fifo *fif, const char* element){
   return SUCCESS;       //all is well
 }
 
-const char* fifoPop(fifo *fif){
+uint32_t fifoPop(fifo *fif){
 
-  const char* ret;
+	uint32_t ret;
 
   if(lengthOfData(fif) == 0)
   {
-    return "Null";    //fifo empty
+    return FAIL;    //fifo empty
   }
 
   ret = fif->element[fif->read];
@@ -118,7 +117,7 @@ const char* fifoPop(fifo *fif){
 
 }
 
-rStatus CalvinMini::process(const char* token){
+rStatus CalvinMini::process(uint32_t token){
   rStatus allOk;
   allOk = FAIL;
   allOk = fifoAdd(globalActor.inportsFifo[0],token);
@@ -128,11 +127,11 @@ rStatus CalvinMini::process(const char* token){
 void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 {
   /*Current version of calvin mini only process strings*/
-  char tokenData[16];       //No more that 16 chars!!!!
+  //char tokenData[16];       //No more that 16 chars!!!!
   rStatus fifoStatus;
   JsonObject &token = msg.get("token");
-  sprintf(tokenData,"%d",(uint32_t)token.get("data"));
-  fifoStatus = process(tokenData);
+  //sprintf(tokenData,"%d",(uint32_t)token.get("data"));
+  fifoStatus = process((uint32_t)token.get("data"));
   reply.set("cmd",      "TOKEN_REPLY");
   reply.set("sequencenbr",  msg.get("sequencenbr"));
   reply.set("port_id",    msg.get("port_id"));
@@ -392,6 +391,7 @@ void CalvinMini::getIPFromRouter()
 
 void CalvinMini::loop()
 {
+  lcdOut.write("Hej Calvin");
   setupServer();
   while(1)
   {

@@ -34,12 +34,12 @@ TEST(ActorTest,structTest)
 
   /*Test inport fifo*/
   newActor.inportsFifo[0] = &actorFifo;
-  EXPECT_EQ(0,fifoAdd(newActor.inportsFifo[0],"Add"));
-  EXPECT_STREQ("Add",fifoPop(newActor.inportsFifo[0]));
+  EXPECT_EQ(0,fifoAdd(newActor.inportsFifo[0],555));
+  EXPECT_EQ(555,fifoPop(newActor.inportsFifo[0]));
   /*Test outportfifo*/
   newActor.outportsFifo[0] = &actorFifo;
-  EXPECT_EQ(0,fifoAdd(newActor.inportsFifo[0],"Add"));
-  EXPECT_STREQ("Add",fifoPop(newActor.inportsFifo[0]));
+  EXPECT_EQ(0,fifoAdd(newActor.inportsFifo[0],666));
+  EXPECT_EQ(666,fifoPop(newActor.inportsFifo[0]));
 
   EXPECT_EQ("Daniel",newActor.type);
   EXPECT_EQ("Hej",newActor.name);
@@ -53,8 +53,8 @@ TEST(ActorTest,Struct){
   fifo actorFifo;
   EXPECT_EQ(SUCCESS,initFifo(&actorFifo));
   newTest.inportsFifo[0] = &actorFifo;
-  EXPECT_EQ(SUCCESS,fifoAdd(newTest.inportsFifo[0],"Calvin"));
-  EXPECT_STREQ("Calvin",fifoPop(newTest.inportsFifo[0]));
+  EXPECT_EQ(SUCCESS,fifoAdd(newTest.inportsFifo[0],1337));
+  EXPECT_EQ(1337,fifoPop(newTest.inportsFifo[0]));
 
 }
 
@@ -73,14 +73,14 @@ TEST(ActorTest,processTest)
 {
   CalvinMini actorstd;
   EXPECT_EQ(SUCCESS,actorInit());
-  EXPECT_EQ(SUCCESS,actorstd.process("Test1"));
-  EXPECT_EQ(SUCCESS,actorstd.process("Test2"));
-  EXPECT_EQ(SUCCESS,actorstd.process("Test3"));
-  EXPECT_EQ(SUCCESS,actorstd.process("Test1"));
-  EXPECT_EQ(SUCCESS,actorstd.process("Test2"));
-  EXPECT_EQ(SUCCESS,actorstd.process("Test3"));
-  EXPECT_EQ(SUCCESS,actorstd.process("Test2"));
-  EXPECT_EQ(FAIL,actorstd.process("Test3"));
+  EXPECT_EQ(SUCCESS,actorstd.process(1337));
+  EXPECT_EQ(SUCCESS,actorstd.process(1337));
+  EXPECT_EQ(SUCCESS,actorstd.process(1337));
+  EXPECT_EQ(SUCCESS,actorstd.process(1337));
+  EXPECT_EQ(SUCCESS,actorstd.process(1337));
+  EXPECT_EQ(SUCCESS,actorstd.process(1337));
+  EXPECT_EQ(SUCCESS,actorstd.process(1337));
+  EXPECT_EQ(FAIL,actorstd.process(1337));
 
 }
 
@@ -90,18 +90,18 @@ TEST(ActorTest,processTest)
 TEST(ActorTest,TestFifo)
 {
   fifo actorFifo;
-  const char* test1 = "calvin";
-  const char* test2 = "base";
-  const char* test3 = "base1";
+  uint32_t test1 = 1;
+  uint32_t test2 = 2;
+  uint32_t test3 = 3;
   EXPECT_EQ(SUCCESS,initFifo(&actorFifo));
   EXPECT_EQ(SUCCESS,fifoAdd(&actorFifo,test1));
-  EXPECT_STREQ(test1,fifoPop(&actorFifo));
+  EXPECT_EQ(test1,fifoPop(&actorFifo));
   EXPECT_EQ(SUCCESS,fifoAdd(&actorFifo,test1));
   EXPECT_EQ(SUCCESS,fifoAdd(&actorFifo,test2));
   EXPECT_EQ(SUCCESS,fifoAdd(&actorFifo,test3));
-  EXPECT_STREQ(test1,fifoPop(&actorFifo));
-  EXPECT_STREQ(test2,fifoPop(&actorFifo));
-  EXPECT_STREQ(test3,fifoPop(&actorFifo));
+  EXPECT_EQ(test1,fifoPop(&actorFifo));
+  EXPECT_EQ(test2,fifoPop(&actorFifo));
+  EXPECT_EQ(test3,fifoPop(&actorFifo));
 
 
   for( int i = 0 ; i < 7 ; i++ ){
@@ -112,9 +112,9 @@ TEST(ActorTest,TestFifo)
 
   /*Now we pop it*/
   for( int i = 0 ; i < 7 ; i++ ){
-    EXPECT_STREQ(test1,fifoPop(&actorFifo));
+    EXPECT_EQ(test1,fifoPop(&actorFifo));
   }
   /*It should be full by now*/
-  EXPECT_STREQ("Null",fifoPop(&actorFifo));;
+  EXPECT_EQ(FAIL,fifoPop(&actorFifo));;
 
 }
