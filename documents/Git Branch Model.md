@@ -52,7 +52,7 @@ The command git clone which gives the user a full copy of the data from the remo
 * git merge --no-ff myNewBranchName (merge myNewBranchName with develop branch and no default fast forward mode to keep branch history)
 
 ####Kill an obsolete merged feature branch
-* git branch myNewBranchName –d
+* git branch –d myNewBranchName
 
 ####Ignore and/or delete the hidden Mac file .DS_Store
 * defaults write com.apple.finder AppleShowAllFiles -bool YES (Show hidden files/folders)
