@@ -409,7 +409,7 @@ void CalvinMini::getIPFromRouter()
 void CalvinMini::loop()
 {
   lcdOut.write("Hej Calvin");
-  initFifo(&actorFifo);
+  globalActor.fireActor = &StdOut;
   setupServer();
   while(1)
   {
@@ -431,8 +431,8 @@ void CalvinMini::loop()
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
-          //globalActor.fireActor;
-          StdOut();
+          globalActor.fireActor();
+          //StdOut();
           // 6: Read outgoing message
           for(int i = 0;i < nextMessage;i++)
           {

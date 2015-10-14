@@ -15,11 +15,11 @@ protected:
 	virtual void SetUp() {}
 	virtual void TearDown() {}
 };
-/*
+
 TEST(test_HandleToken, testProcess) {
 	// Create an instance of the Token
 	CalvinMini mini;
-	actorInit();
+	actorInitTest();
 	// Create two empty JsonObject with an StaticJsonBuffer
 	StaticJsonBuffer<400> jsonBuffer;
 	JsonObject &reply = jsonBuffer.createObject();
@@ -39,7 +39,7 @@ TEST(test_HandleToken, testProcess) {
 
 	EXPECT_EQ(4, StdOut());
 }
-*/
+
 TEST(test_HandleToken, testSize) {
 	// Create an instance of the Token
 	CalvinMini token;
