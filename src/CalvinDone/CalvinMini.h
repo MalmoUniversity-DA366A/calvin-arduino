@@ -137,6 +137,12 @@ public:
   void handleToken(JsonObject &msg, JsonObject &reply);
 
   /**
+   * Function for set values to Json reply. Json reply sends back to Calvin-Base when the
+   * request message from
+   */
+  void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request);
+
+  /**
    * This function is used to determine the length of FIFO
    * @param fif Reference to FIFO buffer
    */
