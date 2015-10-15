@@ -144,7 +144,12 @@ public:
 
   /**
    * Function for set values to Json reply. Json reply sends back to Calvin-Base when the
-   * request message from
+   * request message from Calvin-Base is "TOKEN_REPLY", and when Calvin-Base also sends an
+   * ACK that indicates that Calvin-Base is ready to receive a new Token. Replys "value" contains an JsonObject
+   * that holds the keyword "TOKEN" and the the data at the first position on the FIFO back to Calvin-Base.
+   * @param msg is JsonObject that is the message from Calvin-Base
+   * @param reply is the JsonObject with the reply message from Calvin-Arduino
+   * @param request is the JsonObject that is the nested JsonObject in the reply
    */
   void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request);
 
