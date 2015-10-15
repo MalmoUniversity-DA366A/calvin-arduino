@@ -7,23 +7,21 @@
 #include <stdio.h>
 #include "CalvinMini.h"
 #include <inttypes.h>
-#include <string>
-
-#ifdef ARDUINO
 #include <SPI.h>
 #include <Ethernet.h>
-#include <util.h>
 #include <LiquidCrystal.h>
+#include <Arduino.h>
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,5);
+//byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
+byte mac[] = { 0x00, 0xAA, 0xDD, 0x0E, 0xF5, 0x93 };
+IPAddress ip(192,168,0,10);
 //IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
 LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
-#endif
+
 
 const int messageOutLength = 4;
 String messageOut[messageOutLength] = {};
@@ -31,7 +29,6 @@ int nextMessage = 0;
 
 actor globalActor;
 fifo actorFifo;
-uint32_t sequenceNbr = 0;
 
 int8_t StdOut(){
   uint8_t inFifo;
@@ -45,41 +42,29 @@ int8_t StdOut(){
   lcdOut.clear();
   lcdOut.write(tokenData);
 #endif
+  Serial.println(tokenData);
   return standardOut(tokenData);
 }
 
-int8_t actorCount()
+rStatus actorCount(actor *inputActor)
 {
-	int8_t allOk = FAIL;
+	rStatus allOk = FAIL;
 	uint32_t count;
-	++(globalActor.count);
-	count = globalActor.count;
-	allOk = fifoAdd(globalActor.inportsFifo[0],count);
-#ifdef ARDUINO
-	lcdOut.clear();
-	lcdOut.write("Raknar");
-#endif
+	++(inputActor->count);
+	count = inputActor->count;
+	allOk = fifoAdd(inputActor->inportsFifo[0],count);
 
 	return allOk;
 }
 
 extern "C"{
-rStatus actorInit(){
+rStatus actorInit(actor *inputActor){
   rStatus allOk = FAIL;
-#ifdef ARDUINO
-  if(!strcmp(globalActor.type,"io.StandardOut"))
-  {
-	  globalActor.fireActor = &StdOut;
-  }else
-  {
-	  globalActor.fireActor = &actorCount;
-  }
-#else
+
   globalActor.fireActor = &StdOut;
-#endif
   /*This sets up the fifo for the actor, not sure
    *if it should be done here but for now it works*/
- globalActor.inportsFifo[0] = &actorFifo;
+  inputActor->inportsFifo[0] = &actorFifo;
   allOk = initFifo(&actorFifo);
   //globalActor.inportsFifo[0] = &actorFifo;
 
@@ -87,7 +72,6 @@ rStatus actorInit(){
 }
 rStatus actorInitTest(){
 	rStatus allOk = FAIL;
-
 
 	globalActor.fireActor = &StdOut;
 	/*This sets up the fifo for the actor, not sure
@@ -108,7 +92,7 @@ rStatus CalvinMini::createActor(JsonObject &msg){
   globalActor.id = name.get("id");
 
   allOk = SUCCESS;
-  actorInit();
+  actorInit(&globalActor);
   return allOk;
 }
 
@@ -178,26 +162,6 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
   {
     reply.set("value",      "NACK");  //Fifo is full, please come again
   }
-}
-
-void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request)
-{
-	JsonObject &token = msg["state"]["actor_state"]["inports"]["token"];
-	String port_id = token.get("id");
-	JsonObject &inports = msg["state"]["prev_connections"]["inports"];
-	JsonArray &array = inports[port_id];
-	String peer_port_id = array.get(1);
-
-	request.set("type", "TOKEN");								// Done
-	request.set("data", fifoPop(globalActor.outportsFifo[0]));	// Done
-
-	reply.set("sequencenbr", sequenceNbr);			// Done
-	sequenceNbr++;									// Done
-
-	reply.set("token", request);					// Done
-	reply.set("cmd", "TOKEN");						// Done
-	reply.set("port_id", port_id);					// Done
-	//reply.set("peer_port_id", peer_port_id);		// Done
 }
 
 void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request)
@@ -291,9 +255,15 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   {
       handleTunnelData(msg, reply, request);
 
+      //lcdOut.clear();
+      //lcdOut.write("In Tunnel_Data");
       reply.printTo(replyTemp,2048);
       String str(replyTemp);
       addToMessageOut(str);
+      #ifdef ARDUINO
+      //lcdOut.clear();
+      //lcdOut.write("TUNNEL_DATA");
+      #endif
       return 3;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
@@ -307,14 +277,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
   {
-	  if(!strcmp(msg.get("value"), "ACK"))
-	  {
-		  sendToken(msg, reply, request);
-	  }
-	  else
-	  {
-
-	  }
       // reply array
       return 5;
   }
@@ -351,7 +313,6 @@ void CalvinMini::addToMessageOut(String reply)
 #ifdef ARDUINO
 String CalvinMini::recvMsg()
 {
-  Serial.println("Reading...");
   char temp[MAX_LENGTH+1] = {};
   String str = "";
   BYTE data[4];
@@ -417,10 +378,9 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 }
 
 #ifdef ARDUINO
-void CalvinMini::setupServer()
+void CalvinMini::setupServer(uint8_t* macAdr, IPAddress ipAdr)
 {
-  //getIPFromRouter(); // Doesn't work with shield
-  Ethernet.begin(mac, ip);
+  Ethernet.begin(macAdr, ipAdr);
   printIp();
   server.begin();
 }
@@ -430,24 +390,26 @@ void CalvinMini::printIp()
     Serial.println(Ethernet.localIP());
 }
 
-void CalvinMini::getIPFromRouter()
+int CalvinMini::setupServer(uint8_t* macAdr)
 {
+	int result = 0;
     // Disable SD
     pinMode(4,OUTPUT);
     digitalWrite(4,HIGH);
-    if (Ethernet.begin(mac) == 0)
+    if (Ethernet.begin(macAdr) == 0)
     {
         Serial.println("Failed to configure Ethernet using DHCP");
-        // Set static IP-address if fail
-        Ethernet.begin(mac, ip);
+		return result;
     }
+	result = 1;
+	printIp();
+	return result;
 }
 
 void CalvinMini::loop()
 {
-  lcdOut.write("Hello Calvin");
+  lcdOut.write("Hello Calvin :)");
   globalActor.fireActor = &StdOut;
-  setupServer();
   while(1)
   {
       // 1: Check connected sockets
@@ -455,9 +417,7 @@ void CalvinMini::loop()
       // 2: Fix connection
       if(client) // Wait for client
       {
-    	  lcdOut.clear();
           // 3: Read message
-          Serial.println("Connected...");
           String str = recvMsg();
 
           StaticJsonBuffer<4096> jsonBuffer;
@@ -470,7 +430,7 @@ void CalvinMini::loop()
 
           // 5: Fire Actors
           globalActor.fireActor();
-
+          //StdOut();
           // 6: Read outgoing message
           for(int i = 0;i < nextMessage;i++)
           {

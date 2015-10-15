@@ -24,7 +24,7 @@ class SetupPortTest : public ::testing::Test {
 TEST(SetupPortTest,HandlePorts)
 {
 	CalvinMini mini;
-	actorInit();
+	actorInitTest();
 	// Create two empty JsonObject with an StaticJsonBuffer
 	StaticJsonBuffer<400> jsonBuffer;
 	JsonObject &request = jsonBuffer.createObject();

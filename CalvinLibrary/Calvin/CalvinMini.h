@@ -3,8 +3,8 @@
 
 #define MAX_LENGTH 1
 #include <stdio.h>
-#include <string>
-#include "ArduinoJson.h"
+#include <ArduinoJson.h>
+#include <IPAddress.h>
 #define standardOut(x)    strlen(x)
 #define ACTOR_SIZE      5
 #define QUEUE_SIZE      10
@@ -96,18 +96,18 @@ int8_t lengthOfData(fifo*);
  *  well thats the only way i could ad a function pointer to a strut,
  *  Apparently c++ handles this different from c.
  */
-rStatus actorInit();
+rStatus actorInit(actor*);
 rStatus actorInitTest();
 
 /**
  * Current standard out is the lcd screen connected to arduino due
  */
-int8_t StdOut();
+int8_t StdOut(void);
 
 /**
  * Increment the count each time the actor fires
  */
-int8_t actorCount();
+rStatus actorCount(actor *inputActor);
 
 }
 
@@ -141,12 +141,6 @@ public:
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
    */
   void handleToken(JsonObject &msg, JsonObject &reply);
-
-  /**
-   * Function for set values to Json reply. Json reply sends back to Calvin-Base when the
-   * request message from
-   */
-  void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request);
 
   /**
    * This function is used to determine the length of FIFO
@@ -231,12 +225,12 @@ public:
   /**
    * Assign an IP-address to the Ethernet shield.
    */
-  void getIPFromRouter(void);
+  int setupServer(uint8_t* macAdr);
 
   /**
    * Start a server connection
    */
-  void setupServer(void);
+  void setupServer(uint8_t* macAdr, IPAddress ipAdr);
 
   /**
    * Receive message from calvin base
