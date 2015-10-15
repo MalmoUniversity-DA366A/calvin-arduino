@@ -76,7 +76,7 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-
+#ifdef ARDUINO
 #include "chip.h"
 
 #include <stdint.h>
@@ -622,3 +622,4 @@ void PWMC_ConfigureEventLineMode( Pwm* pPwm, uint32_t x, uint32_t mode)
         }
     }
 }
+#endif

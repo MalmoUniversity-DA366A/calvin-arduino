@@ -26,8 +26,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
-
+#ifdef ARDUINO
 #include "interrupt_sam_nvic.h"
 
 //! Global NVIC interrupt enable status (by default it's enabled)
 int g_interrupt_enabled = 1;
+#endif

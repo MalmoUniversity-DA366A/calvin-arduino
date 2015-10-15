@@ -1,0 +1,3 @@
+#Sprint Tracking in Trello
+
+To track and keep our task organized we choose to use Trello. The time of the project was divided into 2 weeks periods, which is called sprints. So we organized the Trello board by creating 5 columns for sprint 0 up to sprint 4. The backlog containing the task for each of the 5 sprints provided by the project manager is divided into smaller task by the team members. The smaller task is then moved to each corresponding sprint backlog for. We divide the task into smaller task so we more easily can divide the project manager backlog into smaller and more manageable task.

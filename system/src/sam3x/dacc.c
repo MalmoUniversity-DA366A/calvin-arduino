@@ -26,7 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
-
+#ifdef ARDUINO
 #include "chip.h"
 
 /// @cond 0
@@ -484,3 +484,4 @@ uint32_t dacc_get_analog_control(Dacc *p_dacc)
 #endif
 /**INDENT-ON**/
 /// @endcond
+#endif

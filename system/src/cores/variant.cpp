@@ -15,7 +15,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
+#ifdef ARDUINO
 #include "variant.h"
 
 /*
@@ -378,7 +378,7 @@ void init( void )
   }
 
   // Initialize C library
-  __libc_init_array();
+  //__libc_init_array();
 
   // Disable pull-up on every pin
   for (unsigned i = 0; i < PINS_COUNT; i++)
@@ -447,4 +447,4 @@ void init( void )
 #ifdef __cplusplus
 }
 #endif
-
+#endif

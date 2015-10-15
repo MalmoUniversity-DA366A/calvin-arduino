@@ -26,7 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
-
+#ifdef ARDUINO
 #include "chip.h"
 
 # define MAX_PERIPH_ID    44
@@ -1037,3 +1037,4 @@ uint32_t pmc_get_writeprotect_status(void)
 #endif
 /**INDENT-ON**/
 /// @endcond
+#endif

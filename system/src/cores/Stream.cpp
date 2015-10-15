@@ -21,7 +21,7 @@
 
  findMulti/findUntil routines written by Jim Leonard/Xuth
  */
-
+#ifdef ARDUINO
 #include "Arduino.h"
 #include "Stream.h"
 
@@ -315,3 +315,4 @@ int Stream::findMulti( struct Stream::MultiTarget *targets, int tCount) {
   // unreachable
   return -1;
 }
+#endif

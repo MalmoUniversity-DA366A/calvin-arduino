@@ -7,7 +7,7 @@
 #if !defined(OS_USE_SEMIHOSTING) && !(__STDC_HOSTED__ == 0)
 
 // ----------------------------------------------------------------------------
-
+#ifdef ARDUINO
 #include <errno.h>
 #include "diag/Trace.h"
 
@@ -45,3 +45,4 @@ _write (int fd __attribute__((unused)), const char* buf __attribute__((unused)),
 // ----------------------------------------------------------------------------
 
 #endif // !defined(OS_USE_SEMIHOSTING) && !(__STDC_HOSTED__ == 0)
+#endif

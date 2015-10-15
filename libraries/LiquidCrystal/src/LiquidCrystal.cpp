@@ -1,3 +1,4 @@
+#ifdef ARDUINO
 #include "LiquidCrystal.h"
 
 #include <stdio.h>
@@ -324,3 +325,4 @@ void LiquidCrystal::write8bits(uint8_t value) {
   
   pulseEnable();
 }
+#endif

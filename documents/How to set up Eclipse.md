@@ -1,4 +1,8 @@
+#Eclipse
 
+In order for the development of project to be OS agnostic we choose to use Eclipse Juno CDT as IDE. The main reason for this is it’s flexibility and extended support. Most of the team members will use Windows, but since we are working with Calvin that runs in a Linux environment, having an IDE that can run under both Linux and Windows further eases the development. An Additional reason for us to use the Eclipse IDE is it’s vast array of available plugins.
+
+In order for Eclipse to support development for Arduino Due the IDE needs a few tools and extra settings. The steps required are shown in the following guide:
 
 ##How to set up the Eclipse
 
