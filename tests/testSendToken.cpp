@@ -25,8 +25,12 @@ TEST(testSendToken, testIfContainsKey)
 	JsonObject &reply = jsonBuffer.createObject();
 	JsonObject &msg = jsonBuffer.createObject();
 	JsonObject &request = jsonBuffer.createObject();
+	JsonObject &token = jsonBuffer.createObject();
 
-	calvinMini.sendToken(msg, reply, request);
+	token["id"] = "1234";
+	//msg["state"]["actor_state"]["inports"]["token"] = token;
+
+	calvinMini.sendToken(msg, reply, request, token);
 
 	EXPECT_TRUE(reply.containsKey("cmd"));
 	EXPECT_STREQ(request.get("type"), "TOKEN");

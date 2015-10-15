@@ -164,7 +164,7 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 	reply.set("token", request);					// Done
 	reply.set("cmd", "TOKEN");						// Done
 	reply.set("port_id", port_id);					// Done
-	reply.set("peer_port_id", peer_port_id);		// Done
+	//reply.set("peer_port_id", peer_port_id);		// Done
 }
 
 void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request)
