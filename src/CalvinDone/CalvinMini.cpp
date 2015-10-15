@@ -34,31 +34,67 @@ fifo actorFifo;
 
 int8_t StdOut(){
   uint8_t inFifo;
-  const char* token;
-  token = "null";
+  char tokenData[16];
   inFifo = lengthOfData(globalActor.inportsFifo[0]);
   if(inFifo > 0)
   {
-    token = fifoPop(globalActor.inportsFifo[0]);
+	sprintf(tokenData,"%d",(uint32_t)fifoPop(globalActor.inportsFifo[0]));
   }
 #ifdef ARDUINO
   lcdOut.clear();
-  lcdOut.write(token);
+  lcdOut.write(tokenData);
 #endif
-  return standardOut(token);
+  return standardOut(tokenData);
+}
+
+int8_t actorCount()
+{
+	int8_t allOk = FAIL;
+	uint32_t count;
+	++(globalActor.count);
+	count = globalActor.count;
+	allOk = fifoAdd(globalActor.inportsFifo[0],count);
+#ifdef ARDUINO
+	lcdOut.clear();
+	lcdOut.write("Raknar");
+#endif
+
+	return allOk;
 }
 
 extern "C"{
 rStatus actorInit(){
   rStatus allOk = FAIL;
-
+#ifdef ARDUINO
+  if(!strcmp(globalActor.type,"io.StandardOut"))
+  {
+	  globalActor.fireActor = &StdOut;
+  }else
+  {
+	  globalActor.fireActor = &actorCount;
+  }
+#else
   globalActor.fireActor = &StdOut;
+#endif
   /*This sets up the fifo for the actor, not sure
    *if it should be done here but for now it works*/
+ globalActor.inportsFifo[0] = &actorFifo;
   allOk = initFifo(&actorFifo);
-  globalActor.inportsFifo[0] = &actorFifo;
+  //globalActor.inportsFifo[0] = &actorFifo;
 
   return allOk;
+}
+rStatus actorInitTest(){
+	rStatus allOk = FAIL;
+
+
+	globalActor.fireActor = &StdOut;
+	/*This sets up the fifo for the actor, not sure
+	 *if it should be done here but for now it works*/
+	allOk = initFifo(&actorFifo);
+	globalActor.inportsFifo[0] = &actorFifo;
+
+	  return allOk;
 }
 }
 
@@ -89,7 +125,7 @@ int8_t lengthOfData(fifo *fif)
   return ((fif->write - fif->read) & (fif->size -1));
 }
 
-rStatus fifoAdd(fifo *fif, const char* element){
+rStatus fifoAdd(fifo *fif, uint32_t element){
 
   if(lengthOfData(fif) == (fif->size-1))
   {
@@ -101,13 +137,13 @@ rStatus fifoAdd(fifo *fif, const char* element){
   return SUCCESS;       //all is well
 }
 
-const char* fifoPop(fifo *fif){
+uint32_t fifoPop(fifo *fif){
 
-  const char* ret;
+	uint32_t ret;
 
   if(lengthOfData(fif) == 0)
   {
-    return "Null";    //fifo empty
+    return FAIL;    //fifo empty
   }
 
   ret = fif->element[fif->read];
@@ -118,7 +154,7 @@ const char* fifoPop(fifo *fif){
 
 }
 
-rStatus CalvinMini::process(const char* token){
+rStatus CalvinMini::process(uint32_t token){
   rStatus allOk;
   allOk = FAIL;
   allOk = fifoAdd(globalActor.inportsFifo[0],token);
@@ -127,12 +163,9 @@ rStatus CalvinMini::process(const char* token){
 
 void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 {
-  /*Current version of calvin mini only process strings*/
-  char tokenData[16];       //No more that 16 chars!!!!
   rStatus fifoStatus;
   JsonObject &token = msg.get("token");
-  sprintf(tokenData,"%d",(uint32_t)token.get("data"));
-  fifoStatus = process(tokenData);
+  fifoStatus = process((uint32_t)token.get("data"));
   reply.set("cmd",      "TOKEN_REPLY");
   reply.set("sequencenbr",  msg.get("sequencenbr"));
   reply.set("port_id",    msg.get("port_id"));
@@ -237,15 +270,9 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   {
       handleTunnelData(msg, reply, request);
 
-      //lcdOut.clear();
-      //lcdOut.write("In Tunnel_Data");
       reply.printTo(replyTemp,2048);
       String str(replyTemp);
       addToMessageOut(str);
-      #ifdef ARDUINO
-      //lcdOut.clear();
-      //lcdOut.write("TUNNEL_DATA");
-      #endif
       return 3;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
@@ -254,9 +281,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       #ifdef ARDUINO
       lcdOut.clear();
       lcdOut.write("TOKEN");
-      //lcdOut.write("In Token");
-      //lcdOut.clear();
-      //lcdOut.write("TOKEN");
       #endif
       return 4;
   }
@@ -392,6 +416,8 @@ void CalvinMini::getIPFromRouter()
 
 void CalvinMini::loop()
 {
+  lcdOut.write("Hello Calvin");
+  globalActor.fireActor = &StdOut;
   setupServer();
   while(1)
   {
@@ -400,6 +426,7 @@ void CalvinMini::loop()
       // 2: Fix connection
       if(client) // Wait for client
       {
+    	  lcdOut.clear();
           // 3: Read message
           Serial.println("Connected...");
           String str = recvMsg();
@@ -413,8 +440,8 @@ void CalvinMini::loop()
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
-          //globalActor.fireActor;
-          StdOut();
+          globalActor.fireActor();
+
           // 6: Read outgoing message
           for(int i = 0;i < nextMessage;i++)
           {

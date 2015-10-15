@@ -25,7 +25,7 @@ typedef enum{
 }rStatus;
 
 typedef struct buffert{
-  const char* element[FIFO_SIZE];
+  uint32_t element[FIFO_SIZE];
   int size;
   int read;
   int write;
@@ -36,6 +36,7 @@ typedef struct actors{
   const char* name;
   const char* id;
   const char* fifo;
+  uint32_t count;
   int8_t (*fireActor)();
   struct buffert *inportsFifo[NUMBER_OF_PORTS];
   struct buffert *outportsFifo[NUMBER_OF_PORTS];
@@ -63,7 +64,7 @@ rStatus initFifo(fifo*);
  * Copyright 2012 Elecia White,978-1-449-30214-6"
  * @return returns 0 if the fifo is full
  */
-rStatus fifoAdd(fifo*, const char*);
+rStatus fifoAdd(fifo*, uint32_t);
 
 /**
  * Return and removes the oldest element in the fifo.
@@ -76,7 +77,7 @@ rStatus fifoAdd(fifo*, const char*);
  * @Return Returns fifo element, returns NULL if fifo is
  * empty.
  */
-const char* fifoPop(fifo*);
+uint32_t fifoPop(fifo*);
 
 /**
  * Used by Add and Pop to determine fifo length.
@@ -96,12 +97,17 @@ int8_t lengthOfData(fifo*);
  *  Apparently c++ handles this different from c.
  */
 rStatus actorInit();
+rStatus actorInitTest();
 
 /**
  * Current standard out is the lcd screen connected to arduino due
  */
-int8_t StdOut(void);
+int8_t StdOut();
 
+/**
+ * Increment the count each time the actor fires
+ */
+int8_t actorCount();
 
 }
 
@@ -123,7 +129,7 @@ public:
    * @return if data vas added to fifo this function returns
    * 1, if something went wrong it returns 0.
    */
-  rStatus process(const char*);
+  rStatus process(uint32_t);
 
   /**
    * Function for setting the Json reply back to Calvin-Base when the request message from
