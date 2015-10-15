@@ -31,6 +31,7 @@ int nextMessage = 0;
 
 actor globalActor;
 fifo actorFifo;
+uint32_t sequenceNbr = 0;
 
 int8_t StdOut(){
   uint8_t inFifo;
@@ -179,6 +180,26 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
   }
 }
 
+void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request)
+{
+	JsonObject &token = msg["state"]["actor_state"]["inports"]["token"];
+	String port_id = token.get("id");
+	JsonObject &inports = msg["state"]["prev_connections"]["inports"];
+	JsonArray &array = inports[port_id];
+	String peer_port_id = array.get(1);
+
+	request.set("type", "TOKEN");								// Done
+	request.set("data", fifoPop(globalActor.outportsFifo[0]));	// Done
+
+	reply.set("sequencenbr", sequenceNbr);			// Done
+	sequenceNbr++;									// Done
+
+	reply.set("token", request);					// Done
+	reply.set("cmd", "TOKEN");						// Done
+	reply.set("port_id", port_id);					// Done
+	reply.set("peer_port_id", peer_port_id);		// Done
+}
+
 void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request)
 {
   JsonObject &value = msg.get("value");
@@ -286,6 +307,14 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
   {
+	  if(!strcmp(msg.get("value"), "ACK"))
+	  {
+		  sendToken(msg, reply, request);
+	  }
+	  else
+	  {
+
+	  }
       // reply array
       return 5;
   }
