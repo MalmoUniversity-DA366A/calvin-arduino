@@ -47,25 +47,38 @@ int8_t StdOut(){
   return standardOut(tokenData);
 }
 
-rStatus actorCount(actor *inputActor)
+int8_t actorCount()
 {
-	rStatus allOk = FAIL;
+	int8_t allOk = FAIL;
 	uint32_t count;
-	++(inputActor->count);
-	count = inputActor->count;
-	allOk = fifoAdd(inputActor->inportsFifo[0],count);
+	++(globalActor.count);
+	count = globalActor.count;
+	allOk = fifoAdd(globalActor.inportsFifo[0],count);
+#ifdef ARDUINO
+	lcdOut.clear();
+	lcdOut.write("Raknar");
+#endif
 
 	return allOk;
 }
 
 extern "C"{
-rStatus actorInit(actor *inputActor){
+rStatus actorInit(){
   rStatus allOk = FAIL;
-
+#ifdef ARDUINO
+  if(!strcmp(globalActor.type,"io.StandardOut"))
+  {
+	  globalActor.fireActor = &StdOut;
+  }else
+  {
+	  globalActor.fireActor = &actorCount;
+  }
+#else
   globalActor.fireActor = &StdOut;
+#endif
   /*This sets up the fifo for the actor, not sure
    *if it should be done here but for now it works*/
-  inputActor->inportsFifo[0] = &actorFifo;
+ globalActor.inportsFifo[0] = &actorFifo;
   allOk = initFifo(&actorFifo);
   //globalActor.inportsFifo[0] = &actorFifo;
 
@@ -73,6 +86,7 @@ rStatus actorInit(actor *inputActor){
 }
 rStatus actorInitTest(){
 	rStatus allOk = FAIL;
+
 
 	globalActor.fireActor = &StdOut;
 	/*This sets up the fifo for the actor, not sure
@@ -93,7 +107,7 @@ rStatus CalvinMini::createActor(JsonObject &msg){
   globalActor.id = name.get("id");
 
   allOk = SUCCESS;
-  actorInit(&globalActor);
+  actorInit();
   return allOk;
 }
 
@@ -256,15 +270,9 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   {
       handleTunnelData(msg, reply, request);
 
-      //lcdOut.clear();
-      //lcdOut.write("In Tunnel_Data");
       reply.printTo(replyTemp,2048);
       String str(replyTemp);
       addToMessageOut(str);
-      #ifdef ARDUINO
-      //lcdOut.clear();
-      //lcdOut.write("TUNNEL_DATA");
-      #endif
       return 3;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
@@ -408,7 +416,7 @@ void CalvinMini::getIPFromRouter()
 
 void CalvinMini::loop()
 {
-  lcdOut.write("Hej Calvin");
+  lcdOut.write("Hello Calvin");
   globalActor.fireActor = &StdOut;
   setupServer();
   while(1)
@@ -418,6 +426,7 @@ void CalvinMini::loop()
       // 2: Fix connection
       if(client) // Wait for client
       {
+    	  lcdOut.clear();
           // 3: Read message
           Serial.println("Connected...");
           String str = recvMsg();
@@ -432,7 +441,7 @@ void CalvinMini::loop()
 
           // 5: Fire Actors
           globalActor.fireActor();
-          //StdOut();
+
           // 6: Read outgoing message
           for(int i = 0;i < nextMessage;i++)
           {
