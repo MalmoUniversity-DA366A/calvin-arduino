@@ -17,8 +17,8 @@
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,5);
-//IPAddress ip(192,168,1,146);
+//IPAddress ip(192,168,0,5);
+IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
@@ -205,11 +205,11 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
 
 void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
 {
-  JsonObject &token = msg["state"]["actor_state"]["inports"]["token"];
-  String port_id = token.get("id");
   JsonObject &inports = msg["state"]["prev_connections"]["inports"];
+  JsonObject &token = msg["state"]["actor_state"]["inports"]["token"];
+  String port_id = token.get("id").asString();
   JsonArray &array = inports[port_id];
-  String peer_port_id = array.get(1);
+  String peer_port_id = array.get(1).asString();
   request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
   request.set("from_rt_uuid", RT_ID);
   request.set("to_rt_uuid",msg.get("from_rt_uuid"));
