@@ -227,10 +227,25 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
 void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
 {
   JsonObject &inports = msg["state"]["prev_connections"]["inports"];
-  JsonObject &token = msg["state"]["actor_state"]["inports"]["token"];
-  String port_id = token.get("id").asString();
-  JsonArray &array = inports[port_id];
-  String peer_port_id = array.get(1).asString();
+  JsonObject &outports = msg["state"]["prev_connections"]["outports"];
+
+  String port_id;
+  String peer_port_id;
+  if(outports.size() == 0)
+  {
+      JsonObject &token = msg["state"]["actor_state"]["inports"]["token"];
+      port_id = token.get("id").asString();
+      JsonArray &array = inports[port_id];
+      peer_port_id = array.get(1).asString();
+  }
+  else
+  {
+      JsonObject &integer = msg["state"]["actor_state"]["outports"]["integer"];
+      port_id = integer.get("id").asString();
+      JsonArray &outerarray = outports[port_id];
+      JsonArray &innerarray = outerarray.get(0);  // Inception
+      peer_port_id = innerarray.get(1).asString();
+  }
   request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
   request.set("from_rt_uuid", RT_ID);
   request.set("to_rt_uuid",msg.get("from_rt_uuid"));
