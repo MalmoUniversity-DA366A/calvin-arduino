@@ -61,7 +61,7 @@ int8_t actorCount()
   Serial.println(count);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
-  delay(400);
+  delay(300);
 #endif
 
 	return allOk;
