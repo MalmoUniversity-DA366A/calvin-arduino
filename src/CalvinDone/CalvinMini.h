@@ -32,10 +32,12 @@ typedef struct buffert{
 }fifo;
 
 typedef struct actors{
-  const char* type;
+  String type;
   const char* name;
   const char* id;
   const char* fifo;
+  String peer_port_id;
+  String port_id;
   uint32_t count;
   int8_t (*fireActor)();
   struct buffert *inportsFifo[NUMBER_OF_PORTS];
