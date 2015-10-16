@@ -12,7 +12,6 @@
 #ifdef ARDUINO
 #include <SPI.h>
 #include <Ethernet.h>
-#include <util.h>
 #include <LiquidCrystal.h>
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
