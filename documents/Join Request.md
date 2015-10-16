@@ -1,6 +1,6 @@
-###Join request
+#Join request
 
-**Terminal commands**
+##Terminal commands
 
 -   source \~/.virtualenvs/test-calvin/bin/activate (activate Calvin
     virtual enviroment)
