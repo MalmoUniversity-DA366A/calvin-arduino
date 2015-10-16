@@ -61,7 +61,7 @@ int8_t actorCount()
   Serial.println(count);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
-  delay(300);
+  delay(300); // Stable at 300ms
 #endif
 
 	return allOk;
@@ -187,16 +187,16 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
-  request.set("data", fifoPop(globalActor.inportsFifo[0]));  // Done
-	request.set("type", "Token");								// Done
+  request.set("data", fifoPop(globalActor.inportsFifo[0]));
+	request.set("type", "Token");
 
-	reply.set("sequencenbr", sequenceNbr);			// Done
-	sequenceNbr++;									// Done
+	reply.set("sequencenbr", sequenceNbr);
+	sequenceNbr++;
 
-	reply.set("token", request);					// Done
-	reply.set("cmd", "TOKEN");						// Done
-	reply.set("port_id", globalActor.port_id);					// Done
-	reply.set("peer_port_id", globalActor.peer_port_id);		// Done
+	reply.set("token", request);
+	reply.set("cmd", "TOKEN");
+	reply.set("port_id", globalActor.port_id);
+	reply.set("peer_port_id", globalActor.peer_port_id);
 }
 
 void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request)
