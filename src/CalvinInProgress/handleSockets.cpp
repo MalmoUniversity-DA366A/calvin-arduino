@@ -55,7 +55,29 @@ int HandleSockets::setupConnection(byte *macAdr)
 	return status;
 }
 
+/**
+ * Sends a message to a specific socket
+ * @Param socket, str
+ * @return returns 1 if success, 0 if failed
+ */
+int HandleSockets::sendMsg(uint8_t socket, const char *str)
+{
+	Serial.println("Sending...");
+	int lengthtOfStr = sizeof(str);
+	uint8_t tempChar[lengthtOfStr];
+	for(int i = 0; i<lengthtOfStr; i++)
+	{
+		tempChar[i] = str[i];
+	}
+	int res = send(socket,(unsigned char*)tempChar, lengthtOfStr);
+	return res;
+}
 
+/**
+ * Receives a message from a specific socket
+ * @Param socket
+ * @return returns the string received from socket
+ */
 String HandleSockets::recvMsg(uint8_t socket)
 {
   Serial.println("\nReading...");
@@ -65,16 +87,10 @@ String HandleSockets::recvMsg(uint8_t socket)
   int sizeOfMsg;
   int found = 0;
 
-  sizeOfMsg = recvAvailable(socket);			//recieve lenght of incomming message
-  /*
-  if(sizeOfMsg > 4)
-  {
-	  sizeOfMsg = sizeOfMsg-4;						//remove the length header of the message
-  }
-  */
+  sizeOfMsg = recvAvailable(socket);			//Receive length of incoming message
   Serial.print("SIZE of message:   ");
   Serial.println(sizeOfMsg);
-  //read all incomming data one by one
+  //read all incoming data one by one
   for(int i = 0;i < sizeOfMsg;i++)
   {
       int size = recv(socket,tempBuff, MAX_LENGTH);
@@ -92,11 +108,9 @@ String HandleSockets::recvMsg(uint8_t socket)
     	  }
     	  if(found ==1)
     	  {
-
 			  temp[size] = '\0';  // Null terminate char
 			  str += temp;
     	  }
-
       }
   }
   return str;
@@ -177,18 +191,19 @@ void HandleSockets::testLoop()
 			Serial.print(") ");
 			Serial.println();
 
-			//If IPAdresss doesnt start with 0
-			//if((socktIPAdr[0] != 0 )&& (s == SnSR::ESTABLISHED))
+
+			//check if there is anyone trying to send
 			if ( s == SnSR::LISTEN || s == SnSR::CLOSED || s == SnSR::CLOSE_WAIT )
 			{
 				//nothing to read
 			}
-			else if(socktIPAdr[0] != 0 )
+			else if(socktIPAdr[0] != 0 )	//If IPAdresss doesn't start with 0
 			{
 				String recievedMsg = recvMsg(i);
 				Serial.println(recievedMsg);
-				send(i,(unsigned char*)"ok ",3);
+				sendMsg(i,"hej på dig");
 			}
+
 		} //end i < sock max
 		Serial.println();
 
@@ -206,7 +221,7 @@ void HandleSockets::testLoop()
 		    	}
 		    }
 		}
-		delay(3000);
+		delay(3000);					//3 second delay
 	}	//end While(1)
 
 }

@@ -17,6 +17,7 @@ class HandleSockets
 public:
 	int setupConnection(byte *macAdr, IPAddress ipAdr);
 	int setupConnection(byte *macAdr);
+	int sendMsg(uint8_t socket, const char *str);
 	String recvMsg(uint8_t socket);
 	void testLoop();
 
