@@ -24,7 +24,7 @@
 
 -   cscontrol http://localhost:5001 actor list (list all active actors)
 
--   cscontrol http://localhost:5001 actor &lt;actor-id&gt; (info about actor)
+-   cscontrol http://localhost:5001 actor info &lt;actor-id&gt; (info about actor)
 
 -   cscontrol http://localhost:5001 actor migrate
     &lt;actor-id&gt; &lt;arduino-id&gt;
