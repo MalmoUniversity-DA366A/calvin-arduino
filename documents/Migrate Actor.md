@@ -22,5 +22,7 @@
 
 -   Start a new command window and repeat step 1
 
+-   cscontrol http://localhost:5001 actor list (list all active actors)
+
 -   cscontrol http://localhost:5001 actor migrate
     &lt;actor-id&gt; &lt;arduino-id&gt;
