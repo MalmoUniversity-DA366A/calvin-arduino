@@ -15,7 +15,7 @@ protected:
 	virtual void TearDown() {}
 };
 
-TEST(testHandleTunnelData, testSize) {
+/*TEST(testHandleTunnelData, testSize) {
 	CalvinMini calvinMini;
 
 	StaticJsonBuffer<1000> jsonBuffer;
@@ -29,9 +29,9 @@ TEST(testHandleTunnelData, testSize) {
 	calvinMini.handleTunnelData(msg, reply, request);
 
 	//EXPECT_EQ(5, reply.size());
-}
+}*/
 
-
+/*
 TEST(testHandleTunnelData, testContainsKey) {
 	CalvinMini calvinMini;
 
@@ -50,9 +50,9 @@ TEST(testHandleTunnelData, testContainsKey) {
 	EXPECT_TRUE(reply.containsKey("cmd"));
 	EXPECT_TRUE(reply.containsKey("tunnel_id"));
 	//EXPECT_TRUE(reply.containsKey("value"));
-}
+}*/
 
-TEST(testHandleTunnelData, testValues) {
+/*TEST(testHandleTunnelData, testValues) {
 	CalvinMini calvinMini;
 
 	StaticJsonBuffer<1000> jsonBuffer;
@@ -70,5 +70,5 @@ TEST(testHandleTunnelData, testValues) {
 	EXPECT_STREQ("TUNNEL_DATA", reply.get("cmd"));
 	EXPECT_STREQ("fake-tunnel", reply.get("tunnel_id"));
 	EXPECT_STREQ(NULL, reply.get("value"));
-}
+}*/
 #endif

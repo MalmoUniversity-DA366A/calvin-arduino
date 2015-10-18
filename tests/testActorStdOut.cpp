@@ -61,7 +61,7 @@ TEST(ActorTest,Struct){
 TEST(ActorTest,createActor)
 {
   CalvinMini actorstd;
-  StaticJsonBuffer<2000> jsonBuffer;
+  StaticJsonBuffer<400> jsonBuffer;
   char str[] = "{\"type\":\"actor\",\"name\":\"actor1\","
       "\"id\":\"89\",\"fifo\":\"12\"}";
   JsonObject &root = jsonBuffer.parseObject(str);

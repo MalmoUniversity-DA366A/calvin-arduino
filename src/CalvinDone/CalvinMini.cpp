@@ -108,7 +108,11 @@ rStatus CalvinMini::createActor(JsonObject &msg){
   rStatus allOk = FAIL;
   JsonObject &state = msg.get("state");
   JsonObject &name = state.get("actor_state");
+#ifdef ARDUINO
   globalActor.type = state.get("actor_type").asString();
+#else
+  globalActor.type = state.get("actor_type");
+#endif
   globalActor.name = name.get("name");
   globalActor.id = name.get("id");
   globalActor.count = (uint32_t)name.get("count");

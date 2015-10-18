@@ -43,7 +43,7 @@ TEST(SetupPortTest,HandlePorts)
 	EXPECT_STREQ(request.get("msg_uuid"),
 			"MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
 	EXPECT_STREQ(request.get("from_rt_uuid"),"calvin-arduino");
-	EXPECT_EQ((int)request.get("to_rt_uuid"),0);
+	EXPECT_EQ((int)request.get("to_rt_uuid"),2);
 	EXPECT_EQ((int)request.get("port_id"),0);
 	EXPECT_EQ((int)request.get("peer_actor_id"),0);
 	EXPECT_STREQ(request.get("cmd"),"PORT_CONNECT");

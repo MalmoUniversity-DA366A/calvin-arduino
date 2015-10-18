@@ -24,6 +24,12 @@ typedef enum{
   FAIL
 }rStatus;
 
+/**
+ * This is the buffert for a actor. To use an actors port fifo
+ * a buffert struct must be created and assigned to the actor
+ * port fifo. Before this fifo can be used it must be initiated
+ * by the initFifo function.
+ */
 typedef struct buffert{
   uint32_t element[FIFO_SIZE];
   int size;
@@ -31,11 +37,22 @@ typedef struct buffert{
   int write;
 }fifo;
 
+/**
+ * This struct contains actor data. References to the actors
+ * fifo is stored in a array of pointers to fifo bufferts.
+ * The actor can have multiple fifos on outports and inports,
+ * in order to use the they must first be assigned a buffert
+ * reference. To execute an actor the actor fire function must
+ * be called. Prior to this a reference to the fire function must
+ * assigned to the actor. This depends on the actor type.
+ * Currently supported actors are:
+ * io.actorStandardOut
+ * io.actorCounter
+ */
 typedef struct actors{
   String type;
   const char* name;
   const char* id;
-  const char* fifo;
   String peer_port_id;
   String port_id;
   uint32_t count;
