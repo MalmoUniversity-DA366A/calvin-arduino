@@ -17,8 +17,8 @@
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,5);
-//IPAddress ip(192,168,1,146);
+//IPAddress ip(192,168,0,5);
+IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
@@ -42,6 +42,7 @@ int8_t StdOut(){
       sprintf(tokenData,"%d",(uint32_t)fifoPop(globalActor.inportsFifo[0]));
   }
 #ifdef ARDUINO
+  Serial.println(tokenData);
   lcdOut.clear();
   lcdOut.write(tokenData);
 #endif
@@ -58,7 +59,7 @@ int8_t actorCount()
 	allOk = fifoAdd(globalActor.inportsFifo[0],count);
   sprintf(tokenData,"%d",(uint32_t)count);
 #ifdef ARDUINO
-  Serial.println(count);
+  Serial.println(tokenData);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
   delay(300); // Stable at 300ms
@@ -347,26 +348,25 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"REPLY"))
   {
-      #ifdef ARDUINO
-      Serial.println(globalActor.type);
-      JsonObject &value = msg["value"];
-      if(!strcmp(value.get("status"),"ACK"))
-      {
-          String test = value.get("status");
-          Serial.println(test.c_str());
-      }
-      else if(!strcmp(value.get("reply"),"ACK") && !strcmp(globalActor.type.c_str(),"std.Counter"))
+      //if(!strcmp(value.get("reply"),"ACK") && !strcmp(globalActor.type.c_str(),"std.Counter"))
+      if(!strcmp(globalActor.type.c_str(),"std.Counter"))
       {
         handleTunnelData(msg, reply, request);
         reply.printTo(replyTemp,2048);
         String str(replyTemp);
         addToMessageOut(str);
       }
+      /*JsonObject &value = msg["value"];
+      if(!strcmp(value.get("status"),"ACK"))
+      {
+          Serial.println("ACK");
+      }
       else
       {
+#ifdef ARDUINO
           Serial.println("NACK");
-      }
-      #endif
+#endif
+      }*/
       return 6;
   }
   else
@@ -492,7 +492,6 @@ void CalvinMini::loop()
       {
     	  lcdOut.clear();
           // 3: Read message
-          Serial.println("Connected...");
           String str = recvMsg();
 
           StaticJsonBuffer<4096> jsonBuffer;
