@@ -31,11 +31,13 @@ typedef struct buffert{
   int write;
 }fifo;
 
+/*
+ * This struct contains actor data
+ */
 typedef struct actors{
   String type;
   const char* name;
   const char* id;
-  const char* fifo;
   String peer_port_id;
   String port_id;
   uint32_t count;
