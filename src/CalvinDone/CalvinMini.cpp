@@ -28,10 +28,8 @@ LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
 const int messageOutLength = 4;
 String messageOut[messageOutLength] = {};
 int nextMessage = 0;
-
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
 uint8_t activeActors = 0;
-
 actor globalActor;
 fifo actorFifo;
 uint32_t sequenceNbr = 0;
@@ -40,13 +38,13 @@ CalvinMini::CalvinMini(){
 	activeActors = 0;
 }
 
-int8_t StdOut(){
+int8_t actorStdOut(actor *inputActor){
   uint8_t inFifo;
   char tokenData[16];
-  inFifo = lengthOfData(globalActor.inportsFifo[0]);
+  inFifo = lengthOfData(&inputActor->inportsFifo[0]);
   if(inFifo > 0)
   {
-      sprintf(tokenData,"%d",(uint32_t)fifoPop(globalActor.inportsFifo[0]));
+      sprintf(tokenData,"%d",(uint32_t)fifoPop(&inputActor->inportsFifo[0]));
   }
 #ifdef ARDUINO
   Serial.println(tokenData);
@@ -56,14 +54,14 @@ int8_t StdOut(){
   return standardOut(tokenData);
 }
 
-int8_t actorCount()
+int8_t actorCount(actor *inputActor)
 {
 	int8_t allOk = FAIL;
 	uint32_t count;
 	char tokenData[16];
-	++(globalActor.count);
-	count = globalActor.count;
-	allOk = fifoAdd(globalActor.inportsFifo[0],count);
+	++(inputActor->count);
+	count = inputActor->count;
+	allOk = fifoAdd(&inputActor->inportsFifo[0],count);
   sprintf(tokenData,"%d",(uint32_t)count);
 #ifdef ARDUINO
   Serial.println(tokenData);
@@ -81,7 +79,7 @@ rStatus actorInit(actor *inputActor){
   fifo actorFifo;
   if(!strcmp(inputActor->type.c_str(),"io.StandardOut"))
   {
-	  inputActor->fireActor = &StdOut;
+	  inputActor->fireActor = &actorStdOut;
   }else
   {
 	  inputActor->fireActor = &actorCount;
@@ -99,11 +97,11 @@ rStatus actorInitTest(){
 	rStatus allOk = FAIL;
 
 
-	globalActor.fireActor = &StdOut;
+	//inputActor->fireActor = &StdOut;
 	/*This sets up the fifo for the actor, not sure
 	 *if it should be done here but for now it works*/
-	allOk = initFifo(&actorFifo);
-	globalActor.inportsFifo[0] = &actorFifo;
+	//allOk = initFifo(&actorFifo);
+	//inputActor->inportsFifo[0] = actorFifo;
 
 	  return allOk;
 }
@@ -177,7 +175,7 @@ uint32_t fifoPop(fifo *fif){
 rStatus CalvinMini::process(uint32_t token){
   rStatus allOk;
   allOk = FAIL;
-  allOk = fifoAdd(&globalActor.inportsFifo[0],token);
+  allOk = fifoAdd(&actors[0].inportsFifo[0],token);
   return allOk;
 }
 
@@ -494,7 +492,7 @@ void CalvinMini::getIPFromRouter()
 void CalvinMini::loop()
 {
   lcdOut.write("Hello Calvin");
-  globalActor.fireActor = &StdOut;
+  globalActor.fireActor = &actorStdOut;
   setupServer();
   while(1)
   {
@@ -516,7 +514,7 @@ void CalvinMini::loop()
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
-          globalActor.fireActor();
+          globalActor.fireActor(&actors[0]);
 
           // 6: Read outgoing message
           for(int i = 0;i < nextMessage;i++)

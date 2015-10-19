@@ -57,9 +57,9 @@ typedef struct actors{
   String peer_port_id;
   String port_id;
   uint32_t count;
-  int8_t (*fireActor)();
+  int8_t (*fireActor)(struct actors*);
   struct buffert inportsFifo[NUMBER_OF_PORTS];
-  struct buffert *outportsFifo[NUMBER_OF_PORTS];
+  struct buffert outportsFifo[NUMBER_OF_PORTS];
 }actor;
 
 /**
@@ -122,12 +122,12 @@ rStatus actorInitTest();
 /**
  * Current standard out is the lcd screen connected to arduino due
  */
-int8_t StdOut();
+int8_t actorStdOut(actor*);
 
 /**
  * Increment the count each time the actor fires
  */
-int8_t actorCount();
+int8_t actorCount(actor*);
 
 }
 
