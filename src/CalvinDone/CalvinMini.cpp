@@ -76,18 +76,20 @@ int8_t actorCount()
 }
 
 extern "C"{
-rStatus actorInit(){
+rStatus actorInit(actor *inputActor){
   rStatus allOk = FAIL;
-  if(!strcmp(globalActor.type.c_str(),"io.StandardOut"))
+  fifo actorFifo;
+  if(!strcmp(inputActor->type.c_str(),"io.StandardOut"))
   {
-	  globalActor.fireActor = &StdOut;
+	  inputActor->fireActor = &StdOut;
   }else
   {
-	  globalActor.fireActor = &actorCount;
+	  inputActor->fireActor = &actorCount;
   }
   /*This sets up the fifo for the actor, not sure
    *if it should be done here but for now it works*/
- globalActor.inportsFifo[0] = &actorFifo;
+  inputActor->inportsFifo[0] = actorFifo;
+ //globalActor.inportsFifo[0] = &actorFifo;
   allOk = initFifo(&actorFifo);
   //globalActor.inportsFifo[0] = &actorFifo;
 
@@ -110,12 +112,9 @@ rStatus actorInitTest(){
 rStatus CalvinMini::createActor(JsonObject &msg){
   rStatus allOk = FAIL;
   actor newActor;
-  int temp;
-  temp = activeActors;
   if(activeActors < NUMBER_OF_SUPPORTED_ACTORS)
   {
 	  actors[activeActors] = newActor;
-	  ++activeActors;
   }else
   {
 	  return FAIL;
@@ -123,12 +122,12 @@ rStatus CalvinMini::createActor(JsonObject &msg){
 
   JsonObject &state = msg.get("state");
   JsonObject &name = state.get("actor_state");
-  globalActor.type = state.get("actor_type").asString();
-  globalActor.name = name.get("name");
-  globalActor.id = name.get("id");
-  globalActor.count = (uint32_t)name.get("count");
+  actors[activeActors].type = state.get("actor_type").asString();
+  actors[activeActors].name = name.get("name");
+  actors[activeActors].id = name.get("id");
+  actors[activeActors].count = (uint32_t)name.get("count");
   allOk = SUCCESS;
-  actorInit();
+  actorInit(&actors[activeActors]);
   return allOk;
 }
 
@@ -178,7 +177,7 @@ uint32_t fifoPop(fifo *fif){
 rStatus CalvinMini::process(uint32_t token){
   rStatus allOk;
   allOk = FAIL;
-  allOk = fifoAdd(globalActor.inportsFifo[0],token);
+  allOk = fifoAdd(&globalActor.inportsFifo[0],token);
   return allOk;
 }
 
@@ -202,7 +201,7 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
-  request.set("data", fifoPop(globalActor.inportsFifo[0]));
+  request.set("data", fifoPop(&globalActor.inportsFifo[0]));
 	request.set("type", "Token");
 
 	reply.set("sequencenbr", sequenceNbr);

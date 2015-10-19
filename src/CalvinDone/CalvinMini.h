@@ -58,7 +58,7 @@ typedef struct actors{
   String port_id;
   uint32_t count;
   int8_t (*fireActor)();
-  struct buffert *inportsFifo[NUMBER_OF_PORTS];
+  struct buffert inportsFifo[NUMBER_OF_PORTS];
   struct buffert *outportsFifo[NUMBER_OF_PORTS];
 }actor;
 
@@ -116,7 +116,7 @@ int8_t lengthOfData(fifo*);
  *  well thats the only way i could ad a function pointer to a strut,
  *  Apparently c++ handles this different from c.
  */
-rStatus actorInit();
+rStatus actorInit(actor*);
 rStatus actorInitTest();
 
 /**
