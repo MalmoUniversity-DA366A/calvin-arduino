@@ -117,7 +117,6 @@ void HandleSockets::testLoop()
 {
 	uint8_t socketStat[MAX_SOCK_NUM];
 	uint8_t connectStatus[MAX_SOCK_NUM];
-	uint8_t socketList[MAX_SOCK_NUM];
 
 	setupConnection(testMac, testIp);
 	Serial.println(Ethernet.localIP());					//print local IP
@@ -154,27 +153,6 @@ void HandleSockets::testLoop()
 					break;
 			}
 
-			/*
-			//if client is disconnected?
-			if(s == SnSR::CLOSE_WAIT) 				//client disconnected waiting for close?
-			{
-				close(i);            	//close the socket
-				connectStatus[i] = 0;  //connection status for socket  = 0
-			}
-
-			// if status = waiting for connection
-			if(s == SnSR::LISTEN)
-			{
-				listening = 1;      //waiting for connection?
-			}
-
-			if((s == SnSR::ESTABLISHED) && (connectStatus[i] == 0)) 		//client connected?
-			{
-				connectStatus[i] = 1;                   //connectionStatus for socket = 1  --  behövs kankse inte?
-				//lägg till socket i listan för inkommande anslutningar
-			}
-			 */
-
 			//print socket status to terminal
 			Serial.print(F(" :0x"));
 			if(s < 16)
@@ -187,11 +165,11 @@ void HandleSockets::testLoop()
 			Serial.print(" ");
 
 			//save the IpAddress in socktIPAdr -- Needed??
-			uint8_t socktIPAdr[4];
-			W5100.readSnDIPR(i, socktIPAdr);
+			uint8_t socketIPAdr[4];
+			W5100.readSnDIPR(i, socketIPAdr);					//stores IPAddress in socktIPAdr
 			for (int j=0; j<4; j++)
 			{
-			  Serial.print(socktIPAdr[j],10);
+			  Serial.print(socketIPAdr[j],10);
 			  if (j<3)
 			  {
 				  Serial.print(".");
@@ -212,16 +190,13 @@ void HandleSockets::testLoop()
 				{
 					//nothing to read
 				}
-				else if(socktIPAdr[0] != 0 )	//If IPAdresss doesn't start with 0
+				else if(socketIPAdr[0] != 0  && SnSR::ESTABLISHED)	//If IPAdresss doesn't start with 0
 				{
 					String recievedMsg = recvMsg(i);
 					Serial.println(recievedMsg);
-					if(listening)
-					{
-						String msg = "hej på dig}";
-						Serial.println(msg.c_str());
-						sendMsg(i, msg.c_str(), msg.length());
-					}
+					String msg = "hej på dig}";
+					Serial.println(msg.c_str());
+					sendMsg(i, msg.c_str(), msg.length());
 				}
 			}
 
