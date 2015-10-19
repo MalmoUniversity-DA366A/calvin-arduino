@@ -22,21 +22,21 @@ EthernetServer testServer(testPort);
 /**
  * Manual IP-configuration
  * Setting up Ethernet connection and multiple servers listening to different ports.
- *
+ * @param MAC-address of the Ethernet-shield and desired IP-address
  */
 
-int HandleSockets::setupConnection(byte *macAdr, IPAddress ipAdr)
+void HandleSockets::setupConnection(byte *macAdr, IPAddress ipAdr)
 {
 	int status = 0;
 	Ethernet.begin(macAdr, ipAdr);
 	testServer.begin();
-	return status;
 }
 
 /**
  * DHCP-request
  * Setting up Ethernet connection and multiple servers listening to different ports.
- *
+ * @param MAC-address of the Ethernet-shield.
+ * @return returns 1 if success, 0 if failed to  IP-address through DHCP
  */
 
 int HandleSockets::setupConnection(byte *macAdr)
@@ -45,7 +45,7 @@ int HandleSockets::setupConnection(byte *macAdr)
 	if (Ethernet.begin(macAdr) == 0)
 	    {
 	        Serial.println("Failed to configure Ethernet using DHCP");
-	        // Set try again if fail:
+	        // try again if fail:
 	        if (Ethernet.begin(macAdr) == 0)
 	        {
 	        	return status;
@@ -60,17 +60,21 @@ int HandleSockets::setupConnection(byte *macAdr)
  * @Param socket, str
  * @return returns 1 if success, 0 if failed
  */
-int HandleSockets::sendMsg(uint8_t socket, const char *str)
+void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 {
 	Serial.println("Sending...");
-	int lengthtOfStr = sizeof(str);
-	uint8_t tempChar[lengthtOfStr];
+	Serial.print("size of sent msg: ");
+	Serial.println(length);
+	/*
+	uint8_t tempChar[length];
 	for(int i = 0; i<lengthtOfStr; i++)
 	{
 		tempChar[i] = str[i];
+
 	}
-	int res = send(socket,(unsigned char*)tempChar, lengthtOfStr);
-	return res;
+	*/
+	send(socket,(unsigned char*)str, length);
+
 }
 
 /**
@@ -138,7 +142,7 @@ void HandleSockets::testLoop()
 
 
 			//if client is disconnected?
-			if(s == SnSR::CLOSE_WAIT) 				//client dissconected waiting for close?
+			if(s == SnSR::CLOSE_WAIT) 				//client disconnected waiting for close?
 			{
 				close(i);            	//close the socket
 				connectStatus[i] = 0;  //connection status for socket  = 0
@@ -157,7 +161,7 @@ void HandleSockets::testLoop()
 			}
 
 			//behver nog inte sparas någonstanns sålänge vi inte kör med flera olika inkommande portar (aka flera servrar)
-			W5100.readSnPORT(i);						// connected sockets incoming port port
+			W5100.readSnPORT(i);						// connected sockets incoming port
 
 
 			//print socket status to terminal
@@ -170,7 +174,6 @@ void HandleSockets::testLoop()
 			Serial.print(F(" "));
 			Serial.print(W5100.readSnPORT(i));        //print the port that the client is connected to
 			Serial.print(" ");
-
 
 			//save the IpAddress in socktIPAdr -- Needed??
 			uint8_t socktIPAdr[4];
@@ -201,7 +204,9 @@ void HandleSockets::testLoop()
 			{
 				String recievedMsg = recvMsg(i);
 				Serial.println(recievedMsg);
-				sendMsg(i,"hej på dig");
+				String msg = "hej på dig}";
+				Serial.println(msg.c_str());
+				sendMsg(i, msg.c_str(), msg.length());
 			}
 
 		} //end i < sock max

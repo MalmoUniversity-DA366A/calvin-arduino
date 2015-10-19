@@ -15,9 +15,9 @@ using namespace std;
 class HandleSockets
 {
 public:
-	int setupConnection(byte *macAdr, IPAddress ipAdr);
+	void setupConnection(byte *macAdr, IPAddress ipAdr);
 	int setupConnection(byte *macAdr);
-	int sendMsg(uint8_t socket, const char *str);
+	void sendMsg(uint8_t socket, const char *str, uint16_t length);
 	String recvMsg(uint8_t socket);
 	void testLoop();
 
