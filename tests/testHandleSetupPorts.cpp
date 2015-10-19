@@ -36,7 +36,7 @@ TEST(SetupPortTest,HandlePorts)
 	StaticJsonBuffer<4096> jsonBuffer;
 	JsonObject &msg = jsonBuffer.parseObject(str.c_str());
 	actorInitTest();
-	// Create two empty JsonObject with an StaticJsonBuffer
+	// Create a empty JsonObject with an StaticJsonBuffer
 	JsonObject &request = jsonBuffer.createObject();
 	mini.handleSetupPorts(msg,request);
 
