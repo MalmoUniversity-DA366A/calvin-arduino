@@ -1,15 +1,16 @@
 #ifndef CALVINDONE_CALVINMINI_H_
 #define CALVINDONE_CALVINMINI_H_
-
-#define MAX_LENGTH 1
 #include <stdio.h>
 #include <string>
 #include "ArduinoJson.h"
-#define standardOut(x)    strlen(x)
-#define ACTOR_SIZE      5
-#define QUEUE_SIZE      10
-#define FIFO_SIZE     8     //Must be a power of two
-#define NUMBER_OF_PORTS     2
+
+#define MAX_LENGTH 									1
+#define standardOut(x)    							strlen(x)
+#define ACTOR_SIZE      							5
+#define QUEUE_SIZE      							10
+#define FIFO_SIZE     								8     //Must be a power of two
+#define NUMBER_OF_PORTS     						2
+#define NUMBER_OF_SUPPORTED_ACTORS					2
 #define RT_ID "calvin-arduino"
 #define tunnel_id "fake-tunnel"
 typedef unsigned char BYTE;
@@ -134,6 +135,7 @@ using namespace std;
 class CalvinMini
 {
 public:
+	CalvinMini(void);
 	/**
 	 * Create an new actor.
 	 * @param msg json list

@@ -29,9 +29,16 @@ const int messageOutLength = 4;
 String messageOut[messageOutLength] = {};
 int nextMessage = 0;
 
+actor actors[NUMBER_OF_SUPPORTED_ACTORS];
+uint8_t activeActors = 0;
+
 actor globalActor;
 fifo actorFifo;
 uint32_t sequenceNbr = 0;
+
+CalvinMini::CalvinMini(){
+	activeActors = 0;
+}
 
 int8_t StdOut(){
   uint8_t inFifo;
@@ -71,7 +78,6 @@ int8_t actorCount()
 extern "C"{
 rStatus actorInit(){
   rStatus allOk = FAIL;
-#ifdef ARDUINO
   if(!strcmp(globalActor.type.c_str(),"io.StandardOut"))
   {
 	  globalActor.fireActor = &StdOut;
@@ -79,9 +85,6 @@ rStatus actorInit(){
   {
 	  globalActor.fireActor = &actorCount;
   }
-#else
-  globalActor.fireActor = &StdOut;
-#endif
   /*This sets up the fifo for the actor, not sure
    *if it should be done here but for now it works*/
  globalActor.inportsFifo[0] = &actorFifo;
@@ -106,17 +109,24 @@ rStatus actorInitTest(){
 
 rStatus CalvinMini::createActor(JsonObject &msg){
   rStatus allOk = FAIL;
+  actor newActor;
+  int temp;
+  temp = activeActors;
+  if(activeActors < NUMBER_OF_SUPPORTED_ACTORS)
+  {
+	  actors[activeActors] = newActor;
+	  ++activeActors;
+  }else
+  {
+	  return FAIL;
+  }
+
   JsonObject &state = msg.get("state");
   JsonObject &name = state.get("actor_state");
-#ifdef ARDUINO
   globalActor.type = state.get("actor_type").asString();
-#else
-  globalActor.type = state.get("actor_type");
-#endif
   globalActor.name = name.get("name");
   globalActor.id = name.get("id");
   globalActor.count = (uint32_t)name.get("count");
-
   allOk = SUCCESS;
   actorInit();
   return allOk;

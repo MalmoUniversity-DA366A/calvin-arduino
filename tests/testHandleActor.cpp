@@ -20,7 +20,7 @@ class HandleTest : public ::testing::Test {
 
 TEST(HandleTest,TestCreateActor){
 	const char* test;
-	CalvinMini mini;
+	CalvinMini *mini = new CalvinMini;
 	StaticJsonBuffer<4000> jsonBuffer;
 	JsonObject &msg = jsonBuffer.createObject();
 
@@ -35,7 +35,7 @@ TEST(HandleTest,TestCreateActor){
 	name.set("name","Jsper");
 	state.set("name",name);
 	msg.set("state", state);
-	mini.createActor(msg);
+	mini->createActor(msg);
 
 
 	EXPECT_STREQ("Jsper",name.get("name"));
@@ -45,6 +45,7 @@ TEST(HandleTest,TestCreateActor){
 	EXPECT_STREQ("stdOut",test);
 	test = name1.get("id");
 	EXPECT_STREQ("1337",test);
+	delete mini;
 
 }
 
