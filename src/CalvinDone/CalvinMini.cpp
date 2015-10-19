@@ -284,9 +284,9 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
   request.set("to_rt_uuid",msg.get("from_rt_uuid"));
   request.set("port_id", port_id);
   request.set("peer_port_id", peer_port_id);
-  request.set("peer_actor_id", NULL);
-  request.set("peer_port_name", NULL);
-  request.set("peer_port_dir", NULL);
+  request.set("peer_actor_id", 0);
+  request.set("peer_port_name", 0);
+  request.set("peer_port_dir", 0);
   request.set("tunnel_id", tunnel_id);
   request.set("cmd", "PORT_CONNECT");
   globalActor.peer_port_id = peer_port_id;
@@ -440,7 +440,7 @@ int CalvinMini::sendMsg(const char *str, uint32_t length)
   server.write(hex,4);
   server.write(str);
 #endif
-  if(length == (hex[2]*256 + hex[3]))
+  if(length == (uint32_t)(hex[2]*256 + hex[3]))
     return 1;
   else
     return 0;
