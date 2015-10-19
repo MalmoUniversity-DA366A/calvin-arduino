@@ -18,6 +18,11 @@ IPAddress testIp(192,168,0,10);
 uint16_t testPort = 5002;
 EthernetServer testServer(testPort);
 
+uint8_t socketConnectionList[MAX_NBR_OF_SOCKETS]= {255, 255, 255, 255};
+String messagesIn[MAX_NBR_OF_SOCKETS];
+const uint8_t messagesOutLenght = MAX_NBR_OF_SOCKETS*NBR_OF_OUTGOING_MSG;
+String messagesOut[messagesOutLenght];
+
 
 /**
  * Manual IP-configuration
@@ -27,7 +32,6 @@ EthernetServer testServer(testPort);
 
 void HandleSockets::setupConnection(byte *macAdr, IPAddress ipAdr)
 {
-	int status = 0;
 	Ethernet.begin(macAdr, ipAdr);
 	testServer.begin();
 }
@@ -68,6 +72,17 @@ void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 	send(socket,(unsigned char*)str, length);
 }
 
+void HandleSockets::sendAllMsg()
+{
+	uint8_t socketNbr = 0;
+	for(int j = 0; j < messagesOutLenght; j++)
+		{
+			socketNbr = j/NBR_OF_OUTGOING_MSG;
+			sendMsg(socketNbr, messagesOut[j].c_str(), messagesOut[j].length());
+		}
+
+}
+
 /**
  * Receives a message from a specific socket
  * @Param socket
@@ -88,7 +103,7 @@ String HandleSockets::recvMsg(uint8_t socket)
   Serial.println(sizeOfMsg);
   //-----------------------------
   //read all incoming data one by one
-  for(int i = 0;i < sizeOfMsg;i++)
+  for(int i = 0; i < sizeOfMsg; i++)
   {
       int size = recv(socket,tempBuff, MAX_LENGTH);
       if(size == 0 || size == -1)
@@ -113,10 +128,35 @@ String HandleSockets::recvMsg(uint8_t socket)
   return str;
 }
 
+/**
+ * Loops through all sockets to see if anything is to be read.
+ * If data was recieved the message is stored in to messagesIn array
+ */
+void HandleSockets::recvAllMsg()
+{
+	for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
+	{
+		if(socketConnectionList[i] != 255)
+		{
+			messagesIn[i] = recvMsg(socketConnectionList[i]);
+			//String recievedMsg = recvMsg(socketConnectionList[i]);
+			Serial.print(i);
+			Serial.print(":   ");
+			Serial.println(messagesIn[i]);
+			String msg = "hej på dig}";
+			Serial.println(msg.c_str());
+			sendMsg(i, msg.c_str(), msg.length());
+		}
+		else {
+			messagesIn[i] = "_$EMPTY$_";
+		}
+	}
+}
+
 void HandleSockets::testLoop()
 {
-	uint8_t socketStat[MAX_SOCK_NUM];
-	uint8_t connectStatus[MAX_SOCK_NUM];
+	uint8_t socketStat[MAX_NBR_OF_SOCKETS];
+	uint8_t connectStatus[MAX_NBR_OF_SOCKETS] = {0, 0, 0, 0};
 
 	setupConnection(testMac, testIp);
 	Serial.println(Ethernet.localIP());					//print local IP
@@ -126,7 +166,7 @@ void HandleSockets::testLoop()
 	{
 		byte listening = 0;
 		//loop through all sockets
-		for (int i = 0; i < MAX_SOCK_NUM; i++)
+		for (int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
 		{
 			uint8_t s = W5100.readSnSR(i);                  //socket status
 			socketStat[i] = s;
@@ -135,9 +175,13 @@ void HandleSockets::testLoop()
 			//check connection status of socket:
 			switch(s)
 			{
+				case(SnSR::CLOSED):						//socket closed/available
+					socketConnectionList[i] = 255;
+					break;
 				case(SnSR::CLOSE_WAIT):
 					close(i);            	//close the socket
 					connectStatus[i] = 0;  //connection status for socket  = 0
+					socketConnectionList[i] = 255;
 					break;
 				case(SnSR::LISTEN):
 					listening = 1;      //waiting for connection?
@@ -146,13 +190,14 @@ void HandleSockets::testLoop()
 						if(connectStatus[i] == 0)
 						{
 							connectStatus[i] = 1;                   //connectionStatus for socket = 1  --  behövs kankse inte?
+							socketConnectionList[i] = i;
 							//lägg till socket i listan för inkommande anslutningar
 						}
 					break;
 				default:
 					break;
 			}
-
+			//-------------------------------------------------------------------------------------------
 			//print socket status to terminal
 			Serial.print(F(" :0x"));
 			if(s < 16)
@@ -182,33 +227,25 @@ void HandleSockets::testLoop()
 			Serial.print(W5100.readSnDPORT(i));
 			Serial.print(") ");
 			Serial.println();
-
-			//check if there is anyone trying to send
-			if(W5100.getRXReceivedSize(i) > 0)
-			{
-				if ( s == SnSR::LISTEN || s == SnSR::CLOSED || s == SnSR::CLOSE_WAIT )
-				{
-					//nothing to read
-				}
-				else if(socketIPAdr[0] != 0  && SnSR::ESTABLISHED)	//If IPAdresss doesn't start with 0
-				{
-					String recievedMsg = recvMsg(i);
-					Serial.println(recievedMsg);
-					String msg = "hej på dig}";
-					Serial.println(msg.c_str());
-					sendMsg(i, msg.c_str(), msg.length());
-				}
-			}
+			//--------------------------------------------------------------------------------------------------------------
 
 		} //end i < sock max
+		//read incoming messages and save in messagesIn
+		recvAllMsg();
 
+		sendAllMsg();
+	/*	for(int j = 0; j < messagesOutLenght; j++)
+		{
+
+			sendMsg((uint8_t)(j/NBR_OF_OUTGOING_MSG), messagesOut[j].c_str(), messagesOut[j].length());
+		}
+*/
 		Serial.println();
 
-		//VAD GÖR DETTA???
 		if(!listening)
 		{
 		    Serial.println("Not listening");
-		    for(int i = 0;i < MAX_SOCK_NUM; i++)
+		    for(int i = 0;i < MAX_NBR_OF_SOCKETS; i++)
 		    {
 		    	if(socketStat[i] == 0)
 		    	{
