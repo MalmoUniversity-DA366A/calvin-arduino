@@ -30,7 +30,7 @@ String messageOut[messageOutLength] = {};
 int nextMessage = 0;
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
 uint8_t activeActors = 0;
-actor globalActor;
+
 fifo actorFifo;
 uint32_t sequenceNbr = 0;
 
@@ -79,17 +79,15 @@ rStatus actorInit(actor *inputActor){
   fifo actorFifo;
   if(!strcmp(inputActor->type.c_str(),"io.StandardOut"))
   {
-	  inputActor->fireActor = &actorStdOut;
+	  inputActor->fire = &actorStdOut;
   }else
   {
-	  inputActor->fireActor = &actorCount;
+	  inputActor->fire = &actorCount;
   }
   /*This sets up the fifo for the actor, not sure
    *if it should be done here but for now it works*/
   inputActor->inportsFifo[0] = actorFifo;
- //globalActor.inportsFifo[0] = &actorFifo;
   allOk = initFifo(&actorFifo);
-  //globalActor.inportsFifo[0] = &actorFifo;
 
   return allOk;
 }
@@ -97,7 +95,7 @@ rStatus actorInitTest(){
 	rStatus allOk = FAIL;
 
 
-	//inputActor->fireActor = &StdOut;
+	//inputActor->fire = &StdOut;
 	/*This sets up the fifo for the actor, not sure
 	 *if it should be done here but for now it works*/
 	//allOk = initFifo(&actorFifo);
@@ -199,7 +197,7 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
-  request.set("data", fifoPop(&globalActor.inportsFifo[0]));
+  request.set("data", fifoPop(&actors[0].inportsFifo[0]));
 	request.set("type", "Token");
 
 	reply.set("sequencenbr", sequenceNbr);
@@ -207,8 +205,8 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 
 	reply.set("token", request);
 	reply.set("cmd", "TOKEN");
-	reply.set("port_id", globalActor.port_id);
-	reply.set("peer_port_id", globalActor.peer_port_id);
+	reply.set("port_id", actors[0].port_id);
+	reply.set("peer_port_id", actors[0].peer_port_id);
 }
 
 void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request)
@@ -286,8 +284,8 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
   request.set("peer_port_dir", 0);
   request.set("tunnel_id", tunnel_id);
   request.set("cmd", "PORT_CONNECT");
-  globalActor.peer_port_id = peer_port_id;
-  globalActor.port_id = port_id;
+  actors[0].peer_port_id = peer_port_id;
+  actors[0].port_id = port_id;
 }
 
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
@@ -360,7 +358,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   else if(!strcmp(msg.get("cmd"),"REPLY"))
   {
       //if(!strcmp(value.get("reply"),"ACK") && !strcmp(globalActor.type.c_str(),"std.Counter"))
-      if(!strcmp(globalActor.type.c_str(),"std.Counter"))
+      if(!strcmp(actors[0].type.c_str(),"std.Counter"))
       {
         handleTunnelData(msg, reply, request);
         reply.printTo(replyTemp,2048);
@@ -492,7 +490,7 @@ void CalvinMini::getIPFromRouter()
 void CalvinMini::loop()
 {
   lcdOut.write("Hello Calvin");
-  globalActor.fireActor = &actorStdOut;
+  globalActor.fire = &actorStdOut;
   setupServer();
   while(1)
   {
@@ -514,7 +512,7 @@ void CalvinMini::loop()
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
-          globalActor.fireActor(&actors[0]);
+          actors[0].fire(&actors[0]);
 
           // 6: Read outgoing message
           for(int i = 0;i < nextMessage;i++)

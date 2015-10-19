@@ -25,6 +25,16 @@ typedef enum{
   FAIL
 }rStatus;
 
+/*
+ * These are actor types used to keep
+ * track of different actors in the global
+ * actor array.
+ */
+typedef enum{
+	STD_ACTOR,
+	COUNT_ACTOR
+}actorType;
+
 /**
  * This is the buffert for a actor. To use an actors port fifo
  * a buffert struct must be created and assigned to the actor
@@ -57,7 +67,7 @@ typedef struct actors{
   String peer_port_id;
   String port_id;
   uint32_t count;
-  int8_t (*fireActor)(struct actors*);
+  int8_t (*fire)(struct actors*);
   struct buffert inportsFifo[NUMBER_OF_PORTS];
   struct buffert outportsFifo[NUMBER_OF_PORTS];
 }actor;
