@@ -31,9 +31,9 @@ TEST(testStdOut, testStandardOut)
     JsonObject &reply = jsonBuffer.createObject();
     JsonObject &request = jsonBuffer.createObject();
 
-    mini.handleMsg(msg, reply, request);
+    int size = mini.handleMsg(msg, reply, request);
     JsonObject &actor_state = msg["state"]["actor_state"];
-
+    EXPECT_EQ(size,2);
     // Test if actor_type stdOut is triggered
     EXPECT_STREQ("io.StandardOut", msg["state"]["actor_type"]);
 
@@ -44,6 +44,21 @@ TEST(testStdOut, testStandardOut)
     // Test if PORT_CONNECT is returned cmd
     // which it should be after an actor migrate
     EXPECT_STREQ("PORT_CONNECT", request["cmd"]);
-}
 
+}
+TEST(testStdOut, testTunnel)
+{
+    CalvinMini mini;
+    String str = "{\"to_rt_uuid\": \"calvin-arduino\", \"from_rt_uuid\": \"cf44176a-4e54-4afc-9fc9-af3bbd00b68d\","
+            "\"cmd\": \"TUNNEL_DATA\", \"value\": {\"sequencenbr\": 101, \"token\": {\"data\": 5253, \"type\": \"Token\"}, "
+            "\"cmd\": \"TOKEN\", \"port_id\": \"9b78c08e-89d0-47e8-b991-7a85b60fcec8\", \"peer_port_id\": \"c06f556d-3b60-4b08-8f28-de35fa4f99bf\"}, \"tunnel_id\": \"fake-tunnel\"}";
+
+    StaticJsonBuffer<4096> jsonBuffer;
+    JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+    JsonObject &reply = jsonBuffer.createObject();
+    JsonObject &request = jsonBuffer.createObject();
+
+    int size = mini.handleMsg(msg, reply, request);
+    EXPECT_EQ(size,1);
+}
 #endif

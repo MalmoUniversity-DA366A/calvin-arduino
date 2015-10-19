@@ -237,15 +237,27 @@ public:
    * Reply message to calvin base
    * @param str char pointer of String
    * @param length size of String
+   * @return uint8_t Check if length is transformed right
    */
-  int sendMsg(const char *str, uint32_t length);
+  uint8_t sendMsg(const char *str, uint32_t length);
 
   /**
    * Adds messages to a global array and
    * creates the array size for sending
    * @param reply String
+   * @return uint8_t Number of Messages
    */
-  void addToMessageOut(String reply);
+  uint8_t addToMessageOut(String reply);
+
+  /**
+   * Creates an outmessage to Calvin base
+   * @param reply JsonObject
+   * @param request JsonObject
+   * @param moreThanOneMsg Returns two messages if 1
+   * @return uint8_t Number of Messages
+   */
+  uint8_t packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg);
+
 #ifdef ARDUINO
   /**
    * Prints the IP-address assigned to the Ethernet shield.

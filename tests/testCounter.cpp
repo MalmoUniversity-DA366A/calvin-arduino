@@ -32,9 +32,9 @@ TEST(testCounter, testReceiveCounter)
     JsonObject &reply = jsonBuffer.createObject();
     JsonObject &request = jsonBuffer.createObject();
 
-    mini.handleMsg(msg, reply, request);
+    int8_t size = mini.handleMsg(msg, reply, request);
     JsonObject &actor_state = msg["state"]["actor_state"];
-
+    EXPECT_EQ(size,2);
     // Test if actor_type Counter is triggered
     EXPECT_STREQ("std.Counter", msg["state"]["actor_type"]);
 
