@@ -57,7 +57,7 @@ int HandleSockets::setupConnection(byte *macAdr)
 
 /**
  * Sends a message to a specific socket
- * @Param socket, str
+ * @Param socket, message to send, length of the message
  * @return returns 1 if success, 0 if failed
  */
 void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
@@ -65,16 +65,7 @@ void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 	Serial.println("Sending...");
 	Serial.print("size of sent msg: ");
 	Serial.println(length);
-	/*
-	uint8_t tempChar[length];
-	for(int i = 0; i<lengthtOfStr; i++)
-	{
-		tempChar[i] = str[i];
-
-	}
-	*/
 	send(socket,(unsigned char*)str, length);
-
 }
 
 /**
@@ -92,8 +83,10 @@ String HandleSockets::recvMsg(uint8_t socket)
   int found = 0;
 
   sizeOfMsg = recvAvailable(socket);			//Receive length of incoming message
+  //--------utskrifter----------
   Serial.print("SIZE of message:   ");
   Serial.println(sizeOfMsg);
+  //-----------------------------
   //read all incoming data one by one
   for(int i = 0;i < sizeOfMsg;i++)
   {
@@ -124,7 +117,7 @@ void HandleSockets::testLoop()
 {
 	uint8_t socketStat[MAX_SOCK_NUM];
 	uint8_t connectStatus[MAX_SOCK_NUM];
-	uint8_t listening = 0;
+	uint8_t socketList[MAX_SOCK_NUM];
 
 	setupConnection(testMac, testIp);
 	Serial.println(Ethernet.localIP());					//print local IP
@@ -132,6 +125,7 @@ void HandleSockets::testLoop()
 
 	while(1)
 	{
+		byte listening = 0;
 		//loop through all sockets
 		for (int i = 0; i < MAX_SOCK_NUM; i++)
 		{
@@ -139,8 +133,28 @@ void HandleSockets::testLoop()
 			socketStat[i] = s;
 			//print socket number
 			Serial.print(i);
+			//check connection status of socket:
+			switch(s)
+			{
+				case(SnSR::CLOSE_WAIT):
+					close(i);            	//close the socket
+					connectStatus[i] = 0;  //connection status for socket  = 0
+					break;
+				case(SnSR::LISTEN):
+					listening = 1;      //waiting for connection?
+					break;
+				case(SnSR::ESTABLISHED):
+						if(connectStatus[i] == 0)
+						{
+							connectStatus[i] = 1;                   //connectionStatus for socket = 1  --  behövs kankse inte?
+							//lägg till socket i listan för inkommande anslutningar
+						}
+					break;
+				default:
+					break;
+			}
 
-
+			/*
 			//if client is disconnected?
 			if(s == SnSR::CLOSE_WAIT) 				//client disconnected waiting for close?
 			{
@@ -159,10 +173,7 @@ void HandleSockets::testLoop()
 				connectStatus[i] = 1;                   //connectionStatus for socket = 1  --  behövs kankse inte?
 				//lägg till socket i listan för inkommande anslutningar
 			}
-
-			//behver nog inte sparas någonstanns sålänge vi inte kör med flera olika inkommande portar (aka flera servrar)
-			W5100.readSnPORT(i);						// connected sockets incoming port
-
+			 */
 
 			//print socket status to terminal
 			Serial.print(F(" :0x"));
@@ -194,22 +205,28 @@ void HandleSockets::testLoop()
 			Serial.print(") ");
 			Serial.println();
 
-
 			//check if there is anyone trying to send
-			if ( s == SnSR::LISTEN || s == SnSR::CLOSED || s == SnSR::CLOSE_WAIT )
+			if(W5100.getRXReceivedSize(i) > 0)
 			{
-				//nothing to read
-			}
-			else if(socktIPAdr[0] != 0 )	//If IPAdresss doesn't start with 0
-			{
-				String recievedMsg = recvMsg(i);
-				Serial.println(recievedMsg);
-				String msg = "hej på dig}";
-				Serial.println(msg.c_str());
-				sendMsg(i, msg.c_str(), msg.length());
+				if ( s == SnSR::LISTEN || s == SnSR::CLOSED || s == SnSR::CLOSE_WAIT )
+				{
+					//nothing to read
+				}
+				else if(socktIPAdr[0] != 0 )	//If IPAdresss doesn't start with 0
+				{
+					String recievedMsg = recvMsg(i);
+					Serial.println(recievedMsg);
+					if(listening)
+					{
+						String msg = "hej på dig}";
+						Serial.println(msg.c_str());
+						sendMsg(i, msg.c_str(), msg.length());
+					}
+				}
 			}
 
 		} //end i < sock max
+
 		Serial.println();
 
 		//VAD GÖR DETTA???
