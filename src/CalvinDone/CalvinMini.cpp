@@ -27,7 +27,7 @@ LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
 
 const int messageOutLength = 4;
 String messageOut[messageOutLength] = {};
-int nextMessage = 0;
+uint8_t nextMessage = 0;
 
 actor globalActor;
 fifo actorFifo;
@@ -369,7 +369,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 
 uint8_t CalvinMini::packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg)
 {
-#ifdef _Mock_
+#ifdef _MOCK_
   nextMessage = 0;
 #endif
   char replyTemp[2048] = {};

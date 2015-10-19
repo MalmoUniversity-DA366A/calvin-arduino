@@ -31,14 +31,17 @@ TEST(testStdOut, testStandardOut)
     JsonObject &reply = jsonBuffer.createObject();
     JsonObject &request = jsonBuffer.createObject();
 
-    int size = mini.handleMsg(msg, reply, request);
+    int8_t size = mini.handleMsg(msg, reply, request);
     JsonObject &actor_state = msg["state"]["actor_state"];
+
+    // Test if number of outgoing messages is 2
     EXPECT_EQ(size,2);
+
     // Test if actor_type stdOut is triggered
     EXPECT_STREQ("io.StandardOut", msg["state"]["actor_type"]);
 
-    // Test if actor_state is store tokens
-    // which should be false when actor is stdOut
+    // Test if actor_state contains store tokens
+    // which should be true when actor is stdOut
     EXPECT_TRUE(actor_state.containsKey("store_tokens"));
 
     // Test if PORT_CONNECT is returned cmd
@@ -58,7 +61,9 @@ TEST(testStdOut, testTunnel)
     JsonObject &reply = jsonBuffer.createObject();
     JsonObject &request = jsonBuffer.createObject();
 
-    int size = mini.handleMsg(msg, reply, request);
+    int8_t size = mini.handleMsg(msg, reply, request);
+
+    // Test if number of outgoing messages is 2
     EXPECT_EQ(size,1);
 }
 #endif
