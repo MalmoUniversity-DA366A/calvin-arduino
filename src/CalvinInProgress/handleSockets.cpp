@@ -21,9 +21,9 @@ EthernetServer testServer(testPort);
 uint8_t socketStat[MAX_NBR_OF_SOCKETS];
 uint8_t connectStatus[MAX_NBR_OF_SOCKETS] = {0, 0, 0, 0};
 
-uint8_t socketConnectionList[MAX_NBR_OF_SOCKETS]= {255, 255, 255, 255};
+uint8_t socketConnectionList[MAX_NBR_OF_SOCKETS]= {SOCKET_NOT_CONNECTED, SOCKET_NOT_CONNECTED, SOCKET_NOT_CONNECTED, SOCKET_NOT_CONNECTED};
 String messagesIn[MAX_NBR_OF_SOCKETS];
-const uint8_t messagesOutLenght = MAX_NBR_OF_SOCKETS*NBR_OF_OUTGOING_MSG;
+const uint8_t messagesOutLenght = MAX_NBR_OF_SOCKETS*NBR_OF_OUTGOING_MSG;		//to keep track of the maximum amount of outgoing messages
 String messagesOut[messagesOutLenght];
 
 
@@ -79,15 +79,18 @@ void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
  * Sends all outgoing messages stored in messagesOut[] to corresponding socket.
  * the socket is determined by dividing the counter variable j by the number of outgoing messages each socket can have.
  * Since socketNbr is an uint8_t all decimal numbers from the division will be removed hence only 0 through 3 will be a valid outcome.
- *
+ * If message is determined as empty nothing is sent.
  */
 void HandleSockets::sendAllMsg()
 {
 	uint8_t socketNbr = 0;
 	for(int j = 0; j < messagesOutLenght; j++)
 	{
-		socketNbr = j/NBR_OF_OUTGOING_MSG;
-		sendMsg(socketNbr, messagesOut[j].c_str(), messagesOut[j].length());
+		if(strncmp("_$EMPTY$_", messagesOut[j],9 ))						//anything to send?
+		{
+			socketNbr = j/NBR_OF_OUTGOING_MSG;
+			sendMsg(socketNbr, messagesOut[j].c_str(), messagesOut[j].length());
+		}
 	}
 }
 
@@ -138,16 +141,16 @@ String HandleSockets::recvMsg(uint8_t socket)
 
 /**
  * Loops through all sockets to see if anything is to be read.
- * If data was recieved the message is stored in to messagesIn array
+ * If data was received the message is stored in to messagesIn array.
+ * If no data found specific string to determine this is added to the corresponding index.
  */
 void HandleSockets::recvAllMsg()
 {
 	for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
 	{
-		if(socketConnectionList[i] != 255)
+		if(socketConnectionList[i] != SOCKET_NOT_CONNECTED)
 		{
 			messagesIn[i] = recvMsg(socketConnectionList[i]);
-			//String recievedMsg = recvMsg(socketConnectionList[i]);
 			Serial.print(i);
 			Serial.print(":   ");
 			Serial.println(messagesIn[i]);
@@ -177,25 +180,25 @@ void HandleSockets::determineSocketStatus()
 		uint8_t s = W5100.readSnSR(i);                  //socket status
 		socketStat[i] = s;
 		Serial.print(i);								//print socket number
-		//check connection status of socket:
+		//determine connection status of socket:
 		switch(s)
 		{
-			case(SnSR::CLOSED):							// socket closed/available
-				socketConnectionList[i] = 255;
+			case(SnSR::CLOSED):											// socket closed/available
+				socketConnectionList[i] = SOCKET_NOT_CONNECTED;			// remove from list
 				break;
-			case(SnSR::CLOSE_WAIT):						// waiting for close?
-				close(i);            					// close the socket
+			case(SnSR::CLOSE_WAIT):										// waiting for close?
+				close(i);            									// close the socket
 				connectStatus[i] = 0;
-				socketConnectionList[i] = 255;
+				socketConnectionList[i] = SOCKET_NOT_CONNECTED;
 				break;
-			case(SnSR::LISTEN):							// listening?
+			case(SnSR::LISTEN):											// listening?
 				listening = 1;
 				break;
-			case(SnSR::ESTABLISHED):					// connected?
+			case(SnSR::ESTABLISHED):									// connected?
 				if(connectStatus[i] == 0)
 				{
 					connectStatus[i] = 1;
-					socketConnectionList[i] = i;
+					socketConnectionList[i] = i;						// add to list
 				}
 				break;
 			default:
