@@ -495,7 +495,6 @@ void CalvinMini::loop()
 {
 	lcdOut.write("Hello Calvin");
 	globalActor.fireActor = &StdOut;
-	//setupServer();
 	socketHandler.setupConnection(mac, ip);
 	socketHandler.prepareMessagesOut();
 	delay(500);
@@ -523,19 +522,14 @@ void CalvinMini::loop()
 
 		// 5: Fire Actors
 		globalActor.fireActor();
-		// 6: Read outgoing message
-	  /*
-	  for(int i = 0;i < nextMessage;i++)
-	  {
-		  // 7: Send outgoing message
-		  sendMsg(messageOut[i].c_str(),messageOut[i].length());
-		  messageOut[i] = "";
-	  }
-	  nextMessage = 0;
-	  */
-	  socketHandler.sendAllMsg();
 
-	  socketHandler.NextSocket();
-  }
+		// 6: Send outgoing message
+		for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
+		{
+			socketHandler.sendAllMsg(i);
+		}
+
+		socketHandler.NextSocket();
+	}
 }
 #endif

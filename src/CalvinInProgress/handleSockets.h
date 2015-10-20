@@ -22,7 +22,7 @@ public:
 	void setupConnection(byte *macAdr, IPAddress ipAdr);
 	int setupConnection(byte *macAdr);
 	void sendMsg(uint8_t socket, const char *str, uint16_t length);
-	void sendAllMsg(void);
+	void sendAllMsg(uint8_t socket);
 	String recvMsg(uint8_t socket);
 	String getMessagesIn(uint8_t index);
 	int addToMessagesOut(String reply, uint8_t socket);

@@ -100,23 +100,36 @@ void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 
 /**
  * Sends all outgoing messages stored in messagesOut[] to corresponding socket.
- * the socket is determined by dividing the counter variable j by the number of outgoing messages each socket can have.
- * Since socketNbr is an uint8_t all decimal numbers from the division will be removed hence only 0 through 3 will be a valid outcome.
- * If message is determined as empty nothing is sent.
+ * @param uint8_t socket
  */
-void HandleSockets::sendAllMsg()
+void HandleSockets::sendAllMsg(uint8_t socket)
 {
-	uint8_t socketNbr = 0;
-	for(int j = 0; j < messagesOutLenght; j++)
+	uint8_t startingPoint = 0;
+	switch(socket)													// determine startingpoint in list
 	{
-		const char* message = messagesOut[j].c_str();
-		if(strncmp(EMPTY_STR, message, 9)!= 0)						//anything to send?
+		case(0):
+				startingPoint = 0;
+				break;
+		case(1):
+				startingPoint = 10;
+				break;
+		case(2):
+				startingPoint = 20;
+				break;
+		case(3):
+				startingPoint = 30;
+				break;
+	}
+	for(int j = 0; j < NBR_OF_OUTGOING_MSG; j++)					// loop all messages
+	{
+		const char* message = messagesOut[startingPoint+j].c_str();
+		if(strncmp(EMPTY_STR, message, 9)!= 0)						// anything to send?
 		{
-			socketNbr = j/NBR_OF_OUTGOING_MSG;
-			sendMsg(socketNbr, messagesOut[j].c_str(), messagesOut[j].length());
+			sendMsg(socket, messagesOut[j].c_str(), messagesOut[startingPoint+j].length());
 			messagesOut[j] = EMPTY_STR;
 		}
 	}
+
 }
 
 /**
@@ -325,7 +338,7 @@ void HandleSockets::testLoop()
 	{
 		determineSocketStatus();
 		recvAllMsg();					//read incoming messages and save in messagesIn
-		sendAllMsg();
+		//sendAllMsg();					//måste ändras för att skcika med socket nummer om man skall använda denna
 		Serial.println();
 		delay(3000);					//3 second delay
 	}	//end While(1)
