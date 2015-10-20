@@ -129,18 +129,14 @@ String HandleSockets::recvMsg(uint8_t socket)
   uint8_t tempBuff[MAX_LENGTH+1] = {};
   char temp[MAX_LENGTH+1] = {};
   String str = "";
-  int sizeOfMsg;
+  int sizeOfMsg= recvAvailable(socket);			//Receive length of incoming message
   int found = 0;
-
-  sizeOfMsg = recvAvailable(socket);			//Receive length of incoming message
-
   //--------utskrifter----------
   Serial.print("SIZE of message:   ");
   Serial.println(sizeOfMsg);
   //-----------------------------
 
-  //read all incoming data one by one
-  for(int i = 0; i < sizeOfMsg; i++)
+  for(int i = 0; i < sizeOfMsg; i++)			//read all incoming data one by one
   {
       int size = recv(socket,tempBuff, MAX_LENGTH);
       if(size == 0 || size == -1)
@@ -256,14 +252,12 @@ void HandleSockets::recvAllMsg()
 void HandleSockets::determineSocketStatus()
 {
 	listening = 0;
-	//loop through all sockets.
-	for (int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
+	for (int i = 0; i < MAX_NBR_OF_SOCKETS; i++)		// loop all sockets
 	{
-		uint8_t s = W5100.readSnSR(i);                  //socket status
+		uint8_t s = W5100.readSnSR(i);                  // socket status
 		socketStat[i] = s;
-		Serial.print(i);								//print socket number
-		//determine connection status of socket:
-		switch(s)
+		Serial.print(i);								// print socket number
+		switch(s)										// determine connection status of socket
 		{
 			case(SnSR::CLOSED):											// socket closed/available
 				socketConnectionList[i] = SOCKET_NOT_CONNECTED;			// remove from list
@@ -288,7 +282,7 @@ void HandleSockets::determineSocketStatus()
 				break;
 		}
 		//--------------------------------------UTSKRIFTER-----------------------------------------------------
-		//print the internal Port
+		//print the Destination Port, only for testing purposes
 		Serial.print("(");
 		Serial.print(W5100.readSnDPORT(i));
 		Serial.print(") ");
@@ -319,6 +313,9 @@ void HandleSockets::NextSocket()
 	}
 }
 
+/**
+ * Used for testing only the handleSockets functions:
+ */
 void HandleSockets::testLoop()
 {
 	setupConnection(testMac, testIp);

@@ -493,43 +493,37 @@ void CalvinMini::getIPFromRouter()
 
 void CalvinMini::loop()
 {
-  lcdOut.write("Hello Calvin");
-  globalActor.fireActor = &StdOut;
-  //setupServer();
-  socketHandler.setupConnection(mac, ip);
-  socketHandler.prepareMessagesOut();
-  delay(500);
-  while(1)
-  {
-      // 1: Check connected sockets
-      //client = server.available();
-      socketHandler.determineSocketStatus();
-      // 3: Read message
-      socketHandler.recvAllMsg();
-
-	  lcdOut.clear();
-	  // 3: Read message
-	  //String str = recvMsg();
-	  for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
-	  {
-		const char* message = socketHandler.getMessagesIn(i).c_str();
-		if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
+	lcdOut.write("Hello Calvin");
+	globalActor.fireActor = &StdOut;
+	//setupServer();
+	socketHandler.setupConnection(mac, ip);
+	socketHandler.prepareMessagesOut();
+	delay(500);
+	while(1)
+	{
+		// 1: Check connected sockets
+		socketHandler.determineSocketStatus();
+		// 3: Read message
+		socketHandler.recvAllMsg();
+		lcdOut.clear();
+		// 4: Handle message
+		for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
 		{
-			String str = socketHandler.getMessagesIn(i);
-			StaticJsonBuffer<4096> jsonBuffer;
-			JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-			JsonObject &reply = jsonBuffer.createObject();
-			JsonObject &request = jsonBuffer.createObject();
-
-			// 4: Handle message
-			handleMsg(msg, reply, request, i);
+			const char* message = socketHandler.getMessagesIn(i).c_str();
+			if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
+			{
+				String str = socketHandler.getMessagesIn(i);
+				StaticJsonBuffer<4096> jsonBuffer;
+				JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+				JsonObject &reply = jsonBuffer.createObject();
+				JsonObject &request = jsonBuffer.createObject();
+				handleMsg(msg, reply, request, i);
+			}
 		}
-	  }
 
-	  // 5: Fire Actors
-	  globalActor.fireActor();
-
-	  // 6: Read outgoing message
+		// 5: Fire Actors
+		globalActor.fireActor();
+		// 6: Read outgoing message
 	  /*
 	  for(int i = 0;i < nextMessage;i++)
 	  {
