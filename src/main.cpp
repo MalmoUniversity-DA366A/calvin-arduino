@@ -17,7 +17,7 @@
 #include "CalvinDone/CalvinMini.h"
 #include "blinkLED.h"
 #include "uart.h"
-
+#include "CalvinInProgress/handleSockets.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
@@ -54,8 +54,12 @@ int main(void) {
 
 	init_board();
 	Serial.begin(115200);
+	/*
 	CalvinMini mini;
 	mini.loop();
+	*/
+	HandleSockets socketTest;
+	socketTest.testLoop();
 }
 #else
 
