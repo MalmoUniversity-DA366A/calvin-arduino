@@ -18,6 +18,7 @@ IPAddress testIp(192,168,0,10);
 uint16_t testPort = 5002;
 EthernetServer testServer(testPort);
 
+
 uint8_t socketStat[MAX_NBR_OF_SOCKETS];
 uint8_t connectStatus[MAX_NBR_OF_SOCKETS] = {0, 0, 0, 0};
 
@@ -25,6 +26,11 @@ uint8_t socketConnectionList[MAX_NBR_OF_SOCKETS]= {SOCKET_NOT_CONNECTED, SOCKET_
 String messagesIn[MAX_NBR_OF_SOCKETS];
 const uint8_t messagesOutLenght = MAX_NBR_OF_SOCKETS*NBR_OF_OUTGOING_MSG;		//to keep track of the maximum amount of outgoing messages
 String messagesOut[messagesOutLenght];
+int socket0count = 0;
+int socket1count = 0;
+int socket2count = 0;
+int socket3count = 0;
+byte listening = 0;
 
 
 /**
@@ -62,6 +68,14 @@ int HandleSockets::setupConnection(byte *macAdr)
 	return status;
 }
 
+void HandleSockets::prepareMessagesOut()
+{
+	for(int j = 0; j < messagesOutLenght; j++)
+		{
+		messagesOut[j] = EMPTY_STR;
+		}
+}
+
 /**
  * Sends a message to a specific socket.
  * @Param uint8_t socket, const char* message to send, uint16_t length of the message
@@ -72,6 +86,14 @@ void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 	Serial.println("Sending...");
 	Serial.print("size of sent msg: ");
 	Serial.println(length);
+
+	BYTE hex[4] = {};
+	hex[0] = (length & 0xFF000000);
+	hex[1] = (length & 0x00FF0000);
+	hex[2] = (length & 0x0000FF00) / 0x000000FF;
+	hex[3] = (length & 0x000000FF);
+	send(socket,(unsigned char*)hex, 4);
+
 	send(socket,(unsigned char*)str, length);
 }
 
@@ -86,10 +108,12 @@ void HandleSockets::sendAllMsg()
 	uint8_t socketNbr = 0;
 	for(int j = 0; j < messagesOutLenght; j++)
 	{
-		if(strncmp("_$EMPTY$_", messagesOut[j],9 ))						//anything to send?
+		const char* message = messagesOut[j].c_str();
+		if(strncmp(EMPTY_STR, message, 9)!= 0)						//anything to send?
 		{
 			socketNbr = j/NBR_OF_OUTGOING_MSG;
 			sendMsg(socketNbr, messagesOut[j].c_str(), messagesOut[j].length());
+			messagesOut[j] = EMPTY_STR;
 		}
 	}
 }
@@ -140,6 +164,60 @@ String HandleSockets::recvMsg(uint8_t socket)
 }
 
 /**
+ * Returns the message stored in index
+ */
+String HandleSockets::getMessagesIn(uint8_t index)
+{
+	String reply;
+	if(index < MAX_NBR_OF_SOCKETS)
+	{
+		reply = messagesIn[index];
+	}
+	return reply;
+}
+
+int HandleSockets::addToMessagesOut(String reply, uint8_t socket)
+{
+	int rply = 0;
+	switch(socket)
+	{
+	case(0):
+			if(socket0count<10)
+			{
+				messagesOut[socket0count] = reply;
+				socket0count = socket0count+1;
+				rply = socket0count;
+			}
+			break;
+	case(1):
+			if(socket1count<10)
+			{
+				messagesOut[10+socket1count] = reply;
+				socket1count = socket1count+1;
+				rply = socket1count;
+			}
+			break;
+	case(2):
+			if(socket2count<10)
+			{
+				messagesOut[20+socket2count] = reply;
+				socket2count = socket2count+1;
+				rply = socket2count;
+			}
+			break;
+	case(3):
+			if(socket3count<10)
+			{
+				messagesOut[30+socket3count] = reply;
+				socket3count = socket3count+1;
+				rply = socket3count;
+			}
+			break;
+	}
+	return rply;
+}
+
+/**
  * Loops through all sockets to see if anything is to be read.
  * If data was received the message is stored in to messagesIn array.
  * If no data found specific string to determine this is added to the corresponding index.
@@ -152,11 +230,6 @@ void HandleSockets::recvAllMsg()
 		{
 			messagesIn[i] = recvMsg(socketConnectionList[i]);
 			Serial.print(i);
-			Serial.print(":   ");
-			Serial.println(messagesIn[i]);
-			String msg = "hej på dig}";
-			Serial.println(msg.c_str());
-			sendMsg(i, msg.c_str(), msg.length());
 		}
 		else {
 			messagesIn[i] = "_$EMPTY$_";
@@ -173,7 +246,7 @@ void HandleSockets::recvAllMsg()
  */
 void HandleSockets::determineSocketStatus()
 {
-	byte listening = 0;
+	listening = 0;
 	//loop through all sockets.
 	for (int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
 	{
@@ -206,30 +279,6 @@ void HandleSockets::determineSocketStatus()
 				break;
 		}
 		//--------------------------------------UTSKRIFTER-----------------------------------------------------
-		//print socket status to terminal
-		Serial.print(F(" :0x"));
-		if(s < 16)
-		{
-			Serial.print(F("0"));
-		}
-		Serial.print(s,HEX);
-		Serial.print(F(" "));
-		Serial.print(W5100.readSnPORT(i));        //print the port that the client is connected to
-		Serial.print(" ");
-
-		//save the IpAddress in socktIPAdr -- Needed??
-		uint8_t socketIPAdr[4];
-		W5100.readSnDIPR(i, socketIPAdr);					//stores IPAddress in socktIPAdr
-		for (int j=0; j<4; j++)
-		{
-		  Serial.print(socketIPAdr[j],10);
-		  if (j<3)
-		  {
-			  Serial.print(".");
-		  }
-		}
-
-		//skall sparas någonstans för att särskilja vem som är vem??
 		//print the internal Port
 		Serial.print("(");
 		Serial.print(W5100.readSnDPORT(i));
@@ -238,7 +287,10 @@ void HandleSockets::determineSocketStatus()
 		//--------------------------------------------------------------------------------------------------------------
 
 	} //end i < sock max
+}
 
+void HandleSockets::NextSocket()
+{
 	//determine next socket to listen to
 	if(!listening)
 	{

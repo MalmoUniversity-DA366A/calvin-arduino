@@ -54,12 +54,13 @@ int main(void) {
 
 	init_board();
 	Serial.begin(115200);
-	/*
+
 	CalvinMini mini;
 	mini.loop();
-	*/
+	/*
 	HandleSockets socketTest;
 	socketTest.testLoop();
+	*/
 }
 #else
 

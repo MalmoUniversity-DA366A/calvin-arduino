@@ -170,7 +170,7 @@ public:
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
    * @param request is the JsonObject that is the nested JsonObject in the reply
    */
-  void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request);
+  void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket);
 
   /**
    * This function is used to determine the length of FIFO
@@ -183,7 +183,7 @@ public:
    * @param msg JsonObject
    * @param reply JsonObject
    */
-  void handleJoin(JsonObject &msg, JsonObject &reply);
+  void handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket);
 
   /**
    * Method for setting up a tunnel using JSON message back to Calvin-Base,
@@ -201,7 +201,7 @@ public:
    *
    * Author: Jesper Hansen
    */
-  void handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request);
+  void handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request, uint8_t socket);
 
   /**
    * Handle all different messages
@@ -209,7 +209,7 @@ public:
    * @param reply JsonObject
    * @param request JsonObject
    */
-  int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request);
+  int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket);
 
   /**
    * The main loop for Calvin Arduino
@@ -221,7 +221,7 @@ public:
    * @param msg is the JsonObject that is message from Calvin-Base
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
    */
-  void handleActorNew(JsonObject &msg, JsonObject &reply);
+  void handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t socket);
 
   /**
    * Setup ports. The current version of calvin arduino only uses
@@ -231,7 +231,7 @@ public:
    * @param reply Calvin base reply list
    * @param request Calvin base reply list
    */
-  void handleSetupPorts(JsonObject &msg,JsonObject &request);
+  void handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket);
 
   /**
    * Reply message to calvin base
@@ -247,7 +247,7 @@ public:
    * @param reply String
    * @return uint8_t Number of Messages
    */
-  uint8_t addToMessageOut(String reply);
+  uint8_t addToMessageOut(String reply, uint8_t socket);
 
   /**
    * Creates an outmessage to Calvin base
@@ -256,7 +256,7 @@ public:
    * @param moreThanOneMsg Returns two messages if 1
    * @return uint8_t Number of Messages
    */
-  uint8_t packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg);
+  uint8_t packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg, uint8_t socket);
 
 #ifdef ARDUINO
   /**

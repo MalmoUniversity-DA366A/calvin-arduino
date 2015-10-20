@@ -13,6 +13,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <LiquidCrystal.h>
+#include "../CalvinInProgress/handleSockets.h"
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
@@ -22,6 +23,7 @@ uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
 LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
+HandleSockets socketHandler;
 #endif
 
 const int messageOutLength = 4;
@@ -189,7 +191,7 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
   }
 }
 
-void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request)
+void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket)
 {
   request.set("data", fifoPop(globalActor.inportsFifo[0]));
 	request.set("type", "Token");
@@ -203,7 +205,7 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 	reply.set("peer_port_id", globalActor.peer_port_id);
 }
 
-void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request)
+void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request, uint8_t socket)
 {
   JsonObject &value = msg.get("value");
   StaticJsonBuffer<200> jsonBuffer;
@@ -225,17 +227,17 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
   else if(!strcmp(value.get("cmd"), "TOKEN"))
   {
 #ifdef ARDUINO
-      handleMsg(value,reply,request);
+      handleMsg(value,reply,request, socket);
 #endif
   }
   else
   {
-      sendToken(value, request, token);
+      sendToken(value, request, token, socket);
   }
   reply.set("value", request);
 }
 
-void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
+void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t socket)
 {
   createActor(msg);
 
@@ -246,7 +248,7 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
   reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
 }
 
-void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
+void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket)
 {
   JsonObject &inports = msg["state"]["prev_connections"]["inports"];
   JsonObject &outports = msg["state"]["prev_connections"]["outports"];
@@ -282,7 +284,7 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
   globalActor.port_id = port_id;
 }
 
-int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
+int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket)
 {
   char replyTemp[2048] = {};
   if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
@@ -290,11 +292,11 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       // JsonObject for replying a join request
       StaticJsonBuffer<200> jsonBuffer;
       JsonObject &policy = jsonBuffer.createObject();
-      handleJoin(msg,reply);
+      handleJoin(msg,reply, socket);
       handleSetupTunnel(msg, request, policy);
       uint8_t moreThanOneMsg = 1;
       // Print JsonObject and send to Calvin
-      uint8_t size = packMsg(reply, request, moreThanOneMsg);
+      uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
       #ifdef ARDUINO
       lcdOut.clear();
       lcdOut.write("JOIN_REQUEST");
@@ -303,11 +305,11 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
-      handleActorNew(msg, reply);
-      handleSetupPorts(msg,request);
+      handleActorNew(msg, reply, socket);
+      handleSetupPorts(msg, request, socket);
 
       uint8_t moreThanOneMsg = 1;
-      uint8_t size = packMsg(reply, request, moreThanOneMsg);
+      uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
       #ifdef ARDUINO
       lcdOut.clear();
       lcdOut.write("ACTOR_NEW");
@@ -316,10 +318,10 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
-      handleTunnelData(msg, reply, request);
+      handleTunnelData(msg, reply, request, socket);
 
       uint8_t moreThanOneMsg = 0;
-      uint8_t size = packMsg(reply, request, moreThanOneMsg);
+      uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
       return size;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
@@ -341,9 +343,9 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       //if(!strcmp(value.get("reply"),"ACK") && !strcmp(globalActor.type.c_str(),"std.Counter"))
       if(!strcmp(globalActor.type.c_str(),"std.Counter"))
       {
-        handleTunnelData(msg, reply, request);
+        handleTunnelData(msg, reply, request, socket);
         uint8_t moreThanOneMsg = 0;
-        uint8_t size = packMsg(reply, request, moreThanOneMsg);
+        uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
         return size;
       }
       /*JsonObject &value = msg["value"];
@@ -366,7 +368,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
 }
 
-uint8_t CalvinMini::packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg)
+uint8_t CalvinMini::packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg, uint8_t socket)
 {
 #ifdef _MOCK_
   nextMessage = 0;
@@ -374,20 +376,21 @@ uint8_t CalvinMini::packMsg(JsonObject &reply, JsonObject &request, uint8_t more
   char replyTemp[2048] = {};
   reply.printTo(replyTemp,2048);
   String str(replyTemp);
-  uint8_t size = addToMessageOut(str);
+  uint8_t size = addToMessageOut(str, socket);
   if(moreThanOneMsg)
   {
       char requestTemp[2048] = {};
       request.printTo(requestTemp,2048);
       String str2(requestTemp);
-      size = addToMessageOut(str2);
+      size = addToMessageOut(str2, socket);
   }
   return size;
 }
 
-uint8_t CalvinMini::addToMessageOut(String reply)
+uint8_t CalvinMini::addToMessageOut(String reply, uint8_t socket)
 {
-  messageOut[nextMessage] = reply;
+ // messageOut[nextMessage] = reply;
+  socketHandler.addToMessagesOut(reply, socket);
   if(nextMessage < messageOutLength)
     nextMessage = nextMessage+1;
   return nextMessage;
@@ -442,7 +445,7 @@ uint8_t CalvinMini::sendMsg(const char *str, uint32_t length)
     return 0;
 }
 
-void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply)
+void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket)
 {
   reply["cmd"] = "JOIN_REPLY";
   reply["id"] = RT_ID;
@@ -492,38 +495,53 @@ void CalvinMini::loop()
 {
   lcdOut.write("Hello Calvin");
   globalActor.fireActor = &StdOut;
-  setupServer();
+  //setupServer();
+  socketHandler.setupConnection(mac, ip);
+  socketHandler.prepareMessagesOut();
+  delay(500);
   while(1)
   {
       // 1: Check connected sockets
-      client = server.available();
-      // 2: Fix connection
-      if(client) // Wait for client
-      {
-    	  lcdOut.clear();
-          // 3: Read message
-          String str = recvMsg();
+      //client = server.available();
+      socketHandler.determineSocketStatus();
+      // 3: Read message
+      socketHandler.recvAllMsg();
 
-          StaticJsonBuffer<4096> jsonBuffer;
-          JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-          JsonObject &reply = jsonBuffer.createObject();
-          JsonObject &request = jsonBuffer.createObject();
+	  lcdOut.clear();
+	  // 3: Read message
+	  //String str = recvMsg();
+	  for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
+	  {
+		const char* message = socketHandler.getMessagesIn(i).c_str();
+		if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
+		{
+			String str = socketHandler.getMessagesIn(i);
+			StaticJsonBuffer<4096> jsonBuffer;
+			JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+			JsonObject &reply = jsonBuffer.createObject();
+			JsonObject &request = jsonBuffer.createObject();
 
-          // 4: Handle message
-          handleMsg(msg, reply, request);
+			// 4: Handle message
+			handleMsg(msg, reply, request, i);
+		}
+	  }
 
-          // 5: Fire Actors
-          globalActor.fireActor();
+	  // 5: Fire Actors
+	  globalActor.fireActor();
 
-          // 6: Read outgoing message
-          for(int i = 0;i < nextMessage;i++)
-          {
-              // 7: Send outgoing message
-              sendMsg(messageOut[i].c_str(),messageOut[i].length());
-              messageOut[i] = "";
-          }
-          nextMessage = 0;
-      }
+	  // 6: Read outgoing message
+	  /*
+	  for(int i = 0;i < nextMessage;i++)
+	  {
+		  // 7: Send outgoing message
+		  sendMsg(messageOut[i].c_str(),messageOut[i].length());
+		  messageOut[i] = "";
+	  }
+	  nextMessage = 0;
+	  */
+	  socketHandler.sendAllMsg();
+
+	  socketHandler.NextSocket();
   }
 }
 #endif
