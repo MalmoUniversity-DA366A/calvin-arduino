@@ -23,6 +23,7 @@ public:
 	void sendAllMsg(void);
 	String recvMsg(uint8_t socket);
 	void recvAllMsg(void);
+	void determineSocketStatus(void);
 	void testLoop();
 
 };
