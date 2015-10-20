@@ -107,24 +107,42 @@ rStatus actorInitTest(){
 
 rStatus CalvinMini::createActor(JsonObject &msg){
   rStatus allOk = FAIL;
+  actorType type;
   actor newActor;
-  if(activeActors < NUMBER_OF_SUPPORTED_ACTORS)
+
+  JsonObject &state = msg.get("state");
+  JsonObject &name = state.get("actor_state");
+  newActor.type = state.get("actor_type").asString();
+  newActor.name = name.get("name");
+  newActor.id = name.get("id");
+  newActor.count = (uint32_t)name.get("count");
+  type = getActorType(&newActor);
+  if( (activeActors < NUMBER_OF_SUPPORTED_ACTORS) && (type != UNKNOWN_ACTOR))
   {
-	  actors[activeActors] = newActor;
+	  actors[type] = newActor;
   }else
   {
 	  return FAIL;
   }
-
-  JsonObject &state = msg.get("state");
-  JsonObject &name = state.get("actor_state");
-  actors[activeActors].type = state.get("actor_type").asString();
-  actors[activeActors].name = name.get("name");
-  actors[activeActors].id = name.get("id");
-  actors[activeActors].count = (uint32_t)name.get("count");
+  actorInit(&actors[type]);
   allOk = SUCCESS;
-  actorInit(&actors[activeActors]);
   return allOk;
+}
+
+actorType CalvinMini::getActorType(actor *inputActor)
+{
+	actorType ret;
+	if(!strcmp(inputActor->type.c_str(),"io.StandardOut"))
+	{
+		ret = STD_ACTOR;
+	}else if(!strcmp(inputActor->type.c_str(),"std.Counter"))
+	{
+		ret = COUNT_ACTOR;
+	}else
+	{
+		ret = UNKNOWN_ACTOR;
+	}
+	return ret;
 }
 
 extern "C"{
@@ -197,7 +215,7 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
-  request.set("data", fifoPop(&actors[0].inportsFifo[0]));
+    request.set("data", fifoPop(&actors[0].inportsFifo[0]));
 	request.set("type", "Token");
 
 	reply.set("sequencenbr", sequenceNbr);
@@ -490,7 +508,7 @@ void CalvinMini::getIPFromRouter()
 void CalvinMini::loop()
 {
   lcdOut.write("Hello Calvin");
-  globalActor.fire = &actorStdOut;
+  actors[0].fire = &actorStdOut;
   setupServer();
   while(1)
   {

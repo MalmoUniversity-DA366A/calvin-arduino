@@ -22,6 +22,7 @@ class ActorTest : public ::testing::Test {
  * Testing the actor struct.
  */
 
+
 TEST(ActorTest,structTest)
 {
   actor newActor;
@@ -32,11 +33,11 @@ TEST(ActorTest,structTest)
   newActor.name = "Hej";
   newActor.id = "1";
 
-  /*Test inport fifo*/
+  //Test inport fifo
   newActor.inportsFifo[0] = actorFifo;
   EXPECT_EQ(0,fifoAdd(&newActor.inportsFifo[0],555));
   EXPECT_EQ(555,fifoPop(&newActor.inportsFifo[0]));
-  /*Test outportfifo*/
+  //Test outportfifo
   newActor.outportsFifo[0] = actorFifo;
   EXPECT_EQ(0,fifoAdd(&newActor.inportsFifo[0],666));
   EXPECT_EQ(666,fifoPop(&newActor.inportsFifo[0]));
@@ -46,6 +47,7 @@ TEST(ActorTest,structTest)
   EXPECT_EQ("1",newActor.id);
 
 }
+
 
 TEST(ActorTest,Struct){
 
@@ -75,6 +77,24 @@ TEST(ActorTest,createActor)
   JsonObject &root = jsonBuffer.parseObject(str2.c_str());
   EXPECT_EQ(SUCCESS,actorstd->createActor(root));
   delete actorstd;
+}
+
+TEST(ActorTest,actorTypeTest){
+	CalvinMini *actorstd = new CalvinMini;
+	StaticJsonBuffer<4096> jsonBuffer;
+	String validActorType = "{\"to_rt_uuid\": \"calvin-miniscule\", \"from_rt_uuid\": \"422828ae-02c1-4d2f-9837-43a32fb6decb\""
+	                 	 	 ", \"state\": {\"prev_connections\": {\"actor_name\": \"test3:src\", \"inports\": {}, \"actor_id\": \"6bc4b467-a2d2-4254-ad84-bf918231c68e\""
+	                 	 	 ", \"outports\": {\"f4822772-bca4-465c-8109-a1e7a960e304\": [[\"422828ae-02c1-4d2f-9837-43a32fb6decb\", \"98f7f8ad-f4d3-44ae-9228-728a54c2fee3\"]]}}"
+							 ", \"actor_type\": \"std.Counster\", \"actor_state\": {\"count\": 117, \"name\": \"test3:src\", \"inports\": {}, \"_managed\": [\"count\", \"id\", \"name\"]"
+							 ", \"outports\": {\"integer\": {\"fanout\": 1, \"name\": \"integer\", \"fifo\": {\"write_pos\": 117, \"readers\": [\"98f7f8ad-f4d3-44ae-9228-728a54c2fee3\"]"
+	                 	 	 ", \"fifo\": [{\"data\": 116, \"type\": \"Token\"}, {\"data\": 117, \"type\": \"Token\"}, {\"data\": 113, \"type\": \"Token\"}"
+							 ", {\"data\": 114, \"type\": \"Token\"}, {\"data\": 115, \"type\": \"Token\"}], \"N\": 5, \"tentative_read_pos\": {\"98f7f8ad-f4d3-44ae-9228-728a54c2fee3\": 113}"
+	                 	 	 ", \"read_pos\": {\"98f7f8ad-f4d3-44ae-9228-7228a54c2fee3\": 113}}, \"id\": \"f4822772-bca4-465c-8109-a1e7a960e304\"}}"
+	                  	  	 ", \"id\": \"6bc4b467-a2d2-4254-ad84-bf918231c68e\"}}, \"cmd\": \"AdCTOR\", \"msg_uuid\": \"fd71b46d-0e44-4298-9bb3-61aa0420bc45\"}";
+
+	JsonObject &root = jsonBuffer.parseObject(validActorType.c_str());
+	EXPECT_EQ(FAIL,actorstd->createActor(root));
+	delete actorstd;
 }
 
 //This test does not work with current actor implementation

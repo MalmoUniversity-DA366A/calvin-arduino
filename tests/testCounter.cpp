@@ -47,4 +47,22 @@ TEST(testCounter, testReceiveCounter)
     EXPECT_STREQ("PORT_CONNECT", request["cmd"]);
 }
 
+TEST(testCounter,testCounting){
+	CalvinMini mini;
+	actor testActor;
+	fifo testFifo;
+	initFifo(&testFifo);
+	testActor.inportsFifo[0] = testFifo;
+	testActor.count = 0;
+	EXPECT_EQ(0,testActor.count);
+	actorCount(&testActor);
+	EXPECT_EQ(1,testActor.count);
+
+	testActor.count = 0;
+	for(int i = 0; i < 10000; i++){
+		actorCount(&testActor);
+	}
+	EXPECT_EQ(10000,testActor.count);
+}
+
 #endif

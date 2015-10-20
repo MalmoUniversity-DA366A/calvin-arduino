@@ -32,7 +32,8 @@ typedef enum{
  */
 typedef enum{
 	STD_ACTOR,
-	COUNT_ACTOR
+	COUNT_ACTOR,
+	UNKNOWN_ACTOR
 }actorType;
 
 /**
@@ -258,6 +259,12 @@ public:
    * @param reply String
    */
   void addToMessageOut(String reply);
+
+  /**
+   *
+   */
+  actorType getActorType(actor *);
+
 #ifdef ARDUINO
   /**
    * Prints the IP-address assigned to the Ethernet shield.
@@ -279,6 +286,8 @@ public:
    * @return String
    */
   String recvMsg(void);
+
+
 #endif
 };
 
