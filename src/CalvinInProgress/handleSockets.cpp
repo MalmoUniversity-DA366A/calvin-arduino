@@ -68,6 +68,9 @@ int HandleSockets::setupConnection(byte *macAdr)
 	return status;
 }
 
+/**
+ * Makes sure messagesOut properly filled with empty strings.
+ */
 void HandleSockets::prepareMessagesOut()
 {
 	for(int j = 0; j < messagesOutLenght; j++)
@@ -125,7 +128,6 @@ void HandleSockets::sendAllMsg()
  */
 String HandleSockets::recvMsg(uint8_t socket)
 {
-  Serial.println("\nReading...");
   uint8_t tempBuff[MAX_LENGTH+1] = {};
   char temp[MAX_LENGTH+1] = {};
   String str = "";
@@ -133,10 +135,12 @@ String HandleSockets::recvMsg(uint8_t socket)
   int found = 0;
 
   sizeOfMsg = recvAvailable(socket);			//Receive length of incoming message
+
   //--------utskrifter----------
   Serial.print("SIZE of message:   ");
   Serial.println(sizeOfMsg);
   //-----------------------------
+
   //read all incoming data one by one
   for(int i = 0; i < sizeOfMsg; i++)
   {
@@ -164,18 +168,25 @@ String HandleSockets::recvMsg(uint8_t socket)
 }
 
 /**
- * Returns the message stored in index
+ * Returns the message stored in messagesIn on msgIndex
+ * @param uint8_t msgIndex
+ * @return String message
  */
-String HandleSockets::getMessagesIn(uint8_t index)
+String HandleSockets::getMessagesIn(uint8_t msgIndex)
 {
 	String reply;
-	if(index < MAX_NBR_OF_SOCKETS)
+	if(msgIndex < MAX_NBR_OF_SOCKETS)
 	{
-		reply = messagesIn[index];
+		reply = messagesIn[msgIndex];
 	}
 	return reply;
 }
 
+/**
+ * Adds message to outgoing message list.
+ * @param String reply, uint8_t socket
+ * @return int the next place to store outgoing message
+ */
 int HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 {
 	int rply = 0;
@@ -289,6 +300,9 @@ void HandleSockets::determineSocketStatus()
 	} //end i < sock max
 }
 
+/**
+ * Controls which port to listen on next on order to add another socket once available.
+ */
 void HandleSockets::NextSocket()
 {
 	//determine next socket to listen to
