@@ -38,7 +38,6 @@ byte listening = 0;
  * Setting up Ethernet connection and multiple servers listening to different ports.
  * @param byte* MAC-address of the Ethernet-shield, IPAddress desired IP-address
  */
-
 void HandleSockets::setupConnection(byte *macAdr, IPAddress ipAdr)
 {
 	Ethernet.begin(macAdr, ipAdr);
@@ -51,7 +50,6 @@ void HandleSockets::setupConnection(byte *macAdr, IPAddress ipAdr)
  * @param byte* MAC-address of the Ethernet-shield.
  * @return returns 1 if success, 0 if failed to  IP-address through DHCP
  */
-
 int HandleSockets::setupConnection(byte *macAdr)
 {
 	int status = 0;
@@ -302,10 +300,10 @@ void HandleSockets::determineSocketStatus()
 
 /**
  * Controls which port to listen on next on order to add another socket once available.
+ * Simply chooses the next available socket number.
  */
 void HandleSockets::NextSocket()
 {
-	//determine next socket to listen to
 	if(!listening)
 	{
 		Serial.println("Not listening");
@@ -326,17 +324,12 @@ void HandleSockets::testLoop()
 	setupConnection(testMac, testIp);
 	Serial.println(Ethernet.localIP());					//print local IP
 	delay(500);											//wait 0.5 seconds
-
 	while(1)
 	{
 		determineSocketStatus();
-
 		recvAllMsg();					//read incoming messages and save in messagesIn
-
 		sendAllMsg();
-
 		Serial.println();
-
 		delay(3000);					//3 second delay
 	}	//end While(1)
 
