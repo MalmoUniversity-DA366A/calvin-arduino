@@ -53,16 +53,19 @@ TEST(testCounter,testCounting){
 	fifo testFifo;
 	initFifo(&testFifo);
 	testActor.inportsFifo[0] = testFifo;
+	fifoPop(&testActor.inportsFifo[0]);
 	testActor.count = 0;
 	EXPECT_EQ(0,testActor.count);
-	actorCount(&testActor);
+	EXPECT_EQ(0,actorCount(&testActor));
 	EXPECT_EQ(1,testActor.count);
-
+	fifoPop(&testActor.inportsFifo[0]);
 	testActor.count = 0;
-	for(int i = 0; i < 10000; i++){
+	for(int i = 0; i < 1000; i++){
 		actorCount(&testActor);
+		EXPECT_EQ(i+1,fifoPop(&testActor.inportsFifo[0]));
 	}
-	EXPECT_EQ(10000,testActor.count);
+	EXPECT_EQ(1000,testActor.count);
+
 }
 
 #endif
