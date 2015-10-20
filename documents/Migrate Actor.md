@@ -1,6 +1,6 @@
-###Migrate Actor
+##Migrate Actor
 
-**Terminal commands**
+###Terminal commands
 
 -   source \~/.virtualenvs/test-calvin/bin/activate (activate Calvin
     virtual enviroment)
@@ -21,6 +21,10 @@
 -   cscontrol http://localhost:5001 deploy &lt;scriptname.calvin&gt;
 
 -   Start a new command window and repeat step 1
+
+-   cscontrol http://localhost:5001 actor list (list all active actors)
+
+-   cscontrol http://localhost:5001 actor info &lt;actor-id&gt; (info about actor)
 
 -   cscontrol http://localhost:5001 actor migrate
     &lt;actor-id&gt; &lt;arduino-id&gt;

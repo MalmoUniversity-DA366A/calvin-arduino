@@ -3,8 +3,8 @@
 
 #define MAX_LENGTH 1
 #include <stdio.h>
-#include <string>
-#include "ArduinoJson.h"
+#include <ArduinoJson.h>
+#include <IPAddress.h>
 #define standardOut(x)    strlen(x)
 #define ACTOR_SIZE      5
 #define QUEUE_SIZE      10
@@ -24,12 +24,6 @@ typedef enum{
   FAIL
 }rStatus;
 
-/**
- * This is the buffert for a actor. To use an actors port fifo
- * a buffert struct must be created and assigned to the actor
- * port fifo. Before this fifo can be used it must be initiated
- * by the initFifo function.
- */
 typedef struct buffert{
   uint32_t element[FIFO_SIZE];
   int size;
@@ -37,24 +31,11 @@ typedef struct buffert{
   int write;
 }fifo;
 
-/**
- * This struct contains actor data. References to the actors
- * fifo is stored in a array of pointers to fifo bufferts.
- * The actor can have multiple fifos on outports and inports,
- * in order to use the they must first be assigned a buffert
- * reference. To execute an actor the actor fire function must
- * be called. Prior to this a reference to the fire function must
- * assigned to the actor. This depends on the actor type.
- * Currently supported actors are:
- * io.actorStandardOut
- * io.actorCounter
- */
 typedef struct actors{
-  String type;
+  const char* type;
   const char* name;
   const char* id;
-  String peer_port_id;
-  String port_id;
+  const char* fifo;
   uint32_t count;
   int8_t (*fireActor)();
   struct buffert *inportsFifo[NUMBER_OF_PORTS];
@@ -115,18 +96,18 @@ int8_t lengthOfData(fifo*);
  *  well thats the only way i could ad a function pointer to a strut,
  *  Apparently c++ handles this different from c.
  */
-rStatus actorInit();
+rStatus actorInit(actor*);
 rStatus actorInitTest();
 
 /**
  * Current standard out is the lcd screen connected to arduino due
  */
-int8_t StdOut();
+int8_t StdOut(void);
 
 /**
  * Increment the count each time the actor fires
  */
-int8_t actorCount();
+rStatus actorCount(actor *inputActor);
 
 }
 
@@ -160,17 +141,6 @@ public:
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
    */
   void handleToken(JsonObject &msg, JsonObject &reply);
-
-  /**
-   * Function for set values to Json reply. Json reply sends back to Calvin-Base when the
-   * request message from Calvin-Base is "TOKEN_REPLY", and when Calvin-Base also sends an
-   * ACK that indicates that Calvin-Base is ready to receive a new Token. Replys "value" contains an JsonObject
-   * that holds the keyword "TOKEN" and the the data at the first position on the FIFO back to Calvin-Base.
-   * @param msg is JsonObject that is the message from Calvin-Base
-   * @param reply is the JsonObject with the reply message from Calvin-Arduino
-   * @param request is the JsonObject that is the nested JsonObject in the reply
-   */
-  void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request);
 
   /**
    * This function is used to determine the length of FIFO
@@ -237,27 +207,15 @@ public:
    * Reply message to calvin base
    * @param str char pointer of String
    * @param length size of String
-   * @return uint8_t Check if length is transformed right
    */
-  uint8_t sendMsg(const char *str, uint32_t length);
+  int sendMsg(const char *str, uint32_t length);
 
   /**
    * Adds messages to a global array and
    * creates the array size for sending
    * @param reply String
-   * @return uint8_t Number of Messages
    */
-  uint8_t addToMessageOut(String reply);
-
-  /**
-   * Creates an outmessage to Calvin base
-   * @param reply JsonObject
-   * @param request JsonObject
-   * @param moreThanOneMsg Returns two messages if 1
-   * @return uint8_t Number of Messages
-   */
-  uint8_t packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg);
-
+  void addToMessageOut(String reply);
 #ifdef ARDUINO
   /**
    * Prints the IP-address assigned to the Ethernet shield.
@@ -267,12 +225,12 @@ public:
   /**
    * Assign an IP-address to the Ethernet shield.
    */
-  void getIPFromRouter(void);
+  int setupServer(uint8_t* macAdr);
 
   /**
    * Start a server connection
    */
-  void setupServer(void);
+  void setupServer(uint8_t* macAdr, IPAddress ipAdr);
 
   /**
    * Receive message from calvin base
