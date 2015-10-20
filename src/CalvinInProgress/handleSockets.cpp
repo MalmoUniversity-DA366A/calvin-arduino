@@ -5,7 +5,6 @@
  *      Author: Andreas
  */
 
-
 #include <SPI.h>
 #include <Ethernet.h>
 #include "handleSockets.h"
@@ -17,7 +16,6 @@ IPAddress testIp(192,168,0,10);
 
 uint16_t testPort = 5002;
 EthernetServer testServer(testPort);
-
 
 uint8_t socketStat[MAX_NBR_OF_SOCKETS];
 uint8_t connectStatus[MAX_NBR_OF_SOCKETS] = {0, 0, 0, 0};
@@ -72,9 +70,9 @@ int HandleSockets::setupConnection(byte *macAdr)
 void HandleSockets::prepareMessagesOut()
 {
 	for(int j = 0; j < messagesOutLenght; j++)
-		{
+	{
 		messagesOut[j] = EMPTY_STR;
-		}
+	}
 }
 
 /**
@@ -93,9 +91,8 @@ void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 	hex[1] = (length & 0x00FF0000);
 	hex[2] = (length & 0x0000FF00) / 0x000000FF;
 	hex[3] = (length & 0x000000FF);
-	send(socket,(unsigned char*)hex, 4);
-
-	send(socket,(unsigned char*)str, length);
+	send(socket,(unsigned char*)hex, 4);						// send length of message
+	send(socket,(unsigned char*)str, length);					// send actual message
 }
 
 /**
@@ -105,7 +102,7 @@ void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 void HandleSockets::sendAllMsg(uint8_t socket)
 {
 	uint8_t startingPoint = 0;
-	switch(socket)													// determine startingpoint in list
+	switch(socket)													// determine starting point in list
 	{
 		case(0):
 				startingPoint = 0;
