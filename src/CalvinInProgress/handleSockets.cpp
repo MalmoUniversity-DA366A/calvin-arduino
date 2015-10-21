@@ -35,7 +35,7 @@ uint8_t messageCounters[MAX_NBR_OF_SOCKETS] = {0, 0, 0, 0};
 
 /**
  * Manual IP-configuration
- * Setting up Ethernet connection and multiple servers listening to different ports.
+ * Setting up Ethernet connection and Ethernet server listening on specified port.
  * @param byte* MAC-address of the Ethernet-shield, IPAddress desired IP-address
  */
 void HandleSockets::setupConnection(byte *macAdr, IPAddress ipAdr)
@@ -46,7 +46,7 @@ void HandleSockets::setupConnection(byte *macAdr, IPAddress ipAdr)
 
 /**
  * DHCP-request
- * Setting up Ethernet connection and multiple servers listening to different ports.
+ * Setting up Ethernet connection and Ethernet server listening on specified port.
  * If first attempt fails, try another time before quitting.
  * @param byte* MAC-address of the Ethernet-shield.
  * @return returns 1 if success, 0 if failed to  IP-address through DHCP
