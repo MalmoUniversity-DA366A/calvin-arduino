@@ -388,10 +388,7 @@ uint8_t CalvinMini::packMsg(JsonObject &reply, JsonObject &request, uint8_t more
 
 uint8_t CalvinMini::addToMessageOut(String reply, uint8_t socket)
 {
- // messageOut[nextMessage] = reply;
-  socketHandler.addToMessagesOut(reply, socket);
-  if(nextMessage < messageOutLength)
-    nextMessage = nextMessage+1;
+  nextMessage = socketHandler.addToMessagesOut(reply, socket);
   return nextMessage;
 }
 
@@ -504,7 +501,7 @@ void CalvinMini::loop()
 		socketHandler.determineSocketStatus();
 		// 3: Read message
 		socketHandler.recvAllMsg();
-		lcdOut.clear();
+
 		// 4: Handle message
 		for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
 		{

@@ -25,7 +25,7 @@ public:
 	void sendAllMsg(uint8_t socket);
 	String recvMsg(uint8_t socket);
 	String getMessagesIn(uint8_t index);
-	int addToMessagesOut(String reply, uint8_t socket);
+	uint8_t addToMessagesOut(String reply, uint8_t socket);
 	void prepareMessagesOut(void);
 	void recvAllMsg(void);
 	void determineSocketStatus(void);

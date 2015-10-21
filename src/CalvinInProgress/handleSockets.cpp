@@ -82,10 +82,6 @@ void HandleSockets::prepareMessagesOut()
  */
 void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 {
-	Serial.println("Sending...");
-	Serial.print("size of sent msg: ");
-	Serial.println(length);
-
 	BYTE hex[4] = {};
 	hex[0] = (length & 0xFF000000);
 	hex[1] = (length & 0x00FF0000);
@@ -127,8 +123,8 @@ void HandleSockets::sendAllMsg(uint8_t socket)
 		const char* message = messagesOut[startingPoint+j].c_str();
 		if(strncmp(EMPTY_STR, message, 9)!= 0)						// anything to send?
 		{
-			sendMsg(socket, messagesOut[j].c_str(), messagesOut[startingPoint+j].length());
-			messagesOut[j] = EMPTY_STR;
+			sendMsg(socket, messagesOut[startingPoint+j].c_str(), messagesOut[startingPoint+j].length());
+			messagesOut[startingPoint+j] = EMPTY_STR;
 		}
 	}
 
@@ -146,13 +142,6 @@ String HandleSockets::recvMsg(uint8_t socket)
   String str = "";
   int sizeOfMsg= recvAvailable(socket);			//Receive length of incoming message
   int found = 0;
-  //--------utskrifter om medelandet är större än 0----------
-  if(sizeOfMsg > 0)
-  {
-	  Serial.print("SIZE of message:  ");
-	   Serial.println(sizeOfMsg);
-  }
-  //-----------------------------
 
   for(int i = 0; i < sizeOfMsg; i++)			//read all incoming data one by one
   {
@@ -199,7 +188,7 @@ String HandleSockets::getMessagesIn(uint8_t msgIndex)
  * @param String reply, uint8_t socket
  * @return int the next place to store outgoing message
  */
-int HandleSockets::addToMessagesOut(String reply, uint8_t socket)
+uint8_t HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 {
 	int rply = 0;
 	switch(socket)
@@ -293,11 +282,11 @@ void HandleSockets::determineSocketStatus()
 					socketConnectionList[i] = i;						// add to list
 					//--------------------------------------UTSKRIFTER-----------------------------------------------------
 					//print the Destination Port, only for testing purposes
-					Serial.print(i);												// print socket number
+					/*Serial.print(i);												// print socket number
 					Serial.print(" (");
 					Serial.print(W5100.readSnDPORT(i));
 					Serial.print(") ");
-					Serial.println();
+					Serial.println();*/
 					//--------------------------------------------------------------------------------------------------------------
 
 				}
@@ -319,7 +308,6 @@ void HandleSockets::NextSocket()
 {
 	if(!listening)
 	{
-		Serial.println("Not listening");
 		for(int i = 0;i < MAX_NBR_OF_SOCKETS; i++)
 		{
 			if(socketStat[i] == 0)
