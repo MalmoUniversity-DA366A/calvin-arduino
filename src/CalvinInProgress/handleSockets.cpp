@@ -11,24 +11,30 @@
 #include <utility/w5100.h>
 #include <utility/socket.h>
 
+// ------------- This should be set from the sketch: ---------------------
 byte testMac[] = { 0xAA, 0xBB, 0xDA, 0x0E, 0xF5, 0x93 };
 IPAddress testIp(192,168,0,10);
 
 uint16_t testPort = 5002;
 EthernetServer testServer(testPort);
+//------------------------------------------------------------------------
 
+const uint8_t messagesOutLenght = MAX_NBR_OF_SOCKETS*NBR_OF_OUTGOING_MSG;		//to keep track of the maximum amount of outgoing messages
+byte listening = 0;
+
+// Various list for handling sockets, incoming and outgoing messages:
 uint8_t socketStat[MAX_NBR_OF_SOCKETS];
 uint8_t connectStatus[MAX_NBR_OF_SOCKETS] = {0, 0, 0, 0};
-
 uint8_t socketConnectionList[MAX_NBR_OF_SOCKETS]= {SOCKET_NOT_CONNECTED, SOCKET_NOT_CONNECTED, SOCKET_NOT_CONNECTED, SOCKET_NOT_CONNECTED};
 String messagesIn[MAX_NBR_OF_SOCKETS];
-const uint8_t messagesOutLenght = MAX_NBR_OF_SOCKETS*NBR_OF_OUTGOING_MSG;		//to keep track of the maximum amount of outgoing messages
 String messagesOut[messagesOutLenght];
+
+// Message counter for all sockets:
 uint8_t socket0count = 0;
 uint8_t socket1count = 0;
 uint8_t socket2count = 0;
 uint8_t socket3count = 0;
-byte listening = 0;
+
 
 
 /**
@@ -45,6 +51,7 @@ void HandleSockets::setupConnection(byte *macAdr, IPAddress ipAdr)
 /**
  * DHCP-request
  * Setting up Ethernet connection and multiple servers listening to different ports.
+ * If first attempt fails, try another time before quitting.
  * @param byte* MAC-address of the Ethernet-shield.
  * @return returns 1 if success, 0 if failed to  IP-address through DHCP
  */
@@ -53,8 +60,7 @@ int HandleSockets::setupConnection(byte *macAdr)
 	int status = 0;
 	if (Ethernet.begin(macAdr) == 0)
 	    {
-	        // try again if fail:
-	        if (Ethernet.begin(macAdr) == 0)
+	        if (Ethernet.begin(macAdr) == 0)		// try again if fail
 	        {
 	        	Serial.println("Failed to configure Ethernet using DHCP");
 	        	return status;
@@ -127,12 +133,12 @@ void HandleSockets::sendAllMsg(uint8_t socket)
 			messagesOut[startingPoint+j] = EMPTY_STR;
 		}
 	}
-
 }
 
 /**
- * Receives a message from a specific socket
- * @Param socket
+ * Receives a message from a specific socket.
+ * Begins message with a '{' to comply with JSON TCP communication of Calvin Base
+ * @Param uint8_t socket
  * @return returns the string received from socket
  */
 String HandleSockets::recvMsg(uint8_t socket)
@@ -186,11 +192,11 @@ String HandleSockets::getMessagesIn(uint8_t msgIndex)
 /**
  * Adds message to outgoing message list.
  * @param String reply, uint8_t socket
- * @return int the next place to store outgoing message
+ * @return uint8_t the next place to store outgoing message for specified socket
  */
 uint8_t HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 {
-	int rply = 0;
+	uint8_t replyNbr = 0;
 	switch(socket)
 	{
 	case(0):	//socket 0
@@ -198,7 +204,7 @@ uint8_t HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 			{
 				messagesOut[socket0count] = reply;
 				socket0count = socket0count+1;
-				rply = socket0count;
+				replyNbr = socket0count;
 			}
 			break;
 	case(1):	//socket 1
@@ -206,7 +212,7 @@ uint8_t HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 			{
 				messagesOut[10+socket1count] = reply;
 				socket1count = socket1count+1;
-				rply = socket1count;
+				replyNbr = socket1count;
 			}
 			break;
 	case(2):	//socket 2
@@ -214,7 +220,7 @@ uint8_t HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 			{
 				messagesOut[20+socket2count] = reply;
 				socket2count = socket2count+1;
-				rply = socket2count;
+				replyNbr = socket2count;
 			}
 			break;
 	case(3):	//socket 3
@@ -222,11 +228,11 @@ uint8_t HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 			{
 				messagesOut[30+socket3count] = reply;
 				socket3count = socket3count+1;
-				rply = socket3count;
+				replyNbr = socket3count;
 			}
 			break;
 	}
-	return rply;
+	return replyNbr;
 }
 
 /**
@@ -236,13 +242,13 @@ uint8_t HandleSockets::addToMessagesOut(String reply, uint8_t socket)
  */
 void HandleSockets::recvAllMsg()
 {
-	for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
+	for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)					// Loop sockets
 	{
-		if(socketConnectionList[i] != SOCKET_NOT_CONNECTED)
+		if(socketConnectionList[i] != SOCKET_NOT_CONNECTED)		// Connected?
 		{
 			messagesIn[i] = recvMsg(socketConnectionList[i]);
 		}
-		else {
+		else {													// Not connected
 			messagesIn[i] = EMPTY_STR;
 		}
 	}
@@ -280,28 +286,17 @@ void HandleSockets::determineSocketStatus()
 				{
 					connectStatus[i] = 1;
 					socketConnectionList[i] = i;						// add to list
-					//--------------------------------------UTSKRIFTER-----------------------------------------------------
-					//print the Destination Port, only for testing purposes
-					/*Serial.print(i);												// print socket number
-					Serial.print(" (");
-					Serial.print(W5100.readSnDPORT(i));
-					Serial.print(") ");
-					Serial.println();*/
-					//--------------------------------------------------------------------------------------------------------------
-
 				}
 				break;
 			default:
 				//none of the above fulfilled, do nothing here
 				break;
 		}
-
-
 	} //end i < sock max
 }
 
 /**
- * Controls which port to listen on next on order to add another socket once available.
+ * Controls which port to listen on next in order to add another socket once it becomes available.
  * Simply chooses the next available socket number.
  */
 void HandleSockets::NextSocket()
