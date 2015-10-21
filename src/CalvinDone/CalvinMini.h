@@ -263,6 +263,10 @@ public:
    *
    */
   void initActorList();
+  /**
+   *
+   */
+  int8_t getActorPos(const char*,actor *list);
 
   /**
    * Adds messages to a global array and

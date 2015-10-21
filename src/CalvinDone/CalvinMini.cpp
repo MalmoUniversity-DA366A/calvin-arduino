@@ -27,7 +27,7 @@ LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
 const int messageOutLength = 4;
 String messageOut[messageOutLength] = {};
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
-uint8_t activeActors = 0;
+uint8_t activeActors;
 uint8_t nextMessage = 0;
 uint32_t sequenceNbr = 0;
 int TYPE=0;
@@ -61,12 +61,12 @@ int8_t actorCount(actor *inputActor)
 	++(inputActor->count);
 	count = inputActor->count;
 	allOk = fifoAdd(&inputActor->inportsFifo[0],count);
-  sprintf(tokenData,"%d",(uint32_t)count);
+	sprintf(tokenData,"%d",(uint32_t)count);
 #ifdef ARDUINO
-  Serial.println(tokenData);
+	Serial.println(tokenData);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
-  delay(400); // Stable at 300ms
+	delay(400); // Stable at 300ms
 #endif
 
 	return allOk;
@@ -96,7 +96,6 @@ rStatus actorInit(actor *inputActor){
 
 rStatus CalvinMini::createActor(JsonObject &msg){
   rStatus allOk = FAIL;
-  actorType type;
   actor newActor;
 
   JsonObject &state = msg.get("state");
@@ -105,15 +104,15 @@ rStatus CalvinMini::createActor(JsonObject &msg){
   newActor.name = name.get("name");
   newActor.id = name.get("id");
   newActor.count = (uint32_t)name.get("count");
-  type = getActorType(&newActor);
-  if( (activeActors < NUMBER_OF_SUPPORTED_ACTORS) && (type != UNKNOWN_ACTOR))
+  if( (activeActors < NUMBER_OF_SUPPORTED_ACTORS))
   {
-	  actors[type] = newActor;
+	  actors[activeActors] = newActor;
   }else
   {
 	  return FAIL;
   }
-  actorInit(&actors[type]);
+  actorInit(&actors[activeActors]);
+  ++activeActors;
   allOk = SUCCESS;
   return allOk;
 }
@@ -132,6 +131,18 @@ actorType CalvinMini::getActorType(actor *inputActor)
 		ret = UNKNOWN_ACTOR;
 	}
 	return ret;
+}
+
+int8_t CalvinMini::getActorPos(const char* actorName,actor *list)
+{
+	for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)
+	{
+		if(!strcmp(list[i].type.c_str(),actorName))
+		{
+			return i;
+		}
+	}
+	return -1;					//Not found
 }
 
 void CalvinMini::initActorList()
@@ -189,9 +200,10 @@ uint32_t fifoPop(fifo *fif){
 
 rStatus CalvinMini::process(uint32_t token){
   rStatus allOk;
+  int8_t pos;
   allOk = FAIL;
-  //find actor
-  allOk = fifoAdd(&actors[TYPE].inportsFifo[0],token);
+  pos = getActorPos("io.StandardOut",actors);
+  allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
   return allOk;
 }
 
@@ -215,8 +227,12 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
-	//fins actor
-    request.set("data", fifoPop(&actors[TYPE].inportsFifo[0]));
+	int8_t pos;
+	pos = getActorPos("std.Counter",actors);
+#ifdef _MOCK_
+	pos = 0;
+#endif
+    request.set("data", fifoPop(&actors[pos].inportsFifo[0]));
 	request.set("type", "Token");
 
 	reply.set("sequencenbr", sequenceNbr);
@@ -224,8 +240,8 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 
 	reply.set("token", request);
 	reply.set("cmd", "TOKEN");
-	reply.set("port_id", actors[TYPE].port_id);
-	reply.set("peer_port_id", actors[TYPE].peer_port_id);
+	reply.set("port_id", actors[pos].port_id);
+	reply.set("peer_port_id", actors[pos].peer_port_id);
 }
 
 void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request)
@@ -309,6 +325,7 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
 
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
+	int8_t pos;
   char replyTemp[2048] = {};
   if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
   {
@@ -363,7 +380,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"REPLY"))
   {
-      if(!strcmp(actors[TYPE].type.c_str(),"std.Counter"))
+	  pos = getActorPos("std.Counter",actors);
+      if(!strcmp(actors[pos].type.c_str(),"std.Counter"))
       {
         handleTunnelData(msg, reply, request);
         uint8_t moreThanOneMsg = 0;
