@@ -260,6 +260,11 @@ public:
   actorType getActorType(actor *);
 
   /**
+   *
+   */
+  void initActorList();
+
+  /**
    * Adds messages to a global array and
    * creates the array size for sending
    * @param reply String

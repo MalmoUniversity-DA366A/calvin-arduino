@@ -16,8 +16,8 @@
 #include <LiquidCrystal.h>
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,5);
-//IPAddress ip(192,168,1,146);
+//IPAddress ip(192,168,0,5);
+IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
@@ -29,8 +29,6 @@ String messageOut[messageOutLength] = {};
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
 uint8_t activeActors = 0;
 uint8_t nextMessage = 0;
-actor globalActor;
-fifo actorFifo;
 uint32_t sequenceNbr = 0;
 int TYPE=0;
 
@@ -136,6 +134,16 @@ actorType CalvinMini::getActorType(actor *inputActor)
 	return ret;
 }
 
+void CalvinMini::initActorList()
+{
+	for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)
+	{
+		actor emptyActor;
+		emptyActor.type = "empty";
+		actors[i] = emptyActor;
+	}
+}
+
 extern "C"{
 rStatus initFifo(fifo *fif)
 {
@@ -182,6 +190,7 @@ uint32_t fifoPop(fifo *fif){
 rStatus CalvinMini::process(uint32_t token){
   rStatus allOk;
   allOk = FAIL;
+  //find actor
   allOk = fifoAdd(&actors[TYPE].inportsFifo[0],token);
   return allOk;
 }
@@ -206,6 +215,7 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
+	//fins actor
     request.set("data", fifoPop(&actors[TYPE].inportsFifo[0]));
 	request.set("type", "Token");
 
@@ -505,7 +515,8 @@ void CalvinMini::getIPFromRouter()
 void CalvinMini::loop()
 {
   lcdOut.write("Hello Calvin");
-  actors[TYPE].fire = &actorStdOut;
+  //actors[TYPE].fire = &actorStdOut;
+  initActorList();
   setupServer();
   while(1)
   {
@@ -527,8 +538,11 @@ void CalvinMini::loop()
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
-          actors[TYPE].fire(&actors[TYPE]);
-
+          for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)
+          {
+        	  if(strcmp(actors[i].type.c_str(),"empty"))
+        		  actors[i].fire(&actors[i]);
+          }
           // 6: Read outgoing message
           for(int i = 0;i < nextMessage;i++)
           {
