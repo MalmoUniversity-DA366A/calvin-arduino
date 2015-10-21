@@ -1,28 +1,40 @@
 #ifndef CALVINDONE_CALVINMINI_H_
 #define CALVINDONE_CALVINMINI_H_
-
-#define MAX_LENGTH 1
 #include <stdio.h>
 #include <string>
 #include "ArduinoJson.h"
-#define standardOut(x)    strlen(x)
-#define ACTOR_SIZE      5
-#define QUEUE_SIZE      10
-#define FIFO_SIZE     8     //Must be a power of two
-#define NUMBER_OF_PORTS     2
+
+#define MAX_LENGTH 									1
+#define standardOut(x)    							strlen(x)
+#define ACTOR_SIZE      							5
+#define QUEUE_SIZE      							10
+#define FIFO_SIZE     								8     //Must be a power of two
+#define NUMBER_OF_PORTS     						2
+#define NUMBER_OF_SUPPORTED_ACTORS					2
 #define RT_ID "calvin-arduino"
 #define tunnel_id "fake-tunnel"
 typedef unsigned char BYTE;
 
 extern "C"{
 /*
- * Enum for testing functions SUCCESS indicates
+ * Enumerator for testing functions SUCCESS indicates
  * operation success and FAIL for operation faield.
  */
 typedef enum{
   SUCCESS,
   FAIL
 }rStatus;
+
+/*
+ * These are actor types used to keep
+ * track of different actors in the global
+ * actor array.
+ */
+typedef enum{
+	STD_ACTOR,
+	COUNT_ACTOR,
+	UNKNOWN_ACTOR
+}actorType;
 
 /**
  * This is the buffert for a actor. To use an actors port fifo
@@ -56,9 +68,9 @@ typedef struct actors{
   String peer_port_id;
   String port_id;
   uint32_t count;
-  int8_t (*fireActor)();
-  struct buffert *inportsFifo[NUMBER_OF_PORTS];
-  struct buffert *outportsFifo[NUMBER_OF_PORTS];
+  int8_t (*fire)(struct actors*);
+  struct buffert inportsFifo[NUMBER_OF_PORTS];
+  struct buffert outportsFifo[NUMBER_OF_PORTS];
 }actor;
 
 /**
@@ -115,18 +127,18 @@ int8_t lengthOfData(fifo*);
  *  well thats the only way i could ad a function pointer to a strut,
  *  Apparently c++ handles this different from c.
  */
-rStatus actorInit();
+rStatus actorInit(actor*);
 rStatus actorInitTest();
 
 /**
  * Current standard out is the lcd screen connected to arduino due
  */
-int8_t StdOut();
+int8_t actorStdOut(actor*);
 
 /**
  * Increment the count each time the actor fires
  */
-int8_t actorCount();
+int8_t actorCount(actor*);
 
 }
 
@@ -134,6 +146,7 @@ using namespace std;
 class CalvinMini
 {
 public:
+	CalvinMini(void);
 	/**
 	 * Create an new actor.
 	 * @param msg json list
@@ -246,6 +259,12 @@ public:
    * @param reply String
    */
   void addToMessageOut(String reply);
+
+  /**
+   *
+   */
+  actorType getActorType(actor *);
+
 #ifdef ARDUINO
   /**
    * Prints the IP-address assigned to the Ethernet shield.
@@ -267,6 +286,8 @@ public:
    * @return String
    */
   String recvMsg(void);
+
+
 #endif
 };
 
