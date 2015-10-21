@@ -71,6 +71,7 @@ int8_t actorCount(actor *inputActor)
 	return allOk;
 }
 
+
 extern "C"{
 rStatus actorInit(actor *inputActor){
   rStatus allOk = FAIL;
@@ -133,15 +134,12 @@ actorType CalvinMini::getActorType(actor *inputActor)
 	if(!strcmp(inputActor->type.c_str(),"io.StandardOut"))
 	{
 		ret = STD_ACTOR;
-		Serial.println("standardout actor");
 	}else if(!strcmp(inputActor->type.c_str(),"std.Counter"))
 	{
 		ret = COUNT_ACTOR;
-		Serial.println("Counter actor");
 	}else
 	{
 		ret = UNKNOWN_ACTOR;
-		Serial.println("UNKOWN ACTOR");
 	}
 	return ret;
 }
@@ -530,6 +528,7 @@ void CalvinMini::loop()
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
+          JsonObject &value = msg["value"];
           actors[0].fire(&actors[0]);
 
           // 6: Read outgoing message
