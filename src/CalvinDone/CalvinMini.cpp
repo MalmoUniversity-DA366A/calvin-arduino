@@ -8,7 +8,7 @@
 #include "CalvinMini.h"
 #include <inttypes.h>
 #include <string>
-#define TYPE 		0
+
 
 #ifdef ARDUINO
 #include <SPI.h>
@@ -31,6 +31,7 @@ int nextMessage = 0;
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
 uint8_t activeActors = 0;
 uint32_t sequenceNbr = 0;
+int TYPE=0;
 
 
 CalvinMini::CalvinMini(){
