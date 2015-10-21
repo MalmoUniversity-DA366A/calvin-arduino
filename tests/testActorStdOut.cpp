@@ -95,6 +95,7 @@ TEST(ActorTest,actorTypeTest){
 	JsonObject &root = jsonBuffer.parseObject(validActorType.c_str());
 	EXPECT_EQ(SUCCESS,actorstd->createActor(root));
 	EXPECT_EQ(SUCCESS,actorstd->createActor(root));
+	/*No more actors supported*/
 	EXPECT_EQ(FAIL,actorstd->createActor(root));
 	delete actorstd;
 }
