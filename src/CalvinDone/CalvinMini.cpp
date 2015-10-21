@@ -26,8 +26,6 @@ LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
 HandleSockets socketHandler;
 #endif
 
-const int messageOutLength = 4;
-String messageOut[messageOutLength] = {};
 uint8_t nextMessage = 0;
 
 actor globalActor;
