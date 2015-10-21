@@ -92,18 +92,7 @@ rStatus actorInit(actor *inputActor){
 
   return allOk;
 }
-rStatus actorInitTest(){
-	rStatus allOk = FAIL;
 
-
-	//inputActor->fire = &StdOut;
-	/*This sets up the fifo for the actor, not sure
-	 *if it should be done here but for now it works*/
-	//allOk = initFifo(&actorFifo);
-	//inputActor->inportsFifo[0] = actorFifo;
-
-	  return allOk;
-}
 }
 
 rStatus CalvinMini::createActor(JsonObject &msg){

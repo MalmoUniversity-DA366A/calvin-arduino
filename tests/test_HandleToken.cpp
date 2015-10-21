@@ -47,7 +47,6 @@ TEST(test_HandleToken, testProcess) {
 TEST(test_HandleToken, testSize) {
 	// Create an instance of the Token
 	CalvinMini token;
-	actorInitTest();
 	// Create two empty JsonObject with an StaticJsonBuffer
 	StaticJsonBuffer<400> jsonBuffer;
 	JsonObject &reply = jsonBuffer.createObject();
@@ -69,7 +68,6 @@ TEST(test_HandleToken, testSize) {
 TEST(test_HandleToken, testIfContainsKey) {
 	// Create an instance of the Token
 	CalvinMini token;
-	actorInitTest();
 	// Create two empty JsonObject with an StaticJsonBuffer
 	StaticJsonBuffer<400> jsonBuffer;
 	JsonObject &reply = jsonBuffer.createObject();
@@ -96,7 +94,6 @@ TEST(test_HandleToken, testIfContainsKey) {
 TEST(test_HandleToken, testValues) {
 	// Create an instance of the Token
 	CalvinMini token;
-	actorInitTest();
 	// Create two empty JsonObject with an StaticJsonBuffer
 	StaticJsonBuffer<400> jsonBuffer;
 	JsonObject &reply = jsonBuffer.createObject();
