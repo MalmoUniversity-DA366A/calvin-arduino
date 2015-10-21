@@ -169,12 +169,13 @@ String HandleSockets::getMessagesIn(uint8_t msgIndex)
 
 /**
  * Adds message to outgoing message list.
+ * Returns 255 if messageOut[] is full, else the next index to place the outgoing message in.
  * @param String reply, uint8_t socket
  * @return uint8_t the next place to store outgoing message for specified socket
  */
 uint8_t HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 {
-	uint8_t replyNbr = 255;
+	uint8_t replyNbr = 255;							//255 equals error in this case
 	if(messageCounters[socket]<NBR_OF_OUTGOING_MSG)
 	{
 		messagesOut[messageCounters[socket]] = reply;
