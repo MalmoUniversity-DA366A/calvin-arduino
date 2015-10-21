@@ -31,7 +31,7 @@ int nextMessage = 0;
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
 uint8_t activeActors = 0;
 uint32_t sequenceNbr = 0;
-int TYPE=0;
+int TYPE=1;
 
 
 CalvinMini::CalvinMini(){
