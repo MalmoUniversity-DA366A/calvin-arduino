@@ -28,7 +28,7 @@ TEST(testActorList,listTest){
 	testList[1] = testActor2;
 	EXPECT_EQ(0,mini->getActorPos(str1,testList));
 	EXPECT_EQ(1,mini->getActorPos(str2,testList));
-	EXPECT_EQ(255,mini->getActorPos(str3,testList));
+	EXPECT_EQ(-1,mini->getActorPos(str3,testList));
 
 
 	testActor1.type = "std.Counter";
