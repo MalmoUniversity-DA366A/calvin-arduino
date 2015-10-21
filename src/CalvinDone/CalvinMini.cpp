@@ -8,13 +8,13 @@
 #include "CalvinMini.h"
 #include <inttypes.h>
 #include <string>
+#define TYPE 		1
 
 #ifdef ARDUINO
 #include <SPI.h>
 #include <Ethernet.h>
 #include <util.h>
 #include <LiquidCrystal.h>
-
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
 IPAddress ip(192,168,0,5);
@@ -190,7 +190,7 @@ uint32_t fifoPop(fifo *fif){
 rStatus CalvinMini::process(uint32_t token){
   rStatus allOk;
   allOk = FAIL;
-  allOk = fifoAdd(&actors[0].inportsFifo[0],token);
+  allOk = fifoAdd(&actors[TYPE].inportsFifo[0],token);
   return allOk;
 }
 
@@ -214,7 +214,7 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
-    request.set("data", fifoPop(&actors[0].inportsFifo[0]));
+    request.set("data", fifoPop(&actors[TYPE].inportsFifo[0]));
 	request.set("type", "Token");
 
 	reply.set("sequencenbr", sequenceNbr);
@@ -222,8 +222,8 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 
 	reply.set("token", request);
 	reply.set("cmd", "TOKEN");
-	reply.set("port_id", actors[0].port_id);
-	reply.set("peer_port_id", actors[0].peer_port_id);
+	reply.set("port_id", actors[TYPE].port_id);
+	reply.set("peer_port_id", actors[TYPE].peer_port_id);
 }
 
 void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request)
@@ -301,8 +301,8 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
   request.set("peer_port_dir", 0);
   request.set("tunnel_id", tunnel_id);
   request.set("cmd", "PORT_CONNECT");
-  actors[0].peer_port_id = peer_port_id;
-  actors[0].port_id = port_id;
+  actors[TYPE].peer_port_id = peer_port_id;
+  actors[TYPE].port_id = port_id;
 }
 
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
@@ -374,7 +374,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"REPLY"))
   {
-      if(!strcmp(actors[0].type.c_str(),"std.Counter"))
+      if(!strcmp(actors[TYPE].type.c_str(),"std.Counter"))
       {
         handleTunnelData(msg, reply, request);
         reply.printTo(replyTemp,2048);
@@ -506,7 +506,7 @@ void CalvinMini::getIPFromRouter()
 void CalvinMini::loop()
 {
   lcdOut.write("Hello Calvin");
-  actors[0].fire = &actorStdOut;
+  actors[TYPE].fire = &actorStdOut;
   setupServer();
   while(1)
   {
@@ -528,8 +528,7 @@ void CalvinMini::loop()
           handleMsg(msg, reply, request);
 
           // 5: Fire Actors
-          JsonObject &value = msg["value"];
-          actors[0].fire(&actors[0]);
+          actors[TYPE].fire(&actors[TYPE]);
 
           // 6: Read outgoing message
           for(int i = 0;i < nextMessage;i++)
