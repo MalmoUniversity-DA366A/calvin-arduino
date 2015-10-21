@@ -85,7 +85,7 @@ rStatus actorInit(actor *inputActor){
   /*This sets up the fifo for the actor, not sure
    *if it should be done here but for now it works*/
   inputActor->inportsFifo[0] = actorFifo;
-  allOk = initFifo(&actorFifo);
+  allOk = initFifo(&inputActor->inportsFifo[0]);
 
   return allOk;
 }
@@ -133,12 +133,15 @@ actorType CalvinMini::getActorType(actor *inputActor)
 	if(!strcmp(inputActor->type.c_str(),"io.StandardOut"))
 	{
 		ret = STD_ACTOR;
+		Serial.println("standardout actor");
 	}else if(!strcmp(inputActor->type.c_str(),"std.Counter"))
 	{
 		ret = COUNT_ACTOR;
+		Serial.println("Counter actor");
 	}else
 	{
 		ret = UNKNOWN_ACTOR;
+		Serial.println("UNKOWN ACTOR");
 	}
 	return ret;
 }
@@ -505,7 +508,7 @@ void CalvinMini::getIPFromRouter()
 void CalvinMini::loop()
 {
   lcdOut.write("Hello Calvin");
-  //actors[0].fire = &actorStdOut;
+  actors[0].fire = &actorStdOut;
   setupServer();
   while(1)
   {
