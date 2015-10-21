@@ -13,7 +13,6 @@
 #ifdef ARDUINO
 #include <SPI.h>
 #include <Ethernet.h>
-#include <util.h>
 #include <LiquidCrystal.h>
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
@@ -27,11 +26,13 @@ LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
 
 const int messageOutLength = 4;
 String messageOut[messageOutLength] = {};
-int nextMessage = 0;
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
 uint8_t activeActors = 0;
+uint8_t nextMessage = 0;
+actor globalActor;
+fifo actorFifo;
 uint32_t sequenceNbr = 0;
-int TYPE=1;
+int TYPE=0;
 
 
 CalvinMini::CalvinMini(){
@@ -67,7 +68,7 @@ int8_t actorCount(actor *inputActor)
   Serial.println(tokenData);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
-  delay(300); // Stable at 300ms
+  delay(400); // Stable at 300ms
 #endif
 
 	return allOk;
@@ -274,7 +275,7 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
       JsonArray &array = inports[port_id];
       peer_port_id = array.get(1).asString();
   }
-  else
+  if(inports.size() == 0)
   {
       JsonObject &integer = msg["state"]["actor_state"]["outports"]["integer"];
       port_id = integer.get("id").asString();
@@ -299,7 +300,6 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
 {
   char replyTemp[2048] = {};
-  char requestTemp[2048] = {};
   if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
   {
       // JsonObject for replying a join request
@@ -307,47 +307,35 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       JsonObject &policy = jsonBuffer.createObject();
       handleJoin(msg,reply);
       handleSetupTunnel(msg, request, policy);
-
+      uint8_t moreThanOneMsg = 1;
       // Print JsonObject and send to Calvin
-      reply.printTo(replyTemp,2048);
-      request.printTo(requestTemp,2048);
-
-      String str(replyTemp);
-      String str2(requestTemp);
-      addToMessageOut(str);
-      addToMessageOut(str2);
+      uint8_t size = packMsg(reply, request, moreThanOneMsg);
       #ifdef ARDUINO
       lcdOut.clear();
       lcdOut.write("JOIN_REQUEST");
       #endif
-      return 1;
+      return size;
   }
   else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
   {
       handleActorNew(msg, reply);
       handleSetupPorts(msg,request);
 
-      reply.printTo(replyTemp,2048);
-      request.printTo(requestTemp,2048);
-
-      String str(replyTemp);
-      String str2(requestTemp);
-      addToMessageOut(str);
-      addToMessageOut(str2);
+      uint8_t moreThanOneMsg = 1;
+      uint8_t size = packMsg(reply, request, moreThanOneMsg);
       #ifdef ARDUINO
       lcdOut.clear();
       lcdOut.write("ACTOR_NEW");
       #endif
-      return 2;
+      return size;
   }
   else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
   {
       handleTunnelData(msg, reply, request);
 
-      reply.printTo(replyTemp,2048);
-      String str(replyTemp);
-      addToMessageOut(str);
-      return 3;
+      uint8_t moreThanOneMsg = 0;
+      uint8_t size = packMsg(reply, request, moreThanOneMsg);
+      return size;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
@@ -368,9 +356,9 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
       if(!strcmp(actors[TYPE].type.c_str(),"std.Counter"))
       {
         handleTunnelData(msg, reply, request);
-        reply.printTo(replyTemp,2048);
-        String str(replyTemp);
-        addToMessageOut(str);
+        uint8_t moreThanOneMsg = 0;
+        uint8_t size = packMsg(reply, request, moreThanOneMsg);
+        return size;
       }
       /*JsonObject &value = msg["value"];
       if(!strcmp(value.get("status"),"ACK"))
@@ -392,11 +380,31 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
 }
 
-void CalvinMini::addToMessageOut(String reply)
+uint8_t CalvinMini::packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg)
+{
+#ifdef _MOCK_
+  nextMessage = 0;
+#endif
+  char replyTemp[2048] = {};
+  reply.printTo(replyTemp,2048);
+  String str(replyTemp);
+  uint8_t size = addToMessageOut(str);
+  if(moreThanOneMsg)
+  {
+      char requestTemp[2048] = {};
+      request.printTo(requestTemp,2048);
+      String str2(requestTemp);
+      size = addToMessageOut(str2);
+  }
+  return size;
+}
+
+uint8_t CalvinMini::addToMessageOut(String reply)
 {
   messageOut[nextMessage] = reply;
   if(nextMessage < messageOutLength)
     nextMessage = nextMessage+1;
+  return nextMessage;
 }
 
 #ifdef ARDUINO
@@ -431,7 +439,7 @@ String CalvinMini::recvMsg()
 }
 #endif
 
-int CalvinMini::sendMsg(const char *str, uint32_t length)
+uint8_t CalvinMini::sendMsg(const char *str, uint32_t length)
 {
   BYTE hex[4] = {};
   hex[0] = (length & 0xFF000000);

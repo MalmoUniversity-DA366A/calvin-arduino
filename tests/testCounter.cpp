@@ -32,14 +32,17 @@ TEST(testCounter, testReceiveCounter)
     JsonObject &reply = jsonBuffer.createObject();
     JsonObject &request = jsonBuffer.createObject();
 
-    mini.handleMsg(msg, reply, request);
+    int8_t size = mini.handleMsg(msg, reply, request);
     JsonObject &actor_state = msg["state"]["actor_state"];
+
+    // Test if number of outgoing messages is 2
+    EXPECT_EQ(size,2);
 
     // Test if actor_type Counter is triggered
     EXPECT_STREQ("std.Counter", msg["state"]["actor_type"]);
 
-    // Test if actor_state is store tokens
-    // which should be false when actor is stdOut
+    // Test if actor_state contains key count
+    // which should be true when actor is Counter
     EXPECT_TRUE(actor_state.containsKey("count"));
 
     // Test if PORT_CONNECT is returned cmd
