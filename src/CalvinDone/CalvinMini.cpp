@@ -427,7 +427,7 @@ String CalvinMini::recvMsg()
   return str;
 }
 #endif
-
+//-----------kan tas bort--------------------
 uint8_t CalvinMini::sendMsg(const char *str, uint32_t length)
 {
   BYTE hex[4] = {};
@@ -464,6 +464,7 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
   request["type"] = "token";
 }
 
+//-----------kan tas bort--------------------
 #ifdef ARDUINO
 void CalvinMini::setupServer()
 {
@@ -472,12 +473,12 @@ void CalvinMini::setupServer()
   printIp();
   server.begin();
 }
-
+//-----------kan tas bort--------------------
 void CalvinMini::printIp()
 {
     Serial.println(Ethernet.localIP());
 }
-
+//-----------kan tas bort--------------------
 void CalvinMini::getIPFromRouter()
 {
     // Disable SD

@@ -108,13 +108,13 @@ void HandleSockets::sendAllMsg(uint8_t socket)
 				startingPoint = 0;
 				break;
 		case(1):
-				startingPoint = 10;
+				startingPoint = NBR_OF_OUTGOING_MSG;
 				break;
 		case(2):
-				startingPoint = 20;
+				startingPoint = 2*NBR_OF_OUTGOING_MSG;
 				break;
 		case(3):
-				startingPoint = 30;
+				startingPoint = 3*NBR_OF_OUTGOING_MSG;
 				break;
 	}
 	for(int j = 0; j < NBR_OF_OUTGOING_MSG; j++)					// loop all messages
@@ -197,7 +197,7 @@ int HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 	switch(socket)
 	{
 	case(0):
-			if(socket0count<10)
+			if(socket0count<NBR_OF_OUTGOING_MSG)
 			{
 				messagesOut[socket0count] = reply;
 				socket0count = socket0count+1;
@@ -205,7 +205,7 @@ int HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 			}
 			break;
 	case(1):
-			if(socket1count<10)
+			if(socket1count<NBR_OF_OUTGOING_MSG)
 			{
 				messagesOut[10+socket1count] = reply;
 				socket1count = socket1count+1;
@@ -213,7 +213,7 @@ int HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 			}
 			break;
 	case(2):
-			if(socket2count<10)
+			if(socket2count<NBR_OF_OUTGOING_MSG)
 			{
 				messagesOut[20+socket2count] = reply;
 				socket2count = socket2count+1;
@@ -221,7 +221,7 @@ int HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 			}
 			break;
 	case(3):
-			if(socket3count<10)
+			if(socket3count<NBR_OF_OUTGOING_MSG)
 			{
 				messagesOut[30+socket3count] = reply;
 				socket3count = socket3count+1;
@@ -247,7 +247,7 @@ void HandleSockets::recvAllMsg()
 			Serial.print(i);
 		}
 		else {
-			messagesIn[i] = "_$EMPTY$_";
+			messagesIn[i] = EMPTY_STR;
 		}
 	}
 }
@@ -262,12 +262,12 @@ void HandleSockets::recvAllMsg()
 void HandleSockets::determineSocketStatus()
 {
 	listening = 0;
-	for (int i = 0; i < MAX_NBR_OF_SOCKETS; i++)		// loop all sockets
+	for (int i = 0; i < MAX_NBR_OF_SOCKETS; i++)						// loop all sockets
 	{
-		uint8_t s = W5100.readSnSR(i);                  // socket status
+		uint8_t s = W5100.readSnSR(i);                  				// socket status
 		socketStat[i] = s;
-		Serial.print(i);								// print socket number
-		switch(s)										// determine connection status of socket
+		Serial.print(i);												// print socket number
+		switch(s)														// determine connection status of socket
 		{
 			case(SnSR::CLOSED):											// socket closed/available
 				socketConnectionList[i] = SOCKET_NOT_CONNECTED;			// remove from list
