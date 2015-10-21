@@ -56,12 +56,12 @@ int8_t actorCount()
 	++(globalActor.count);
 	count = globalActor.count;
 	allOk = fifoAdd(globalActor.inportsFifo[0],count);
-  sprintf(tokenData,"%d",(uint32_t)count);
+	sprintf(tokenData,"%d",(uint32_t)count);
 #ifdef ARDUINO
-  Serial.println(tokenData);
+	Serial.println(tokenData);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
-  delay(400); // Stable at 300ms
+	delay(400); // Stable at 300ms
 #endif
 
 	return allOk;
@@ -388,55 +388,6 @@ uint8_t CalvinMini::addToMessageOut(String reply, uint8_t socket)
 {
   nextMessage = socketHandler.addToMessagesOut(reply, socket);
   return nextMessage;
-}
-
-#ifdef ARDUINO
-String CalvinMini::recvMsg()
-{
-  Serial.println("Reading...");
-  char temp[MAX_LENGTH+1] = {};
-  String str = "";
-  BYTE data[4];
-  int found = 0;
-  int count = 0;
-  int sizeOfMsg;
-  while(!found)
-  {
-        client.readBytes(temp, MAX_LENGTH);
-        data[count] = *temp;
-        count++;
-        if(*temp == '{')
-        {
-            str += temp;
-            found = 1;
-        }
-  }
-  sizeOfMsg = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
-  for(int i = 0;i < sizeOfMsg-1;i++)
-  {
-      int size = client.readBytes(temp, MAX_LENGTH);
-      temp[size] = '\0';  // Null terminate char
-      str += temp;
-  }
-  return str;
-}
-#endif
-//-----------kan tas bort--------------------
-uint8_t CalvinMini::sendMsg(const char *str, uint32_t length)
-{
-  BYTE hex[4] = {};
-  hex[0] = (length & 0xFF000000);
-  hex[1] = (length & 0x00FF0000);
-  hex[2] = (length & 0x0000FF00) / 0x000000FF;
-  hex[3] = (length & 0x000000FF);
-#ifdef ARDUINO
-  server.write(hex,4);
-  server.write(str);
-#endif
-  if(length == (hex[2]*256 + hex[3]))
-    return 1;
-  else
-    return 0;
 }
 
 void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket)

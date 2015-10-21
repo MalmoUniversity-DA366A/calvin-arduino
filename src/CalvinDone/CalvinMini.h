@@ -234,14 +234,6 @@ public:
   void handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket);
 
   /**
-   * Reply message to calvin base
-   * @param str char pointer of String
-   * @param length size of String
-   * @return uint8_t Check if length is transformed right
-   */
-  uint8_t sendMsg(const char *str, uint32_t length);
-
-  /**
    * Adds messages to a global array and
    * creates the array size for sending
    * @param reply String
@@ -258,14 +250,6 @@ public:
    */
   uint8_t packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg, uint8_t socket);
 
-#ifdef ARDUINO
-
-  /**
-   * Receive message from calvin base
-   * @return String
-   */
-  String recvMsg(void);
-#endif
 };
 
 
