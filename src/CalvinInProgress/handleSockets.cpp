@@ -24,10 +24,10 @@ uint8_t socketConnectionList[MAX_NBR_OF_SOCKETS]= {SOCKET_NOT_CONNECTED, SOCKET_
 String messagesIn[MAX_NBR_OF_SOCKETS];
 const uint8_t messagesOutLenght = MAX_NBR_OF_SOCKETS*NBR_OF_OUTGOING_MSG;		//to keep track of the maximum amount of outgoing messages
 String messagesOut[messagesOutLenght];
-int socket0count = 0;
-int socket1count = 0;
-int socket2count = 0;
-int socket3count = 0;
+uint8_t socket0count = 0;
+uint8_t socket1count = 0;
+uint8_t socket2count = 0;
+uint8_t socket3count = 0;
 byte listening = 0;
 
 
@@ -53,10 +53,10 @@ int HandleSockets::setupConnection(byte *macAdr)
 	int status = 0;
 	if (Ethernet.begin(macAdr) == 0)
 	    {
-	        Serial.println("Failed to configure Ethernet using DHCP");
 	        // try again if fail:
 	        if (Ethernet.begin(macAdr) == 0)
 	        {
+	        	Serial.println("Failed to configure Ethernet using DHCP");
 	        	return status;
 	        }
 	    }
@@ -97,6 +97,7 @@ void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 
 /**
  * Sends all outgoing messages stored in messagesOut[] to corresponding socket.
+ * Also resets the message counter to 0 for the correspoding socket.
  * @param uint8_t socket
  */
 void HandleSockets::sendAllMsg(uint8_t socket)
@@ -106,15 +107,19 @@ void HandleSockets::sendAllMsg(uint8_t socket)
 	{
 		case(0):
 				startingPoint = 0;
+				socket0count = 0;
 				break;
 		case(1):
 				startingPoint = NBR_OF_OUTGOING_MSG;
+				socket1count = 0;
 				break;
 		case(2):
 				startingPoint = 2*NBR_OF_OUTGOING_MSG;
+				socket2count = 0;
 				break;
 		case(3):
 				startingPoint = 3*NBR_OF_OUTGOING_MSG;
+				socket3count = 0;
 				break;
 	}
 	for(int j = 0; j < NBR_OF_OUTGOING_MSG; j++)					// loop all messages
@@ -141,9 +146,12 @@ String HandleSockets::recvMsg(uint8_t socket)
   String str = "";
   int sizeOfMsg= recvAvailable(socket);			//Receive length of incoming message
   int found = 0;
-  //--------utskrifter----------
-  Serial.print("SIZE of message:   ");
-  Serial.println(sizeOfMsg);
+  //--------utskrifter om medelandet är större än 0----------
+  if(sizeOfMsg > 0)
+  {
+	  Serial.print("SIZE of message:  ");
+	   Serial.println(sizeOfMsg);
+  }
   //-----------------------------
 
   for(int i = 0; i < sizeOfMsg; i++)			//read all incoming data one by one
@@ -196,7 +204,7 @@ int HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 	int rply = 0;
 	switch(socket)
 	{
-	case(0):
+	case(0):	//socket 0
 			if(socket0count<NBR_OF_OUTGOING_MSG)
 			{
 				messagesOut[socket0count] = reply;
@@ -204,7 +212,7 @@ int HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 				rply = socket0count;
 			}
 			break;
-	case(1):
+	case(1):	//socket 1
 			if(socket1count<NBR_OF_OUTGOING_MSG)
 			{
 				messagesOut[10+socket1count] = reply;
@@ -212,7 +220,7 @@ int HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 				rply = socket1count;
 			}
 			break;
-	case(2):
+	case(2):	//socket 2
 			if(socket2count<NBR_OF_OUTGOING_MSG)
 			{
 				messagesOut[20+socket2count] = reply;
@@ -220,7 +228,7 @@ int HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 				rply = socket2count;
 			}
 			break;
-	case(3):
+	case(3):	//socket 3
 			if(socket3count<NBR_OF_OUTGOING_MSG)
 			{
 				messagesOut[30+socket3count] = reply;
@@ -244,7 +252,6 @@ void HandleSockets::recvAllMsg()
 		if(socketConnectionList[i] != SOCKET_NOT_CONNECTED)
 		{
 			messagesIn[i] = recvMsg(socketConnectionList[i]);
-			Serial.print(i);
 		}
 		else {
 			messagesIn[i] = EMPTY_STR;
@@ -266,7 +273,6 @@ void HandleSockets::determineSocketStatus()
 	{
 		uint8_t s = W5100.readSnSR(i);                  				// socket status
 		socketStat[i] = s;
-		Serial.print(i);												// print socket number
 		switch(s)														// determine connection status of socket
 		{
 			case(SnSR::CLOSED):											// socket closed/available
@@ -285,19 +291,22 @@ void HandleSockets::determineSocketStatus()
 				{
 					connectStatus[i] = 1;
 					socketConnectionList[i] = i;						// add to list
+					//--------------------------------------UTSKRIFTER-----------------------------------------------------
+					//print the Destination Port, only for testing purposes
+					Serial.print(i);												// print socket number
+					Serial.print(" (");
+					Serial.print(W5100.readSnDPORT(i));
+					Serial.print(") ");
+					Serial.println();
+					//--------------------------------------------------------------------------------------------------------------
+
 				}
 				break;
 			default:
 				//none of the above fulfilled, do nothing here
 				break;
 		}
-		//--------------------------------------UTSKRIFTER-----------------------------------------------------
-		//print the Destination Port, only for testing purposes
-		Serial.print("(");
-		Serial.print(W5100.readSnDPORT(i));
-		Serial.print(") ");
-		Serial.println();
-		//--------------------------------------------------------------------------------------------------------------
+
 
 	} //end i < sock max
 }
