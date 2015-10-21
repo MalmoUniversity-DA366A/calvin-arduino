@@ -324,10 +324,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   else if(!strcmp(msg.get("cmd"),"TOKEN"))
   {
       handleToken(msg,request);
-      #ifdef ARDUINO
-      lcdOut.clear();
-      lcdOut.write("TOKEN");
-      #endif
       return 4;
   }
   else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
@@ -360,6 +356,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else
   {
+	  Serial.println("UNKNOWN CMD");
       standardOut("UNKNOWN CMD");
       return 7;
   }
@@ -422,28 +419,32 @@ void CalvinMini::loop()
 	delay(500);
 	while(1)
 	{
-		socketHandler.determineSocketStatus();									// 1: Check connected sockets
-		socketHandler.recvAllMsg();												// 3: Read message
-
-		for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 4: Handle message
+		socketHandler.determineSocketStatus();										// 1: Check connected sockets
+		if(socketHandler.anyoneConnected() == 1)									// Anyone connected?
 		{
-			const char* message = socketHandler.getMessagesIn(i).c_str();
-			if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
+			if(socketHandler.recvAllMsg() == 1)										// 3: Read message
 			{
-				String str = socketHandler.getMessagesIn(i);
-				StaticJsonBuffer<4096> jsonBuffer;
-				JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-				JsonObject &reply = jsonBuffer.createObject();
-				JsonObject &request = jsonBuffer.createObject();
-				handleMsg(msg, reply, request, i);
+				for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 4: Handle message
+				{
+					const char* message = socketHandler.getMessagesIn(i).c_str();
+					if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
+					{
+						String str = socketHandler.getMessagesIn(i);
+						StaticJsonBuffer<4096> jsonBuffer;
+						JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+						JsonObject &reply = jsonBuffer.createObject();
+						JsonObject &request = jsonBuffer.createObject();
+						handleMsg(msg, reply, request, i);
+					}
+				}
+				globalActor.fireActor();
 			}
-		}
+																					// 5: Fire Actors
 
-		globalActor.fireActor();												// 5: Fire Actors
-
-		for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message
-		{
-			socketHandler.sendAllMsg(i);
+			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message
+			{
+				socketHandler.sendAllMsg(i);
+			}
 		}
 		socketHandler.NextSocket();
 	}

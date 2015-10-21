@@ -75,6 +75,10 @@ void HandleSockets::prepareMessagesOut()
 	{
 		messagesOut[j] = EMPTY_STR;
 	}
+	for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
+	{
+		messagesIn[i] = EMPTY_STR;
+	}
 }
 
 /**
@@ -84,6 +88,8 @@ void HandleSockets::prepareMessagesOut()
  */
 void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 {
+	Serial.print("Sending: ");
+	Serial.println(str);
 	BYTE hex[4] = {};
 	hex[0] = (length & 0xFF000000);
 	hex[1] = (length & 0x00FF0000);
@@ -132,6 +138,7 @@ String HandleSockets::recvMsg(uint8_t socket)
       int size = recv(socket,tempBuff, MAX_LENGTH);
       if(size == 0 || size == -1)
       {
+    	  str = EMPTY_STR;
     	  return str;
       }
       else
@@ -142,14 +149,20 @@ String HandleSockets::recvMsg(uint8_t socket)
     	  {
     		 found = 1;
     	  }
-    	  if(found ==1)
+    	  if(found == 1)
     	  {
 			  temp[size] = '\0';  // Null terminate char
 			  str += temp;
     	  }
       }
   }
-  return str;
+  if(found == 1)
+  {
+	  return str;
+  }
+  else {
+	  return EMPTY_STR;
+  }
 }
 
 /**
@@ -159,12 +172,39 @@ String HandleSockets::recvMsg(uint8_t socket)
  */
 String HandleSockets::getMessagesIn(uint8_t msgIndex)
 {
-	String reply;
+	String reply = EMPTY_STR;
 	if(msgIndex < MAX_NBR_OF_SOCKETS)
 	{
 		reply = messagesIn[msgIndex];
 	}
 	return reply;
+}
+
+/**
+ * Check if anyone is connected.
+ * 0 if no socket i connected, 1 if connected
+ * @return uint8_t status
+ */
+uint8_t HandleSockets::anyoneConnected()
+{
+	uint8_t status = 0;
+	if(socketConnectionList[0] != SOCKET_NOT_CONNECTED)
+	{
+			status = 1;
+	}
+	if(socketConnectionList[1] != SOCKET_NOT_CONNECTED)
+	{
+			status = 1;
+	}
+	if(socketConnectionList[2] != SOCKET_NOT_CONNECTED)
+	{
+			status = 1;
+	}
+	if(socketConnectionList[3] != SOCKET_NOT_CONNECTED)
+	{
+			status = 1;
+	}
+	return status;
 }
 
 /**
@@ -193,18 +233,21 @@ uint8_t HandleSockets::addToMessagesOut(String reply, uint8_t socket)
  * If data was received the message is stored in to messagesIn array.
  * If no data found specific string to determine this is added to the corresponding index.
  */
-void HandleSockets::recvAllMsg()
+uint8_t HandleSockets::recvAllMsg()
 {
+	uint8_t result = 0;
 	for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)					// Loop sockets
 	{
 		if(socketConnectionList[i] != SOCKET_NOT_CONNECTED)		// Connected?
 		{
 			messagesIn[i] = recvMsg(socketConnectionList[i]);
+			result = 1;
 		}
 		else {													// Not connected
 			messagesIn[i] = EMPTY_STR;
 		}
 	}
+	return result;
 }
 
 /**

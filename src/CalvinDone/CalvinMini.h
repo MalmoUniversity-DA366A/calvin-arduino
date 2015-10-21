@@ -8,7 +8,7 @@
 #define standardOut(x)    strlen(x)
 #define ACTOR_SIZE      5
 #define QUEUE_SIZE      10
-#define FIFO_SIZE     8     //Must be a power of two
+#define FIFO_SIZE     	16     //Must be a power of two
 #define NUMBER_OF_PORTS     2
 #define RT_ID "calvin-arduino"
 #define tunnel_id "fake-tunnel"
