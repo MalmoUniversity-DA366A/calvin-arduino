@@ -67,7 +67,7 @@ int HandleSockets::setupConnection(byte *macAdr)
 }
 
 /**
- * Makes sure messagesOut properly filled with empty strings.
+ * Makes sure messagesOut is properly filled with the EMPTY_STR string.
  */
 void HandleSockets::prepareMessagesOut()
 {
@@ -79,8 +79,8 @@ void HandleSockets::prepareMessagesOut()
 
 /**
  * Sends a message to a specific socket.
+ * First sends the length in a separate packet then sends the actual message afterwards.
  * @Param uint8_t socket, const char* message to send, uint16_t length of the message
- * @return returns 1 if success, 0 if failed
  */
 void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 {
@@ -95,7 +95,7 @@ void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 
 /**
  * Sends all outgoing messages stored in messagesOut[] to corresponding socket.
- * Also resets the message counter to 0 for the correspoding socket.
+ * Also resets the message counter to 0 for the corresponding socket.
  * @param uint8_t socket
  */
 void HandleSockets::sendAllMsg(uint8_t socket)
@@ -115,7 +115,7 @@ void HandleSockets::sendAllMsg(uint8_t socket)
 
 /**
  * Receives a message from a specific socket.
- * Begins message with a '{' to comply with JSON TCP communication of Calvin Base
+ * Begins message with a '{' to comply with the JSON TCP communication of Calvin Base
  * @Param uint8_t socket
  * @return returns the string received from socket
  */
@@ -250,7 +250,7 @@ void HandleSockets::determineSocketStatus()
 
 /**
  * Controls which port to listen on next in order to add another socket once it becomes available.
- * Simply chooses the next available socket number.
+ * Simply chooses the next available socket with the lowest number.
  */
 void HandleSockets::NextSocket()
 {
