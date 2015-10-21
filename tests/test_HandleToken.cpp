@@ -41,7 +41,7 @@ TEST(test_HandleToken, testProcess) {
 	mini.handleToken(msg, reply);
 	EXPECT_STREQ("ACK", reply.get("value"));
 
-	EXPECT_EQ(4, actorStdOut(&testActor));
+	EXPECT_EQ(5, actorStdOut(&testActor));
 }
 
 TEST(test_HandleToken, testSize) {

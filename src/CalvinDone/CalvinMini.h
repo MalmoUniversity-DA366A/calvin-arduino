@@ -17,7 +17,7 @@ typedef unsigned char BYTE;
 
 extern "C"{
 /*
- * Enum for testing functions SUCCESS indicates
+ * Enumerator for testing functions SUCCESS indicates
  * operation success and FAIL for operation faield.
  */
 typedef enum{

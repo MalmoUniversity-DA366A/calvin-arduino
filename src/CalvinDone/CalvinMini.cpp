@@ -17,8 +17,8 @@
 
 //byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-//IPAddress ip(192,168,0,5);
-IPAddress ip(192,168,1,146);
+IPAddress ip(192,168,0,5);
+//IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
@@ -30,7 +30,6 @@ String messageOut[messageOutLength] = {};
 int nextMessage = 0;
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
 uint8_t activeActors = 0;
-
 uint32_t sequenceNbr = 0;
 
 CalvinMini::CalvinMini(){
@@ -374,7 +373,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
   }
   else if(!strcmp(msg.get("cmd"),"REPLY"))
   {
-      //if(!strcmp(value.get("reply"),"ACK") && !strcmp(globalActor.type.c_str(),"std.Counter"))
       if(!strcmp(actors[0].type.c_str(),"std.Counter"))
       {
         handleTunnelData(msg, reply, request);
@@ -507,7 +505,7 @@ void CalvinMini::getIPFromRouter()
 void CalvinMini::loop()
 {
   lcdOut.write("Hello Calvin");
-  actors[0].fire = &actorStdOut;
+  //actors[0].fire = &actorStdOut;
   setupServer();
   while(1)
   {
