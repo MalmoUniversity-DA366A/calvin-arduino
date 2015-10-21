@@ -259,20 +259,6 @@ public:
   uint8_t packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg, uint8_t socket);
 
 #ifdef ARDUINO
-  /**
-   * Prints the IP-address assigned to the Ethernet shield.
-   */
-  void printIp(void);
-
-  /**
-   * Assign an IP-address to the Ethernet shield.
-   */
-  void getIPFromRouter(void);
-
-  /**
-   * Start a server connection
-   */
-  void setupServer(void);
 
   /**
    * Receive message from calvin base

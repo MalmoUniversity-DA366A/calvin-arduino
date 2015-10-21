@@ -460,50 +460,23 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
   request["type"] = "token";
 }
 
-//-----------kan tas bort--------------------
 #ifdef ARDUINO
-void CalvinMini::setupServer()
-{
-  //getIPFromRouter(); // Doesn't work with shield
-  Ethernet.begin(mac, ip);
-  printIp();
-  server.begin();
-}
-//-----------kan tas bort--------------------
-void CalvinMini::printIp()
-{
-    Serial.println(Ethernet.localIP());
-}
-//-----------kan tas bort--------------------
-void CalvinMini::getIPFromRouter()
-{
-    // Disable SD
-    pinMode(4,OUTPUT);
-    digitalWrite(4,HIGH);
-    if (Ethernet.begin(mac) == 0)
-    {
-        Serial.println("Failed to configure Ethernet using DHCP");
-        // Set static IP-address if fail
-        Ethernet.begin(mac, ip);
-    }
-}
 
 void CalvinMini::loop()
 {
 	lcdOut.write("Hello Calvin");
 	globalActor.fireActor = &StdOut;
+	//------------This should be set from within the skecth later on:-----------------
 	socketHandler.setupConnection(mac, ip);
+	//--------------------------------------------------------------------------------
 	socketHandler.prepareMessagesOut();
 	delay(500);
 	while(1)
 	{
-		// 1: Check connected sockets
-		socketHandler.determineSocketStatus();
-		// 3: Read message
-		socketHandler.recvAllMsg();
+		socketHandler.determineSocketStatus();									// 1: Check connected sockets
+		socketHandler.recvAllMsg();												// 3: Read message
 
-		// 4: Handle message
-		for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
+		for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 4: Handle message
 		{
 			const char* message = socketHandler.getMessagesIn(i).c_str();
 			if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
@@ -517,15 +490,12 @@ void CalvinMini::loop()
 			}
 		}
 
-		// 5: Fire Actors
-		globalActor.fireActor();
+		globalActor.fireActor();												// 5: Fire Actors
 
-		// 6: Send outgoing message
-		for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)
+		for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message
 		{
 			socketHandler.sendAllMsg(i);
 		}
-
 		socketHandler.NextSocket();
 	}
 }
