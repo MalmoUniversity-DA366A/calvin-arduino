@@ -29,12 +29,8 @@ uint8_t socketConnectionList[MAX_NBR_OF_SOCKETS]= {SOCKET_NOT_CONNECTED, SOCKET_
 String messagesIn[MAX_NBR_OF_SOCKETS];
 String messagesOut[messagesOutLenght];
 
-// Message counter for all sockets:
-uint8_t socket0count = 0;
-uint8_t socket1count = 0;
-uint8_t socket2count = 0;
-uint8_t socket3count = 0;
-
+// Stores message counters for all sockets:
+uint8_t messageCounters[MAX_NBR_OF_SOCKETS] = {0, 0, 0, 0};
 
 
 /**
@@ -104,26 +100,7 @@ void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
  */
 void HandleSockets::sendAllMsg(uint8_t socket)
 {
-	uint8_t startingPoint = 0;
-	switch(socket)													// determine starting point in list
-	{
-		case(0):
-				startingPoint = 0;
-				socket0count = 0;
-				break;
-		case(1):
-				startingPoint = NBR_OF_OUTGOING_MSG;
-				socket1count = 0;
-				break;
-		case(2):
-				startingPoint = 2*NBR_OF_OUTGOING_MSG;
-				socket2count = 0;
-				break;
-		case(3):
-				startingPoint = 3*NBR_OF_OUTGOING_MSG;
-				socket3count = 0;
-				break;
-	}
+	uint8_t startingPoint = socket * NBR_OF_OUTGOING_MSG;
 	for(int j = 0; j < NBR_OF_OUTGOING_MSG; j++)					// loop all messages
 	{
 		const char* message = messagesOut[startingPoint+j].c_str();
@@ -133,6 +110,7 @@ void HandleSockets::sendAllMsg(uint8_t socket)
 			messagesOut[startingPoint+j] = EMPTY_STR;
 		}
 	}
+	messageCounters[socket] = 0;
 }
 
 /**
@@ -196,41 +174,15 @@ String HandleSockets::getMessagesIn(uint8_t msgIndex)
  */
 uint8_t HandleSockets::addToMessagesOut(String reply, uint8_t socket)
 {
-	uint8_t replyNbr = 0;
-	switch(socket)
+	uint8_t replyNbr = 255;
+	if(messageCounters[socket]<NBR_OF_OUTGOING_MSG)
 	{
-	case(0):	//socket 0
-			if(socket0count<NBR_OF_OUTGOING_MSG)
-			{
-				messagesOut[socket0count] = reply;
-				socket0count = socket0count+1;
-				replyNbr = socket0count;
-			}
-			break;
-	case(1):	//socket 1
-			if(socket1count<NBR_OF_OUTGOING_MSG)
-			{
-				messagesOut[10+socket1count] = reply;
-				socket1count = socket1count+1;
-				replyNbr = socket1count;
-			}
-			break;
-	case(2):	//socket 2
-			if(socket2count<NBR_OF_OUTGOING_MSG)
-			{
-				messagesOut[20+socket2count] = reply;
-				socket2count = socket2count+1;
-				replyNbr = socket2count;
-			}
-			break;
-	case(3):	//socket 3
-			if(socket3count<NBR_OF_OUTGOING_MSG)
-			{
-				messagesOut[30+socket3count] = reply;
-				socket3count = socket3count+1;
-				replyNbr = socket3count;
-			}
-			break;
+		messagesOut[messageCounters[socket]] = reply;
+		messageCounters[socket] = messageCounters[socket]+1;
+		if(messageCounters[socket]<NBR_OF_OUTGOING_MSG)
+		{
+			replyNbr = messageCounters[socket];
+		}
 	}
 	return replyNbr;
 }
