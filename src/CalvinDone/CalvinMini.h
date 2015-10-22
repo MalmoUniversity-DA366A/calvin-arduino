@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string>
 #include "ArduinoJson.h"
-<<<<<<< HEAD
 
 #define MAX_LENGTH 									1
 #define standardOut(x)    							strlen(x)
@@ -12,13 +11,6 @@
 #define FIFO_SIZE     								8     //Must be a power of two
 #define NUMBER_OF_PORTS     						2
 #define NUMBER_OF_SUPPORTED_ACTORS					2
-=======
-#define standardOut(x)    strlen(x)
-#define ACTOR_SIZE      5
-#define QUEUE_SIZE      10
-#define FIFO_SIZE     	16     //Must be a power of two
-#define NUMBER_OF_PORTS     2
->>>>>>> integrateSockets
 #define RT_ID "calvin-arduino"
 #define tunnel_id "fake-tunnel"
 typedef unsigned char BYTE;
