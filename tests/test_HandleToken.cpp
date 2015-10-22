@@ -15,7 +15,7 @@ protected:
 	virtual void SetUp() {}
 	virtual void TearDown() {}
 };
-
+/*
 TEST(test_HandleToken, testProcess) {
 	actor testActor;
 	fifo testFifo;
@@ -43,7 +43,8 @@ TEST(test_HandleToken, testProcess) {
 
 	EXPECT_EQ(5, actorStdOut(&testActor));
 }
-
+*/
+/*
 TEST(test_HandleToken, testSize) {
 	// Create an instance of the Token
 	CalvinMini token;
@@ -116,4 +117,5 @@ TEST(test_HandleToken, testValues) {
 	EXPECT_STREQ("5678", reply.get("peer_port_id"));
 	EXPECT_STREQ("ACK", reply.get("value"));
 }
+*/
 #endif
