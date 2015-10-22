@@ -260,6 +260,15 @@ public:
   actorType getActorType(actor *);
 
   /**
+   *
+   */
+  void initActorList();
+  /**
+   *
+   */
+  int8_t getActorPos(const char*,actor *list);
+
+  /**
    * Adds messages to a global array and
    * creates the array size for sending
    * @param reply String
