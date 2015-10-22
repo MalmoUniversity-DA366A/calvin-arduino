@@ -16,9 +16,9 @@
 #include <LiquidCrystal.h>
 #include "handleSockets.h"
 
-byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0x0E, 0x02 };
+byte mac[] = { 0x00, 0xAA, 0xAB, 0xCC, 0x0E, 0x02 };
 //byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,10);
+IPAddress ip(192,168,0,20);
 //IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
