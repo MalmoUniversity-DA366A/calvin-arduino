@@ -25,6 +25,7 @@ EthernetServer server(slaveport);
 EthernetClient client;
 LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
 HandleSockets socketHandler;
+uint32_t lastPop[4];
 #endif
 
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
@@ -241,12 +242,18 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 #ifdef _MOCK_
 	pos = 0;
 #endif
-    request.set("data", fifoPop(&actors[pos].inportsFifo[0]));
-	request.set("type", "Token");
-	if(nextSequenceNbr)
+
+	if(nextSequenceNbr)					//if ACK
 	{
 		sequenceNbr++;
+		lastPop[socket] = fifoPop(&actors[pos].inportsFifo[0]);
+		request.set("data", lastPop[socket]);
 	}
+	else if(!nextSequenceNbr)			// if NACK
+	{
+		request.set("data", lastPop[socket]);
+	}
+	request.set("type", "Token");
 	reply.set("sequencenbr", sequenceNbr);
 
 	reply.set("token", request);
@@ -266,16 +273,19 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 	reply.set("tunnel_id",    tunnel_id); // None in python
 	if(!strcmp(value.get("cmd"), "TOKEN_REPLY") && !strcmp(value.get("value"), "NACK"))
 	{
+		Serial.print(" NACK ");
 		sendToken(value, request, token, socket, 0);
 	}
 	else if(!strcmp(value.get("cmd"), "TOKEN"))
 	{
 #ifdef ARDUINO
+		Serial.println("STD OUT");
 		handleMsg(value,reply,request, socket);
 #endif
 	}
 	else
 	{
+		Serial.println("ACK");
 		sendToken(value, request, token, socket, 1);
 	}
 	reply.set("value", request);
