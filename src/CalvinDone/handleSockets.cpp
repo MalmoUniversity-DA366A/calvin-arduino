@@ -88,8 +88,6 @@ void HandleSockets::prepareMessagesLists()
  */
 void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 {
-	Serial.print("Sending: ");
-	Serial.println(str);
 	BYTE hex[4] = {};
 	hex[0] = (length & 0xFF000000);
 	hex[1] = (length & 0x00FF0000);

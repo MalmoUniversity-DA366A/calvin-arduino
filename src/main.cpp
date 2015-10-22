@@ -17,7 +17,7 @@
 #include "CalvinDone/CalvinMini.h"
 #include "blinkLED.h"
 #include "uart.h"
-#include "CalvinInProgress/handleSockets.h"
+#include "CalvinDone/handleSockets.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 

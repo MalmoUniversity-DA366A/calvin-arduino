@@ -71,6 +71,7 @@ typedef struct actors{
   int8_t (*fire)(struct actors*);
   struct buffert inportsFifo[NUMBER_OF_PORTS];
   struct buffert outportsFifo[NUMBER_OF_PORTS];
+  uint8_t ackFlag;
 }actor;
 
 /**
@@ -183,7 +184,7 @@ public:
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
    * @param request is the JsonObject that is the nested JsonObject in the reply
    */
-  void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket);
+  void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket, uint8_t nextSequenceNbr);
 
   /**
    * This function is used to determine the length of FIFO

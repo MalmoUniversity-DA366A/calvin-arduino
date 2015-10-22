@@ -14,7 +14,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <LiquidCrystal.h>
-#include "../CalvinInProgress/handleSockets.h"
+#include "handleSockets.h"
 
 byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0x0E, 0x02 };
 //byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
@@ -71,7 +71,7 @@ int8_t actorCount(actor *inputActor)
 	Serial.println(tokenData);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
-	delay(400); // Stable at 300ms
+	//delay(400); // Stable at 300ms
 #endif
 
 	return allOk;
@@ -233,18 +233,21 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 	}
 }
 
-void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket)
+void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket, uint8_t nextSequenceNbr)
 {
 	int8_t pos;
 	pos = getActorPos("std.Counter",actors);
+	actors[pos].ackFlag = nextSequenceNbr;								// Determines if ACK or NACK
 #ifdef _MOCK_
 	pos = 0;
 #endif
     request.set("data", fifoPop(&actors[pos].inportsFifo[0]));
 	request.set("type", "Token");
-
+	if(nextSequenceNbr)
+	{
+		sequenceNbr++;
+	}
 	reply.set("sequencenbr", sequenceNbr);
-	sequenceNbr++;
 
 	reply.set("token", request);
 	reply.set("cmd", "TOKEN");
@@ -263,13 +266,7 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 	reply.set("tunnel_id",    tunnel_id); // None in python
 	if(!strcmp(value.get("cmd"), "TOKEN_REPLY") && !strcmp(value.get("value"), "NACK"))
 	{
-#ifdef ARDUINO
-		while(true)
-		{
-			  lcdOut.clear();
-			  lcdOut.write("NACK");
-		}
-#endif
+		sendToken(value, request, token, socket, 0);
 	}
 	else if(!strcmp(value.get("cmd"), "TOKEN"))
 	{
@@ -279,7 +276,7 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 	}
 	else
 	{
-		sendToken(value, request, token, socket);
+		sendToken(value, request, token, socket, 1);
 	}
 	reply.set("value", request);
 }
@@ -301,7 +298,9 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 
 	int8_t pos;
 	pos = getActorPos("std.Counter",actors);
-
+#ifdef _MOCK_
+	pos = 0;
+#endif
 	String port_id;
 	String peer_port_id;
 	if(outports.size() == 0)
@@ -329,8 +328,8 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 	request.set("peer_port_dir", 0);
 	request.set("tunnel_id", tunnel_id);
 	request.set("cmd", "PORT_CONNECT");
-	actors[1].peer_port_id = peer_port_id;
-	actors[1].port_id = port_id;
+	actors[pos].peer_port_id = peer_port_id;
+	actors[pos].port_id = port_id;
 }
 
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket)
@@ -494,7 +493,7 @@ void CalvinMini::loop()
 
 						for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)			// 5: Fire actors
 						{
-							if(strcmp(actors[i].type.c_str(),"empty"))
+							if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
 							{
 								actors[i].fire(&actors[i]);
 							}
