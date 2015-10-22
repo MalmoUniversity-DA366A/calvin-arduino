@@ -67,9 +67,9 @@ int HandleSockets::setupConnection(byte *macAdr)
 }
 
 /**
- * Makes sure messagesOut is properly filled with the EMPTY_STR string.
+ * Makes sure messagesOut and messagesIn is properly filled with the EMPTY_STR string.
  */
-void HandleSockets::prepareMessagesOut()
+void HandleSockets::prepareMessagesLists()
 {
 	for(int j = 0; j < messagesOutLenght; j++)
 	{
@@ -176,6 +176,7 @@ String HandleSockets::getMessagesIn(uint8_t msgIndex)
 	if(msgIndex < MAX_NBR_OF_SOCKETS)
 	{
 		reply = messagesIn[msgIndex];
+		messagesIn[msgIndex] = EMPTY_STR;
 	}
 	return reply;
 }

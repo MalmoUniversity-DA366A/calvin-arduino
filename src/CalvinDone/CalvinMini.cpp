@@ -415,7 +415,7 @@ void CalvinMini::loop()
 	//------------This should be set from within the skecth later on:-----------------
 	socketHandler.setupConnection(mac, ip);
 	//--------------------------------------------------------------------------------
-	socketHandler.prepareMessagesOut();
+	socketHandler.prepareMessagesLists();
 	delay(500);
 	while(1)
 	{
@@ -426,20 +426,25 @@ void CalvinMini::loop()
 			{
 				for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 4: Handle message
 				{
-					const char* message = socketHandler.getMessagesIn(i).c_str();
+					String str = socketHandler.getMessagesIn(i);
+					const char* message = str.c_str();
 					if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
 					{
-						String str = socketHandler.getMessagesIn(i);
+						Serial.print(i);
+						Serial.println(str);
 						StaticJsonBuffer<4096> jsonBuffer;
 						JsonObject &msg = jsonBuffer.parseObject(str.c_str());
 						JsonObject &reply = jsonBuffer.createObject();
 						JsonObject &request = jsonBuffer.createObject();
 						handleMsg(msg, reply, request, i);
+
+						//skall nog flyttas sen
+						globalActor.fireActor();						// 5: Fire Actors
 					}
 				}
-				globalActor.fireActor();
+
 			}
-																					// 5: Fire Actors
+
 
 			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message
 			{
