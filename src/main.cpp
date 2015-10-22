@@ -58,8 +58,6 @@ int main(void) {
 	CalvinMini mini;
 	mini.loop();
 
-	//HandleSockets socketTest;
-	//socketTest.testLoop();
 }
 #else
 
