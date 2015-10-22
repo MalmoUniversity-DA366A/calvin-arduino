@@ -233,6 +233,7 @@ uint8_t HandleSockets::addToMessagesOut(String reply, uint8_t socket)
  * Loops through all sockets to see if anything is to be read.
  * If data was received the message is stored in to messagesIn array.
  * If no data found specific string to determine this is added to the corresponding index.
+ * @return uint8_t status, 0 if nothing received, 1 if anything was received.
  */
 uint8_t HandleSockets::recvAllMsg()
 {

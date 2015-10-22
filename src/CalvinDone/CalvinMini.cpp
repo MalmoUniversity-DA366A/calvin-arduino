@@ -430,21 +430,17 @@ void CalvinMini::loop()
 					const char* message = str.c_str();
 					if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
 					{
-						Serial.print(i);
-						Serial.println(str);
 						StaticJsonBuffer<4096> jsonBuffer;
 						JsonObject &msg = jsonBuffer.parseObject(str.c_str());
 						JsonObject &reply = jsonBuffer.createObject();
 						JsonObject &request = jsonBuffer.createObject();
 						handleMsg(msg, reply, request, i);
 
-						//skall nog flyttas sen
+						//kanske ska flyttas sen?
 						globalActor.fireActor();						// 5: Fire Actors
 					}
 				}
-
 			}
-
 
 			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message
 			{
