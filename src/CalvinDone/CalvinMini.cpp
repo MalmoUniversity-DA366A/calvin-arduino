@@ -32,7 +32,7 @@ uint8_t nextMessage = 0;
 actor globalActor;
 fifo actorFifo;
 uint32_t sequenceNbr = 0;
-int TYPE=0;
+int TYPE=1;
 
 
 CalvinMini::CalvinMini(){
@@ -106,7 +106,11 @@ rStatus CalvinMini::createActor(JsonObject &msg){
   newActor.type = state.get("actor_type").asString();
   newActor.name = name.get("name");
   newActor.id = name.get("id");
-  newActor.count = (uint32_t)name.get("count");
+  JsonObject &fifoObject = name["outports"]["integer"]["fifo"];
+  JsonArray &fifoArray = fifoObject.get("fifo");
+  JsonObject &count = fifoArray.get(0);
+  newActor.count = (uint32_t)count.get("data");
+  //newActor.count = (uint32_t)name.get("count");
   type = getActorType(&newActor);
   if( (activeActors < NUMBER_OF_SUPPORTED_ACTORS) && (type != UNKNOWN_ACTOR))
   {
