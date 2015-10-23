@@ -185,6 +185,8 @@ public:
    * @param msg is JsonObject that is the message from Calvin-Base
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
    * @param request is the JsonObject that is the nested JsonObject in the reply
+   * @param socket is the socket which the token is to be sent to
+   * @param nextSequensNbr flags if an ACK or NACK was received. 1 for ACK, 0 for NACK
    */
   void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket, uint8_t nextSequenceNbr);
 
@@ -198,6 +200,7 @@ public:
    * Create a reply message for handle a join
    * @param msg JsonObject
    * @param reply JsonObject
+   * @param socket is the socket which is trying to join
    */
   void handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket);
 
@@ -214,8 +217,7 @@ public:
    * Function for handle the tunnel data using JSON, JSON is added to the JsonObject reference reply
    * @param &msg JsonObject received from Calvin-Base
    * @param &reply JsonObject that is added to the "reply" list
-   *
-   * Author: Jesper Hansen
+   * @param socket is the socket which the tunnel belongs to
    */
   void handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request, uint8_t socket);
 
@@ -224,6 +226,7 @@ public:
    * @param msg JsonObject
    * @param reply JsonObject
    * @param request JsonObject
+   * @param socket is the socket which the message belongs to
    */
   int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket);
 
@@ -236,6 +239,7 @@ public:
    * Function for handle a new Actor
    * @param msg is the JsonObject that is message from Calvin-Base
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
+   * @param socket is the socket which the actor belongs to
    */
   void handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t socket);
 
@@ -246,6 +250,7 @@ public:
    * @param msg input message
    * @param reply Calvin base reply list
    * @param request Calvin base reply list
+   * @param socket is the socket which the ports belongs to
    */
   void handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket);
 
@@ -268,6 +273,7 @@ public:
    * creates the array size for sending
    * @param reply String
    * @return uint8_t Number of Messages
+   * @param socket is the socket which the message is to be sent to
    */
   uint8_t addToMessageOut(String reply, uint8_t socket);
 
@@ -276,6 +282,7 @@ public:
    * @param reply JsonObject
    * @param request JsonObject
    * @param moreThanOneMsg Returns two messages if 1
+   * @param socket is the socket which the message is to be sent to
    * @return uint8_t Number of Messages
    */
   uint8_t packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg, uint8_t socket);

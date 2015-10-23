@@ -73,7 +73,6 @@ int8_t actorCount(actor *inputActor)
 	lcdOut.clear();
 	lcdOut.write(tokenData);
 #endif
-
 	return allOk;
 }
 
@@ -90,8 +89,8 @@ rStatus actorInit(actor *inputActor){
 	{
 		inputActor->fire = &actorCount;
 	}
-  /*This sets up the fifo for the actor, not sure
-   *if it should be done here but for now it works*/
+	/*This sets up the fifo for the actor, not sure
+	 *if it should be done here but for now it works*/
 	inputActor->inportsFifo[0] = actorFifo;
 	allOk = initFifo(&inputActor->inportsFifo[0]);
 
@@ -103,7 +102,6 @@ rStatus actorInit(actor *inputActor){
 rStatus CalvinMini::createActor(JsonObject &msg){
 	rStatus allOk = FAIL;
 	actor newActor;
-
 	JsonObject &state = msg.get("state");
 	JsonObject &name = state.get("actor_state");
 	newActor.type = state.get("actor_type").asString();
@@ -116,7 +114,8 @@ rStatus CalvinMini::createActor(JsonObject &msg){
 	if( (activeActors < NUMBER_OF_SUPPORTED_ACTORS))
 	{
 		actors[activeActors] = newActor;
-	}else
+	}
+	else
 	{
 		return FAIL;
 	}
@@ -132,10 +131,12 @@ actorType CalvinMini::getActorType(actor *inputActor)
 	if(!strcmp(inputActor->type.c_str(),"io.StandardOut"))
 	{
 		ret = STD_ACTOR;
-	}else if(!strcmp(inputActor->type.c_str(),"std.Counter"))
+	}
+	else if(!strcmp(inputActor->type.c_str(),"std.Counter"))
 	{
 		ret = COUNT_ACTOR;
-	}else
+	}
+	else
 	{
 		ret = UNKNOWN_ACTOR;
 	}
@@ -182,7 +183,7 @@ rStatus fifoAdd(fifo *fif, uint32_t element){
 
 	if(lengthOfData(fif) == (fif->size-1))
 	{
-	return FAIL;      //fifo full;
+		return FAIL;      	//fifo full;
 	}
 	fif->element[fif->write] = element;
 	fif->write = (fif->write + 1) & (fif->size - 1);
@@ -194,11 +195,10 @@ uint32_t fifoPop(fifo *fif){
 	uint32_t ret;
 	if(lengthOfData(fif) == 0)
 	{
-	return FAIL;    //fifo empty
+		return FAIL;    	//fifo empty
 	}
 	ret = fif->element[fif->read];
 	fif->read = (fif->read + 1) & (fif->size - 1);
-
 	return ret;
 }
 
@@ -254,7 +254,6 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 	}
 	request.set("type", "Token");
 	reply.set("sequencenbr", sequenceNbr);
-
 	reply.set("token", request);
 	reply.set("cmd", "TOKEN");
 	reply.set("port_id", actors[pos].port_id);
@@ -431,7 +430,6 @@ uint8_t CalvinMini::addToMessageOut(String reply, uint8_t socket)
 	nextMessage = socketHandler.addToMessagesOut(reply, socket);
 	return nextMessage;
 }
-
 
 void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket)
 {
