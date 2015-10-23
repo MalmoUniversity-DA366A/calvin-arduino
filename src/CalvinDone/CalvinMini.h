@@ -1,28 +1,42 @@
 #ifndef CALVINDONE_CALVINMINI_H_
 #define CALVINDONE_CALVINMINI_H_
-
-#define MAX_LENGTH 1
 #include <stdio.h>
 #include <string>
 #include "ArduinoJson.h"
-#define standardOut(x)    strlen(x)
-#define ACTOR_SIZE      5
-#define QUEUE_SIZE      10
-#define FIFO_SIZE     8     //Must be a power of two
-#define NUMBER_OF_PORTS     2
-#define RT_ID "calvin-arduino"
+
+#define MAX_LENGTH                  1
+#define standardOut(x)                  strlen(x)
+#define ACTOR_SIZE                    5
+#define QUEUE_SIZE                    10
+#define FIFO_SIZE                     8     //Must be a power of two
+#define NUMBER_OF_PORTS                 2
+#define NUMBER_OF_SUPPORTED_ACTORS          2
+//#define RT_ID "calvin-arduino"
+//#define tunnel_id "fake-tunnel"
+#define RT_ID "calvin-Andreas"
 #define tunnel_id "fake-tunnel"
 typedef unsigned char BYTE;
 
 extern "C"{
 /*
- * Enum for testing functions SUCCESS indicates
+ * Enumerator for testing functions SUCCESS indicates
  * operation success and FAIL for operation faield.
  */
 typedef enum{
   SUCCESS,
   FAIL
 }rStatus;
+
+/*
+ * These are actor types used to keep
+ * track of different actors in the global
+ * actor array.
+ */
+typedef enum{
+  STD_ACTOR,
+  COUNT_ACTOR,
+  UNKNOWN_ACTOR
+}actorType;
 
 /**
  * This is the buffert for a actor. To use an actors port fifo
@@ -56,9 +70,10 @@ typedef struct actors{
   String peer_port_id;
   String port_id;
   uint32_t count;
-  int8_t (*fireActor)();
-  struct buffert *inportsFifo[NUMBER_OF_PORTS];
-  struct buffert *outportsFifo[NUMBER_OF_PORTS];
+  int8_t (*fire)(struct actors*);
+  struct buffert inportsFifo[NUMBER_OF_PORTS];
+  struct buffert outportsFifo[NUMBER_OF_PORTS];
+  uint8_t ackFlag;
 }actor;
 
 /**
@@ -115,18 +130,18 @@ int8_t lengthOfData(fifo*);
  *  well thats the only way i could ad a function pointer to a strut,
  *  Apparently c++ handles this different from c.
  */
-rStatus actorInit();
+rStatus actorInit(actor*);
 rStatus actorInitTest();
 
 /**
  * Current standard out is the lcd screen connected to arduino due
  */
-int8_t StdOut();
+int8_t actorStdOut(actor*);
 
 /**
  * Increment the count each time the actor fires
  */
-int8_t actorCount();
+int8_t actorCount(actor*);
 
 }
 
@@ -134,12 +149,13 @@ using namespace std;
 class CalvinMini
 {
 public:
-	/**
-	 * Create an new actor.
-	 * @param msg json list
-	 * @return return 1 if successful.
-	 */
-	rStatus createActor(JsonObject &msg);
+  CalvinMini(void);
+  /**
+   * Create an new actor.
+   * @param msg json list
+   * @return return 1 if successful.
+   */
+  rStatus createActor(JsonObject &msg);
 
   /**
    * Process an incomming token and add the token data to
@@ -169,8 +185,10 @@ public:
    * @param msg is JsonObject that is the message from Calvin-Base
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
    * @param request is the JsonObject that is the nested JsonObject in the reply
+   * @param socket is the socket which the token is to be sent to
+   * @param nextSequensNbr flags if an ACK or NACK was received. 1 for ACK, 0 for NACK
    */
-  void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request);
+  void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket, uint8_t nextSequenceNbr);
 
   /**
    * This function is used to determine the length of FIFO
@@ -182,8 +200,9 @@ public:
    * Create a reply message for handle a join
    * @param msg JsonObject
    * @param reply JsonObject
+   * @param socket is the socket which is trying to join
    */
-  void handleJoin(JsonObject &msg, JsonObject &reply);
+  void handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket);
 
   /**
    * Method for setting up a tunnel using JSON message back to Calvin-Base,
@@ -198,18 +217,18 @@ public:
    * Function for handle the tunnel data using JSON, JSON is added to the JsonObject reference reply
    * @param &msg JsonObject received from Calvin-Base
    * @param &reply JsonObject that is added to the "reply" list
-   *
-   * Author: Jesper Hansen
+   * @param socket is the socket which the tunnel belongs to
    */
-  void handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request);
+  void handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request, uint8_t socket);
 
   /**
    * Handle all different messages
    * @param msg JsonObject
    * @param reply JsonObject
    * @param request JsonObject
+   * @param socket is the socket which the message belongs to
    */
-  int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request);
+  int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket);
 
   /**
    * The main loop for Calvin Arduino
@@ -220,8 +239,9 @@ public:
    * Function for handle a new Actor
    * @param msg is the JsonObject that is message from Calvin-Base
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
+   * @param socket is the socket which the actor belongs to
    */
-  void handleActorNew(JsonObject &msg, JsonObject &reply);
+  void handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t socket);
 
   /**
    * Setup ports. The current version of calvin arduino only uses
@@ -230,56 +250,43 @@ public:
    * @param msg input message
    * @param reply Calvin base reply list
    * @param request Calvin base reply list
+   * @param socket is the socket which the ports belongs to
    */
-  void handleSetupPorts(JsonObject &msg,JsonObject &request);
+  void handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket);
 
   /**
-   * Reply message to calvin base
-   * @param str char pointer of String
-   * @param length size of String
-   * @return uint8_t Check if length is transformed right
+   *
    */
-  uint8_t sendMsg(const char *str, uint32_t length);
+  actorType getActorType(actor *);
+
+  /**
+   *
+   */
+  void initActorList();
+  /**
+   *
+   */
+  int8_t getActorPos(const char*,actor *list);
 
   /**
    * Adds messages to a global array and
    * creates the array size for sending
    * @param reply String
    * @return uint8_t Number of Messages
+   * @param socket is the socket which the message is to be sent to
    */
-  uint8_t addToMessageOut(String reply);
+  uint8_t addToMessageOut(String reply, uint8_t socket);
 
   /**
    * Creates an outmessage to Calvin base
    * @param reply JsonObject
    * @param request JsonObject
    * @param moreThanOneMsg Returns two messages if 1
+   * @param socket is the socket which the message is to be sent to
    * @return uint8_t Number of Messages
    */
-  uint8_t packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg);
+  uint8_t packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg, uint8_t socket);
 
-#ifdef ARDUINO
-  /**
-   * Prints the IP-address assigned to the Ethernet shield.
-   */
-  void printIp(void);
-
-  /**
-   * Assign an IP-address to the Ethernet shield.
-   */
-  void getIPFromRouter(void);
-
-  /**
-   * Start a server connection
-   */
-  void setupServer(void);
-
-  /**
-   * Receive message from calvin base
-   * @return String
-   */
-  String recvMsg(void);
-#endif
 };
 
 

@@ -22,8 +22,8 @@ TEST(testCounter, testReceiveCounter)
                  ", \"outports\": {\"f4822772-bca4-465c-8109-a1e7a960e304\": [[\"422828ae-02c1-4d2f-9837-43a32fb6decb\", \"98f7f8ad-f4d3-44ae-9228-728a54c2fee3\"]]}}"
                  ", \"actor_type\": \"std.Counter\", \"actor_state\": {\"count\": 117, \"name\": \"test3:src\", \"inports\": {}, \"_managed\": [\"count\", \"id\", \"name\"]"
                  ", \"outports\": {\"integer\": {\"fanout\": 1, \"name\": \"integer\", \"fifo\": {\"write_pos\": 117, \"readers\": [\"98f7f8ad-f4d3-44ae-9228-728a54c2fee3\"]"
-                 ", \"fifo\": [{\"data\": 116, \"type\": \"Token\"}, {\"data\": 117, \"type\": \"Token\"}, {\"data\": 113, \"type\": \"Token\"}"
-                 ", {\"data\": 114, \"type\": \"Token\"}, {\"data\": 115, \"type\": \"Token\"}], \"N\": 5, \"tentative_read_pos\": {\"98f7f8ad-f4d3-44ae-9228-728a54c2fee3\": 113}"
+                 ", \"fifo\": [{\"data\": 113, \"type\": \"Token\"}, {\"data\": 114, \"type\": \"Token\"}, {\"data\": 115, \"type\": \"Token\"}"
+                 ", {\"data\": 116, \"type\": \"Token\"}, {\"data\": 117, \"type\": \"Token\"}], \"N\": 5, \"tentative_read_pos\": {\"98f7f8ad-f4d3-44ae-9228-728a54c2fee3\": 113}"
                  ", \"read_pos\": {\"98f7f8ad-f4d3-44ae-9228-7228a54c2fee3\": 113}}, \"id\": \"f4822772-bca4-465c-8109-a1e7a960e304\"}}"
                  ", \"id\": \"6bc4b467-a2d2-4254-ad84-bf918231c68e\"}}, \"cmd\": \"ACTOR_NEW\", \"msg_uuid\": \"fd71b46d-0e44-4298-9bb3-61aa0420bc45\"}";
 
@@ -31,6 +31,12 @@ TEST(testCounter, testReceiveCounter)
     JsonObject &msg = jsonBuffer.parseObject(str.c_str());
     JsonObject &reply = jsonBuffer.createObject();
     JsonObject &request = jsonBuffer.createObject();
+
+    // Test what number arduino should start counting from
+    JsonObject &fifoObject = msg["state"]["actor_state"]["outports"]["integer"]["fifo"];
+    JsonArray &fifoArray = fifoObject.get("fifo");
+    JsonObject &count = fifoArray.get(0);
+    EXPECT_EQ(113,(uint32_t)count.get("data"));
 
     int8_t size = mini.handleMsg(msg, reply, request);
     JsonObject &actor_state = msg["state"]["actor_state"];
@@ -50,4 +56,21 @@ TEST(testCounter, testReceiveCounter)
     EXPECT_STREQ("PORT_CONNECT", request["cmd"]);
 }
 
+TEST(testCounter, testCounterACK)
+{
+    CalvinMini mini;
+    String str = "{\"to_rt_uuid\": \"calvin-arduino\", \"from_rt_uuid\": \"babc045f-5da1-4eb1-a08e-95e6a272cfde\""
+                 ", \"cmd\": \"TUNNEL_DATA\", \"value\": {\"sequencenbr\": 0, \"peer_port_id\": \"50017184-4e7f-4f76-8c39-9e1f35f59b46\""
+                 ", \"cmd\": \"TOKEN_REPLY\", \"port_id\": \"be1fbbb2-9fb3-4bac-bb94-0e601f2df6df\", \"value\": \"ACK\"}, \"tunnel_id\": \"fake-tunnel\"}";
+
+    StaticJsonBuffer<4096> jsonBuffer;
+    JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+    JsonObject &reply = jsonBuffer.createObject();
+    JsonObject &request = jsonBuffer.createObject();
+
+    int8_t size = mini.handleMsg(msg, reply, request);
+
+    // Test if number of outgoing messages is 1
+    EXPECT_EQ(size, 1);
+}
 #endif
