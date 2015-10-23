@@ -16,7 +16,7 @@ protected:
 
 TEST(testStdOut, testStandardOut)
 {
-    CalvinMini mini;
+    CalvinMini *mini = new CalvinMini;
     String str = "{\"to_rt_uuid\": \"calvin-arduino\", \"from_rt_uuid\": \"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"state\": {\"prev_connections\": {\"actor_name\": \"test3:snk\""
                  ", \"inports\": {\"eca87eb7-ffde-4207-b363-31f0ab760050\": [\"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"fa46a0e5-388e-45fc-b615-b8e3ed3d9594\"]}"
                  ", \"actor_id\": \"551cdc91-633e-4f70-954d-8e28589a8e44\", \"outports\": {}}, \"actor_type\": \"io.StandardOut\", \"actor_state\": {\"store_tokens\": false"
@@ -31,7 +31,11 @@ TEST(testStdOut, testStandardOut)
     JsonObject &reply = jsonBuffer.createObject();
     JsonObject &request = jsonBuffer.createObject();
 
-    int8_t size = mini.handleMsg(msg, reply, request);
+
+    mini->handleMsg(msg, reply, request, 0);
+
+    int8_t size = mini->handleMsg(msg, reply, request, 0);
+
     JsonObject &actor_state = msg["state"]["actor_state"];
 
     // Test if number of outgoing messages is 2
@@ -47,6 +51,6 @@ TEST(testStdOut, testStandardOut)
     // Test if PORT_CONNECT is returned cmd
     // which it should be after an actor migrate
     EXPECT_STREQ("PORT_CONNECT", request["cmd"]);
-
+    delete mini;
 }
 #endif

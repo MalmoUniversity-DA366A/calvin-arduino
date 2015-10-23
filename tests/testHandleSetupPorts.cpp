@@ -35,10 +35,9 @@ TEST(SetupPortTest,HandlePorts)
 
 	StaticJsonBuffer<4096> jsonBuffer;
 	JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-	actorInitTest();
 	// Create a empty JsonObject with an StaticJsonBuffer
 	JsonObject &request = jsonBuffer.createObject();
-	mini.handleSetupPorts(msg,request);
+	mini.handleSetupPorts(msg,request, 0);
 
 	EXPECT_STREQ(request.get("msg_uuid"),
 			"MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");

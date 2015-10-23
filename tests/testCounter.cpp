@@ -38,7 +38,7 @@ TEST(testCounter, testReceiveCounter)
     JsonObject &count = fifoArray.get(0);
     EXPECT_EQ(113,(uint32_t)count.get("data"));
 
-    int8_t size = mini.handleMsg(msg, reply, request);
+    int8_t size = mini.handleMsg(msg, reply, request, 0);
     JsonObject &actor_state = msg["state"]["actor_state"];
 
     // Test if number of outgoing messages is 2
@@ -68,9 +68,32 @@ TEST(testCounter, testCounterACK)
     JsonObject &reply = jsonBuffer.createObject();
     JsonObject &request = jsonBuffer.createObject();
 
-    int8_t size = mini.handleMsg(msg, reply, request);
+    int8_t size = mini.handleMsg(msg, reply, request, 0);
 
     // Test if number of outgoing messages is 1
     EXPECT_EQ(size, 1);
 }
+
+TEST(testCounter,testCounting)
+{
+	CalvinMini mini;
+	actor testActor;
+	fifo testFifo;
+	initFifo(&testFifo);
+	testActor.inportsFifo[0] = testFifo;
+	fifoPop(&testActor.inportsFifo[0]);
+	testActor.count = 0;
+	EXPECT_EQ(0,testActor.count);
+	EXPECT_EQ(0,actorCount(&testActor));
+	EXPECT_EQ(1,testActor.count);
+	fifoPop(&testActor.inportsFifo[0]);
+	testActor.count = 0;
+	for(int i = 0; i < 1000; i++){
+		actorCount(&testActor);
+		EXPECT_EQ(i+1,fifoPop(&testActor.inportsFifo[0]));
+	}
+	EXPECT_EQ(1000,testActor.count);
+
+}
+
 #endif

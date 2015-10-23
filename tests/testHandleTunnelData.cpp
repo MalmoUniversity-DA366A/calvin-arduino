@@ -29,7 +29,7 @@ TEST(testHandleTunnelData, testSize) {
 	value.set("cmd","ACK");
 	msg.set("value",value);
 
-	calvinMini.handleTunnelData(msg, reply, request);
+	calvinMini.handleTunnelData(msg, reply, request, 0);
 
 	EXPECT_EQ(5, reply.size());
 }
@@ -47,7 +47,7 @@ TEST(testHandleTunnelData, testContainsKey) {
 	value.set("cmd","ACK");
 	msg.set("value",value);
 
-	calvinMini.handleTunnelData(msg, reply, request);
+	calvinMini.handleTunnelData(msg, reply, request, 0);
 
 	EXPECT_TRUE(reply.containsKey("to_rt_uuid"));
 	EXPECT_TRUE(reply.containsKey("from_rt_uuid"));
@@ -69,7 +69,7 @@ TEST(testHandleTunnelData, testValues) {
 	value.set("cmd","ACK");
 	msg.set("value",value);
 
-	calvinMini.handleTunnelData(msg, reply, request);
+	calvinMini.handleTunnelData(msg, reply, request, 0);
 
 	EXPECT_STREQ("calvin-arduino", reply.get("from_rt_uuid"));
 	EXPECT_STREQ("3456", reply.get("to_rt_uuid"));

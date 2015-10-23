@@ -20,7 +20,7 @@ TEST(testHandleJoin, testReplyObject)
     StaticJsonBuffer<500> jsonBuffer;
     JsonObject &msg = jsonBuffer.createObject();
     JsonObject &reply = jsonBuffer.createObject();
-    mini.handleJoin(msg, reply);
+    mini.handleJoin(msg, reply, 0);
 
     // Test content of object
     EXPECT_TRUE(reply.containsKey("cmd"));
@@ -38,7 +38,7 @@ TEST(testHandleJoin, testSize)
     StaticJsonBuffer<500> jsonBuffer;
     JsonObject &msg = jsonBuffer.createObject();
     JsonObject &reply = jsonBuffer.createObject();
-    mini.handleJoin(msg, reply);
+    mini.handleJoin(msg, reply, 0);
 
     // Test size of object
     EXPECT_EQ(4, reply.size());

@@ -4,21 +4,20 @@
 #include <string>
 #include "ArduinoJson.h"
 
-#define MAX_LENGTH                  1
-#define standardOut(x)                  strlen(x)
-#define ACTOR_SIZE                    5
-#define QUEUE_SIZE                    10
-#define FIFO_SIZE                     8     //Must be a power of two
-#define NUMBER_OF_PORTS                 2
-#define NUMBER_OF_SUPPORTED_ACTORS          2
-//#define RT_ID "calvin-arduino"
-//#define tunnel_id "fake-tunnel"
-#define RT_ID "calvin-Andreas"
+#define MAX_LENGTH 									1
+#define standardOut(x)    							strlen(x)
+#define ACTOR_SIZE      							5
+#define QUEUE_SIZE      							10
+#define FIFO_SIZE     								8     //Must be a power of two
+#define NUMBER_OF_PORTS     						2
+#define NUMBER_OF_SUPPORTED_ACTORS					2
+#define RT_ID "calvin-arduino"
+//#define RT_ID "calvin-Andreas"
 #define tunnel_id "fake-tunnel"
 typedef unsigned char BYTE;
 
 extern "C"{
-/*
+/**
  * Enumerator for testing functions SUCCESS indicates
  * operation success and FAIL for operation faield.
  */
@@ -27,15 +26,15 @@ typedef enum{
   FAIL
 }rStatus;
 
-/*
+/**
  * These are actor types used to keep
  * track of different actors in the global
  * actor array.
  */
 typedef enum{
-  STD_ACTOR,
-  COUNT_ACTOR,
-  UNKNOWN_ACTOR
+	STD_ACTOR,
+	COUNT_ACTOR,
+	UNKNOWN_ACTOR
 }actorType;
 
 /**
@@ -149,13 +148,13 @@ using namespace std;
 class CalvinMini
 {
 public:
-  CalvinMini(void);
-  /**
-   * Create an new actor.
-   * @param msg json list
-   * @return return 1 if successful.
-   */
-  rStatus createActor(JsonObject &msg);
+	CalvinMini(void);
+	/**
+	 * Create an new actor.
+	 * @param msg json list
+	 * @return return 1 if successful.
+	 */
+	rStatus createActor(JsonObject &msg);
 
   /**
    * Process an incomming token and add the token data to

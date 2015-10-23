@@ -1,5 +1,5 @@
 #ifdef ARDUINO
-/*
+/**
  * Template project for arduino due. This project
  * includes the standard functions from the Arduino
  * library.
@@ -17,7 +17,7 @@
 #include "CalvinDone/CalvinMini.h"
 #include "blinkLED.h"
 #include "uart.h"
-
+#include "CalvinDone/handleSockets.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
@@ -54,8 +54,10 @@ int main(void) {
 
 	init_board();
 	Serial.begin(115200);
+
 	CalvinMini mini;
 	mini.loop();
+
 }
 #else
 
