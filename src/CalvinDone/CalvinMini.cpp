@@ -72,7 +72,6 @@ int8_t actorCount(actor *inputActor)
 	Serial.println(tokenData);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
-	//delay(400); // Stable at 300ms
 #endif
 
 	return allOk;
@@ -273,19 +272,16 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 	reply.set("tunnel_id",    tunnel_id); // None in python
 	if(!strcmp(value.get("cmd"), "TOKEN_REPLY") && !strcmp(value.get("value"), "NACK"))
 	{
-		Serial.print(" NACK ");
 		sendToken(value, request, token, socket, 0);
 	}
 	else if(!strcmp(value.get("cmd"), "TOKEN"))
 	{
 #ifdef ARDUINO
-		Serial.println("STD OUT");
 		handleMsg(value,reply,request, socket);
 #endif
 	}
 	else
 	{
-		Serial.println("ACK");
 		sendToken(value, request, token, socket, 1);
 	}
 	reply.set("value", request);
@@ -369,10 +365,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 
 		uint8_t moreThanOneMsg = 1;
 		uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-		#ifdef ARDUINO
-		lcdOut.clear();
-		lcdOut.write("ACTOR_NEW");
-		#endif
 		return size;
 	}
 	else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
@@ -403,18 +395,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 		uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
 		return size;
 	}
-	/*JsonObject &value = msg["value"];
-	if(!strcmp(value.get("status"),"ACK"))
-	{
-	  Serial.println("ACK");
-	}
-	else
-	{
-	#ifdef ARDUINO
-	  Serial.println("NACK");
-	#endif
-	}*/
-	return 6;
+		return 6;
 	}
 	else
 	{
