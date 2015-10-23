@@ -113,7 +113,7 @@ void HandleSockets::sendAllMsg(uint8_t socket)
 			sendMsg(socket, messagesOut[startingPoint+j].c_str(), messagesOut[startingPoint+j].length());
 			messagesOut[startingPoint+j] = EMPTY_STR;
 		}
-		flush(socket);
+		flush(socket);												// flushes outgoing messages to reduce latency
 	}
 	messageCounters[socket] = 0;
 }
