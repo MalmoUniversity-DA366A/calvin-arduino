@@ -7,13 +7,12 @@
 #include <stdio.h>
 #include "CalvinMini.h"
 #include <inttypes.h>
-#include <string>
 
 #ifdef ARDUINO
 #include <SPI.h>
 #include <Ethernet.h>
 #include <LiquidCrystal.h>
-#include "handleSockets.h"
+#include "HandleSockets.h"
 
 byte mac[] = { 0x00, 0xAA, 0xAB, 0xCC, 0x0E, 0x02 };
 //byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
@@ -338,7 +337,6 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket)
 {
 	int8_t pos;
-	char replyTemp[2048] = {};
 	if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
 	{
 		  // JsonObject for replying a join request

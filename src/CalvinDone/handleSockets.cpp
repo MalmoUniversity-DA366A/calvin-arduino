@@ -1,5 +1,6 @@
+
 /**
- * handleSockets.cpp
+ * HandleSockets.cpp
  *
  *  Created on: 13 okt. 2015
  *      Author: Andreas
@@ -7,12 +8,13 @@
 #ifdef ARDUINO
 #include <SPI.h>
 #include <Ethernet.h>
-#include "handleSockets.h"
 #include <utility/w5100.h>
 #include <utility/socket.h>
-
+#endif
+#include "HandleSockets.h"
+#ifdef ARDUINO
 // ------------- This should be set from the sketch: ---------------------
-byte testMac[] = { 0xAA, 0xBB, 0xDA, 0x0E, 0xF5, 0x93 };
+BYTE testMac[] = { 0xAA, 0xBB, 0xDA, 0x0E, 0xF5, 0x93 };
 IPAddress testIp(192,168,0,10);
 
 uint16_t testPort = 5002;
@@ -20,7 +22,7 @@ EthernetServer testServer(testPort);
 //------------------------------------------------------------------------
 
 const uint8_t messagesOutLenght = MAX_NBR_OF_SOCKETS*NBR_OF_OUTGOING_MSG;		//to keep track of the maximum amount of outgoing messages
-byte listening = 0;
+BYTE listening = 0;
 
 // Various list for handling sockets, incoming and outgoing messages:
 uint8_t socketStat[MAX_NBR_OF_SOCKETS];
@@ -32,13 +34,13 @@ String messagesOut[messagesOutLenght];
 // Stores message counters for all sockets:
 uint8_t messageCounters[MAX_NBR_OF_SOCKETS] = {0, 0, 0, 0};
 
-void HandleSockets::setupConnection(byte *macAdr, IPAddress ipAdr)
+void HandleSockets::setupConnection(BYTE *macAdr, IPAddress ipAdr)
 {
 	Ethernet.begin(macAdr, ipAdr);
 	testServer.begin();
 }
 
-int HandleSockets::setupConnection(byte *macAdr)
+uint8_t HandleSockets::setupConnection(BYTE *macAdr)
 {
 	int status = 0;
 	if (Ethernet.begin(macAdr) == 0)
@@ -64,18 +66,26 @@ void HandleSockets::prepareMessagesLists()
 		messagesIn[i] = EMPTY_STR;
 	}
 }
+#endif
 
-void HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
+uint8_t HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 {
 	BYTE hex[4] = {};
 	hex[0] = (length & 0xFF000000);
 	hex[1] = (length & 0x00FF0000);
 	hex[2] = (length & 0x0000FF00) / 0x000000FF;
 	hex[3] = (length & 0x000000FF);
+#ifdef ARDUINO
 	send(socket,(unsigned char*)hex, 4);						// send length of message
 	send(socket,(unsigned char*)str, length);					// send actual message
+#endif
+	if(length == (hex[2]*256 + hex[3]))
+	    return 1;
+	  else
+	    return 0;
 }
 
+#ifdef ARDUINO
 void HandleSockets::sendAllMsg(uint8_t socket)
 {
 	uint8_t startingPoint = socket * NBR_OF_OUTGOING_MSG;

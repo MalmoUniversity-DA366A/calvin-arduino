@@ -1,5 +1,5 @@
 /**
- * handleSockets.h
+ * HandleSockets.h
  *
  *  Created on: 13 okt. 2015
  *      Author: Andreas
@@ -8,6 +8,8 @@
 #ifndef CALVININPROGRESS_HANDLESOCKETS_H_
 #define CALVININPROGRESS_HANDLESOCKETS_H_
 
+#include <inttypes.h>
+#include "ArduinoJson.h"
 typedef unsigned char BYTE;
 #define MAX_LENGTH 1
 #define MAX_NBR_OF_SOCKETS MAX_SOCK_NUM
@@ -19,15 +21,15 @@ class HandleSockets
 {
 public:
 	const char* EMPTY_STR = "_$EMPTY$_";
-
+#ifdef ARDUINO
 	/**
 	 * Manual IP-configuration
 	 * Setting up Ethernet connection and Ethernet server listening on specified port.
 	 * @param byte* MAC-address of the Ethernet-shield,
 	 * @param IPAddress desired IP-address
 	 */
-	void setupConnection(byte *macAdr, IPAddress ipAdr);
-
+	void setupConnection(BYTE *macAdr, IPAddress ipAdr);
+#endif
 	/**
 	 * DHCP-request
 	 * Setting up Ethernet connection and Ethernet server listening on specified port.
@@ -35,7 +37,7 @@ public:
 	 * @param byte* MAC-address of the Ethernet-shield.
 	 * @return returns 1 if success, 0 if failed to  IP-address through DHCP
 	 */
-	int setupConnection(byte *macAdr);
+	uint8_t setupConnection(BYTE *macAdr);
 
 	/**
 	 * Check if anyone is connected.
@@ -50,8 +52,9 @@ public:
 	 * @param uint8_t socket
 	 * @param const char* message to send
 	 * @param uint16_t length of the message
+	 * @return uint8_t Check if length is handled right
 	 */
-	void sendMsg(uint8_t socket, const char *str, uint16_t length);
+	uint8_t sendMsg(uint8_t socket, const char *str, uint16_t length);
 
 	/**
 	 * Sends all outgoing messages stored in messagesOut[] to corresponding socket.

@@ -1,7 +1,6 @@
 #ifndef CALVINDONE_CALVINMINI_H_
 #define CALVINDONE_CALVINMINI_H_
 #include <stdio.h>
-#include <string>
 #include "ArduinoJson.h"
 
 #define MAX_LENGTH 									1
