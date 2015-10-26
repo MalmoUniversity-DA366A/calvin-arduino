@@ -13,6 +13,7 @@
 #include <Ethernet.h>
 #include <LiquidCrystal.h>
 #include "HandleSockets.h"
+#include "actors.h"
 
 byte mac[] = { 0x00, 0xAA, 0xAB, 0xCC, 0x0E, 0x02 };
 //byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
@@ -21,14 +22,12 @@ IPAddress ip(192,168,0,20);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
-LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
+LiquidCrystal lcdOutMain(52, 50, 48, 46, 44, 42);
 HandleSockets socketHandler;
 #endif
 uint32_t lastPop[4];
-
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
 uint8_t activeActors;
-
 uint8_t nextMessage;
 uint32_t sequenceNbr;
 
@@ -38,62 +37,6 @@ CalvinMini::CalvinMini()
 	nextMessage = 0;
 	sequenceNbr = 0;
 	activeActors = 0;
-}
-
-int8_t actorStdOut(actor *inputActor)
-{
-	uint8_t inFifo;
-	char tokenData[16];
-	inFifo = lengthOfData(&inputActor->inportsFifo[0]);
-	if(inFifo > 0)
-	{
-		sprintf(tokenData,"%d",(uint32_t)fifoPop(&inputActor->inportsFifo[0]));
-	}
-#ifdef ARDUINO
-	Serial.println(tokenData);
-	lcdOut.clear();
-	lcdOut.write(tokenData);
-#endif
-	return standardOut(tokenData);
-}
-
-int8_t actorCount(actor *inputActor)
-{
-	int8_t allOk = FAIL;
-	uint32_t count;
-	char tokenData[16];
-	++(inputActor->count);
-	count = inputActor->count;
-	allOk = fifoAdd(&inputActor->inportsFifo[0],count);
-	sprintf(tokenData,"%d",(uint32_t)count);
-#ifdef ARDUINO
-	Serial.println(tokenData);
-	lcdOut.clear();
-	lcdOut.write(tokenData);
-#endif
-	return allOk;
-}
-
-extern "C"{
-rStatus actorInit(actor *inputActor){
-	rStatus allOk = FAIL;
-	fifo actorFifo;
-	if(!strcmp(inputActor->type.c_str(),"io.StandardOut"))
-	{
-		inputActor->fire = &actorStdOut;
-	}
-	else
-	{
-		inputActor->fire = &actorCount;
-	}
-	/*This sets up the fifo for the actor, not sure
-	 *if it should be done here but for now it works*/
-	inputActor->inportsFifo[0] = actorFifo;
-	allOk = initFifo(&inputActor->inportsFifo[0]);
-
-	return allOk;
-}
-
 }
 
 rStatus CalvinMini::createActor(JsonObject &msg){
@@ -348,8 +291,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 		  // Print JsonObject and send to Calvin
 		  uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
 		  #ifdef ARDUINO
-		  lcdOut.clear();
-		  lcdOut.write("JOIN_REQUEST");
+		  lcdOutMain.clear();
+		  lcdOutMain.write("JOIN_REQUEST");
 		  #endif
 		  return size;
 	}
@@ -455,7 +398,7 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 
 void CalvinMini::loop()
 {
-	lcdOut.write("Hello Calvin");
+	lcdOutMain.write("Hello Calvin");
 	initActorList();
 	//------------This should be set from within the skecth later on:-----------------
 	socketHandler.setupConnection(mac, ip);

@@ -123,23 +123,7 @@ uint32_t fifoPop(fifo*);
  */
 int8_t lengthOfData(fifo*);
 
-/**
- *  What's up with the external C you might wonder,
- *  well thats the only way i could ad a function pointer to a strut,
- *  Apparently c++ handles this different from c.
- */
-rStatus actorInit(actor*);
-rStatus actorInitTest();
-
-/**
- * Current standard out is the lcd screen connected to arduino due
- */
-int8_t actorStdOut(actor*);
-
-/**
- * Increment the count each time the actor fires
- */
-int8_t actorCount(actor*);
+extern rStatus actorInit(actor*);
 
 }
 
@@ -253,16 +237,27 @@ public:
   void handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket);
 
   /**
-   *
+   * Returns the type of the actor.
    */
   actorType getActorType(actor *);
 
   /**
-   *
+   * In current implementation the actorlist has to be initiated
+   * with empty actors.
    */
   void initActorList();
+
   /**
-   *
+   * This function returns the position of a specified actor
+   * int the actorlist.
+   * Currently supported actors are:
+   * io.StandardOut
+   * std.Counter
+   * @param const char* should be the name of the actor needed.
+   * @param actor *list pointer to the actor list.
+   * @return if the actor is found in the list the return value
+   * will be the actor position in the list. Returns -1 if the actor
+   * Isn't found in the list.
    */
   int8_t getActorPos(const char*,actor *list);
 
