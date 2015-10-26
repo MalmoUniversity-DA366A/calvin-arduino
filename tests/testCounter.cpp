@@ -7,6 +7,7 @@
 
 #include "gtest/gtest.h"
 #include "../src/CalvinDone/CalvinMini.h"
+#include "../src/CalvinDone/actors.h"
 
 class testCounter : public ::testing::Test {
 protected:

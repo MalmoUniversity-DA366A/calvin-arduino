@@ -124,23 +124,7 @@ uint32_t fifoPop(fifo*);
  */
 int8_t lengthOfData(fifo*);
 
-/**
- *  What's up with the external C you might wonder,
- *  well thats the only way i could ad a function pointer to a strut,
- *  Apparently c++ handles this different from c.
- */
-rStatus actorInit(actor*);
-rStatus actorInitTest();
-
-/**
- * Current standard out is the lcd screen connected to arduino due
- */
-int8_t actorStdOut(actor*);
-
-/**
- * Increment the count each time the actor fires
- */
-int8_t actorCount(actor*);
+extern rStatus actorInit(actor*);
 
 }
 
