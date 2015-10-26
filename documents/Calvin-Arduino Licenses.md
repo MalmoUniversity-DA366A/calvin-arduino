@@ -3,15 +3,15 @@
 All reused software in Calvin-Arduino, with following licenses, are
 unmodified.
 
-###MIT License
+####MIT License
 
 -   Json Arduino Copyright Benoit Blanchon
 
-###Copyright Elicia White 2012
+####Copyright Elicia White 2012
 
 -   Fifo
 
-###GNU Lesser General Public License version 2.1
+####GNU Lesser General Public License version 2.1
 
 -   Ethernet Library for Arduino
 
