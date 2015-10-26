@@ -4,9 +4,9 @@
  *  Created on: 26 okt. 2015
  *      Author: Daniel
  */
-#include "CalvinMini.h"
 #ifndef CALVINDONE_ACTORS_H_
 #define CALVINDONE_ACTORS_H_
+#include "CalvinMini.h"
 extern "C"{
 
 /**

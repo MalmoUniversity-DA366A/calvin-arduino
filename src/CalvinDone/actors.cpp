@@ -1,15 +1,18 @@
+
 /*
  * actors.cpp
  *
  *  Created on: 26 okt. 2015
  *      Author: Daniel
  */
+
 #include "CalvinMini.h"
 #ifdef ARDUINO
 #include <LiquidCrystal.h>
 #include "Arduino.h"
 #endif
 #include "actors.h"
+
 extern "C"{
 #ifdef ARDUINO
 LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);

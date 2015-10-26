@@ -23,14 +23,12 @@ IPAddress ip(192,168,0,20);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
-LiquidCrystal lcdOut1(52, 50, 48, 46, 44, 42);
+LiquidCrystal lcdOutMain(52, 50, 48, 46, 44, 42);
 HandleSockets socketHandler;
 #endif
 uint32_t lastPop[4];
-
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
 uint8_t activeActors;
-
 uint8_t nextMessage;
 uint32_t sequenceNbr;
 
@@ -295,8 +293,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 		  // Print JsonObject and send to Calvin
 		  uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
 		  #ifdef ARDUINO
-		  lcdOut1.clear();
-		  lcdOut1.write("JOIN_REQUEST");
+		  lcdOutMain.clear();
+		  lcdOutMain.write("JOIN_REQUEST");
 		  #endif
 		  return size;
 	}
@@ -402,7 +400,7 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 
 void CalvinMini::loop()
 {
-	lcdOut1.write("Hello Calvin");
+	lcdOutMain.write("Hello Calvin");
 	initActorList();
 	//------------This should be set from within the skecth later on:-----------------
 	socketHandler.setupConnection(mac, ip);
