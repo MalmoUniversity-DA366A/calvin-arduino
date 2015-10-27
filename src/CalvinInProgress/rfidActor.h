@@ -10,6 +10,6 @@
 
 
 
-
+uint8_t rfidSetup(void);
 
 #endif /* CALVININPROGRESS_RFIDACTOR_H_ */
