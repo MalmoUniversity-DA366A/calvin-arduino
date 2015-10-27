@@ -4,6 +4,7 @@
  *  Created on: 27 sep. 2015
  *      Author: Jesper Hansen
  */
+/*
 #ifdef _MOCK_
 
 #include "gtest/gtest.h"
@@ -14,7 +15,7 @@ protected:
 	virtual void SetUp() {}
 	virtual void TearDown() {}
 };
-/*
+
 TEST(test_handleMessage, handleMsg) {
 	CalvinMini messageHandler;
 
@@ -51,8 +52,9 @@ TEST(test_handleMessage, handleMsg) {
 	EXPECT_EQ(7, messageHandler.handleMsg(msg, reply, request));
 
 }
-*/
+
 
 
 
 #endif
+*/

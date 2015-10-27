@@ -27,7 +27,7 @@ int MessageHandler::handleMsg(JsonObject &msg)
 			{
 				root = (node*) malloc(sizeof(nodes));
 
-				if (root == NULL)
+				if (root == 0)
 				{
 					return 9;
 				}
@@ -46,7 +46,7 @@ int MessageHandler::handleMsg(JsonObject &msg)
 		if (!strcmp(message, "ACTOR_NEW"))
 		{
 			root = (node*) malloc(sizeof(nodes));
-			if (root == NULL)
+			if (root == 0)
 			{
 				return 9;
 			}
@@ -62,7 +62,7 @@ int MessageHandler::handleMsg(JsonObject &msg)
 		if (!strcmp(message, "TUNNEL_DATA"))
 		{
 			root = (node*) malloc(sizeof(nodes));
-			if (root == NULL)
+			if (root == 0)
 			{
 				return 9;
 			}
@@ -76,7 +76,7 @@ int MessageHandler::handleMsg(JsonObject &msg)
 		if (!strcmp(message, "TOKEN"))
 		{
 			root = (node*) malloc(sizeof(nodes));
-			if (root == NULL)
+			if (root == 0)
 			{
 				return 9;
 			}
