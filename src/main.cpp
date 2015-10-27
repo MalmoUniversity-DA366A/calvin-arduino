@@ -18,6 +18,7 @@
 #include "blinkLED.h"
 #include "uart.h"
 #include "CalvinDone/HandleSockets.h"
+#include "Adafruit_PN532.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
