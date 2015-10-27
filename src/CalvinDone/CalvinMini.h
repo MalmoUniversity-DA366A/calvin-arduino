@@ -74,57 +74,11 @@ typedef struct actors{
   uint8_t ackFlag;
 }actor;
 
-/**
- * This Function initiate the fifo must be
- * called prior to using the fifo.
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- *
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- */
-rStatus initFifo(fifo*);
-
-/**
- * Adds a new element to the fifo
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- *
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- * @return returns 0 if the fifo is full
- */
-rStatus fifoAdd(fifo*, uint32_t);
-
-/**
- * Return and removes the oldest element in the fifo.
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- *
- * @Return Returns fifo element, returns NULL if fifo is
- * empty.
- */
-uint32_t fifoPop(fifo*);
-
-/**
- * Used by Add and Pop to determine fifo length.
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- *
- * @return Fifo length
- */
-int8_t lengthOfData(fifo*);
-
-extern rStatus actorInit(actor*);
-
+extern 	rStatus actorInit(actor*);
+extern  int8_t lengthOfData(fifo*);
+extern	uint32_t fifoPop(fifo*);
+extern	rStatus fifoAdd(fifo*, uint32_t);
+extern	rStatus initFifo(fifo*);
 }
 
 using namespace std;

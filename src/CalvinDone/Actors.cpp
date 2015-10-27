@@ -1,9 +1,10 @@
 
 /*
- * actors.cpp
+ *	This file contains the arduino actors
+ *	implement new actors here.
  *
  *  Created on: 26 okt. 2015
- *      Author: Daniel
+ *  Author: Daniel Nordahl
  */
 
 #include "CalvinMini.h"
@@ -11,7 +12,7 @@
 #include <LiquidCrystal.h>
 #include "Arduino.h"
 #endif
-#include "actors.h"
+#include "Actors.h"
 
 extern "C"{
 #ifdef ARDUINO

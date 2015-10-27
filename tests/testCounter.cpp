@@ -1,3 +1,4 @@
+
 /*
  * testCounter.cpp
  *
@@ -7,7 +8,7 @@
 
 #include "gtest/gtest.h"
 #include "../src/CalvinDone/CalvinMini.h"
-#include "../src/CalvinDone/actors.h"
+#include "../src/CalvinDone/Actors.h"
 
 class testCounter : public ::testing::Test {
 protected:
