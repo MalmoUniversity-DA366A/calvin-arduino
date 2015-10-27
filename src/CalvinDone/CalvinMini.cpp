@@ -13,7 +13,8 @@
 #include <Ethernet.h>
 #include <LiquidCrystal.h>
 #include "HandleSockets.h"
-#include "actors.h"
+#include "Actors.h"
+#include "Fifo.h"
 
 byte mac[] = { 0x00, 0xAA, 0xAB, 0xCC, 0x0E, 0x02 };
 //byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
@@ -103,45 +104,6 @@ void CalvinMini::initActorList()
 		emptyActor.type = "empty";
 		actors[i] = emptyActor;
 	}
-}
-
-extern "C"{
-rStatus initFifo(fifo *fif)
-{
-	fif->size = FIFO_SIZE;
-	fif->read = 0;
-	fif->write = 0;
-	return SUCCESS;
-}
-
-int8_t lengthOfData(fifo *fif)
-{
-	return ((fif->write - fif->read) & (fif->size -1));
-}
-
-rStatus fifoAdd(fifo *fif, uint32_t element){
-
-	if(lengthOfData(fif) == (fif->size-1))
-	{
-		return FAIL;      	//fifo full;
-	}
-	fif->element[fif->write] = element;
-	fif->write = (fif->write + 1) & (fif->size - 1);
-
-	return SUCCESS;       //all is well
-}
-
-uint32_t fifoPop(fifo *fif){
-	uint32_t ret;
-	if(lengthOfData(fif) == 0)
-	{
-		return FAIL;    	//fifo empty
-	}
-	ret = fif->element[fif->read];
-	fif->read = (fif->read + 1) & (fif->size - 1);
-	return ret;
-}
-
 }
 
 rStatus CalvinMini::process(uint32_t token)
