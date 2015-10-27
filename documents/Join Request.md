@@ -22,7 +22,7 @@
 -   deactivate (to exit Calvin virtual environment)
 
 The program Wireshark
-([*https://www.wireshark.org/\#download)*](https://www.wireshark.org/#download))
+(<https://www.wireshark.org/#download>)
 shows a successful join request and join reply between Calvin base and
 Arduino. This is followed by a tunnel setup from Arduino. The four starting ascii-characters, before every json-message, are hex-values of the message length.
 
