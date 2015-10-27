@@ -73,6 +73,36 @@ TEST(testCounter, testCounterACK)
 
     // Test if number of outgoing messages is 1
     EXPECT_EQ(size, 1);
+
+    JsonObject &value = reply.get("value");
+    int sequencenbr = value.get("sequencenbr");
+
+    // Test if sequencenbr is updated from 0 to 1 when ACK from base
+    EXPECT_EQ(1, sequencenbr);
+}
+
+TEST(testCounter, testCounterNACK)
+{
+    CalvinMini mini;
+    String str = "{\"to_rt_uuid\": \"calvin-arduino\", \"from_rt_uuid\": \"babc045f-5da1-4eb1-a08e-95e6a272cfde\""
+                 ", \"cmd\": \"TUNNEL_DATA\", \"value\": {\"sequencenbr\": 0, \"peer_port_id\": \"50017184-4e7f-4f76-8c39-9e1f35f59b46\""
+                 ", \"cmd\": \"TOKEN_REPLY\", \"port_id\": \"be1fbbb2-9fb3-4bac-bb94-0e601f2df6df\", \"value\": \"NACK\"}, \"tunnel_id\": \"fake-tunnel\"}";
+
+    StaticJsonBuffer<4096> jsonBuffer;
+    JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+    JsonObject &reply = jsonBuffer.createObject();
+    JsonObject &request = jsonBuffer.createObject();
+
+    int8_t size = mini.handleMsg(msg, reply, request, 0);
+
+    // Test if number of outgoing messages is 1
+    EXPECT_EQ(size, 1);
+
+    JsonObject &value = reply.get("value");
+    int sequencenbr = value.get("sequencenbr");
+
+    // Test if sequencenbr is unchanged from 0 when NACK from base
+    EXPECT_EQ(0, sequencenbr);
 }
 
 TEST(testCounter,testCounting)
