@@ -142,11 +142,7 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 	String str;
 	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	{
-	    if(!strcmp(actors[i].type.c_str(),"std.Counter"))
-	    {
-	        pos = i;
-	    }
-	    if(!strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	    if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
 	    {
 	        pos = i;
 	    }
@@ -218,11 +214,7 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 	int8_t pos;
 	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	{
-	      if(!strcmp(actors[i].type.c_str(),"std.Counter"))
-	      {
-	          pos = i;
-	      }
-	      if(!strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	      if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
 	      {
 	          pos = i;
 	      }
@@ -310,14 +302,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	{
 	    for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	    {
-	        if(!strcmp(actors[i].type.c_str(),"std.Counter"))
-	        {
-	            handleTunnelData(msg, reply, request, socket);
-	            uint8_t moreThanOneMsg = 0;
-	            uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-	            return size;
-	        }
-	        else if(!strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	        if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
 	        {
 	            handleTunnelData(msg, reply, request, socket);
 	            uint8_t moreThanOneMsg = 0;
