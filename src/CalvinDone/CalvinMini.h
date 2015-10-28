@@ -11,7 +11,7 @@
 #define NUMBER_OF_PORTS     						2
 #define NUMBER_OF_SUPPORTED_ACTORS					2
 #define RT_ID "calvin-arduino"
-//#define RT_ID "calvin-Andreas"
+//#define RT_ID "calvin-stdOut"
 #define tunnel_id "fake-tunnel"
 
 // Sensor calibration time (10-60 secs according to the datasheet)

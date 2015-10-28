@@ -19,7 +19,7 @@
 byte mac[] = { 0x00, 0xAA, 0xAB, 0xCC, 0x0E, 0x02 };
 //byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
 IPAddress ip(192,168,0,20);
-//IPAddress ip(192,168,1,146);
+//IPAddress ip(192,168,0,10);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
@@ -114,10 +114,10 @@ rStatus CalvinMini::process(uint32_t token)
 	//pos = getActorPos("io.StandardOut",actors);
 	for(int i = 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	{
-		if(!strcmp(actors[i].type.c_str(),"io.StadndardOut"))
+		if(!strcmp(actors[i].type.c_str(),"io.StandardOut"))
 		{
 			pos = i;
-		}else if(!strcmp(actors[i].type.c_str(),"io.MovmentStadndardOut"))
+		}else if(!strcmp(actors[i].type.c_str(),"std.MovementSensor"))
 		{
 			pos = i;
 		}
@@ -211,6 +211,7 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 
 void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t socket)
 {
+  Serial.println("In actorNew");
 	createActor(msg);
 	reply.set("cmd",      "REPLY");
 	reply.set("msg_uuid",   msg.get("msg_uuid"));
@@ -221,11 +222,22 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t sock
 
 void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket)
 {
+  Serial.println("In setupPorts");
 	JsonObject &inports = msg["state"]["prev_connections"]["inports"];
 	JsonObject &outports = msg["state"]["prev_connections"]["outports"];
 
 	int8_t pos;
-	pos = getActorPos("std.Counter",actors);
+	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
+	{
+	      if(!strcmp(actors[i].type.c_str(),"std.Counter"))
+	      {
+	          pos = i;
+	      }
+	      if(!strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	      {
+	          pos = i;
+	      }
+	}
 #ifdef _MOCK_
 	pos = 0;
 #endif
@@ -265,6 +277,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	int8_t pos;
 	if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
 	{
+	    Serial.println("Join");
 		  // JsonObject for replying a join request
 		  StaticJsonBuffer<200> jsonBuffer;
 		  JsonObject &policy = jsonBuffer.createObject();
@@ -281,6 +294,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
 	{
+	  Serial.println("Actor");
 		handleActorNew(msg, reply, socket);
 		handleSetupPorts(msg, request, socket);
 
@@ -307,13 +321,31 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else if(!strcmp(msg.get("cmd"),"REPLY"))
 	{
-	    pos = getActorPos("std.Counter",actors);
+	    Serial.println("In Reply");
+	    for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
+	      {
+	            if(!strcmp(actors[i].type.c_str(),"std.Counter"))
+	            {
+	                pos = i;
+	            }
+	            if(!strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	            {
+	                pos = i;
+	            }
+	      }
 	    if(!strcmp(actors[pos].type.c_str(),"std.Counter"))
 	    {
 	        handleTunnelData(msg, reply, request, socket);
 	        uint8_t moreThanOneMsg = 0;
 	        uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
 	        return size;
+	    }
+	    if(!strcmp(actors[pos].type.c_str(),"std.MovementSensor"))
+	    {
+	              handleTunnelData(msg, reply, request, socket);
+	              uint8_t moreThanOneMsg = 0;
+	              uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+	              return size;
 	    }
 	    return 6;
 	}
@@ -359,6 +391,7 @@ uint8_t CalvinMini::addToMessageOut(String reply, uint8_t socket)
 
 void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket)
 {
+  Serial.println("handleJoin");
 	reply["cmd"] = "JOIN_REPLY";
 	reply["id"] = RT_ID;
 	reply["sid"] = msg.get("sid");
@@ -367,6 +400,7 @@ void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket)
 
 void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
+  Serial.println("handleSetup");
 	request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
 	request["from_rt_uuid"] = RT_ID;
 	request["to_rt_uuid"] = msg.get("id");
@@ -380,14 +414,12 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 
 void CalvinMini::calibrateSensor(void)
 {
-  lcdOutMain.write("Calibrating sensor ");
+  lcdOutMain.write("Calibrating");
   for(int i = 0; i < calibrationTime; i++)
   {
       lcdOutMain.write(".");
       delay(1000);
   }
-  lcdOutMain.write(" done");
-  lcdOutMain.write("SENSOR ACTIVE");
   lcdOutMain.clear();
   delay(50);
 }
@@ -423,8 +455,10 @@ void CalvinMini::loop()
 
 						for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)			// 5: Fire actors
 						{
+						    Serial.println("In big loop");
 							if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
 							{
+							  Serial.println("In fireActorLoop");
 								actors[i].fire(&actors[i]);
 							}
 						}

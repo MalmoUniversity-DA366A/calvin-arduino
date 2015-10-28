@@ -52,7 +52,7 @@ void init_board(){
 	// Enable movement sensor and speaker/led
 	pinMode(22, INPUT);
 	pinMode(24, OUTPUT);
-	digitalWrite(22, LOW);
+	//digitalWrite(22, LOW);
 	digitalWrite(24, LOW);
 
 }
