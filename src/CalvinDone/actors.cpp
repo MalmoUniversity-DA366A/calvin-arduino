@@ -83,7 +83,8 @@ int8_t actorRFID(actor *inputActor)
 uint8_t rfidSetup()
 {
 	nfc.begin();
-	nfc.SAMConfig();
+	uint8_t result = nfc.SAMConfig();
+	return result;
 }
 
 uint32_t compareMifareClassicCardUid(uint8_t *uid)
