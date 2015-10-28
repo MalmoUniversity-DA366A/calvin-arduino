@@ -111,17 +111,8 @@ rStatus CalvinMini::process(uint32_t token)
 	rStatus allOk;
 	int8_t pos;
 	allOk = FAIL;
-	//pos = getActorPos("io.StandardOut",actors);
-	for(int i = 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
-	{
-		if(!strcmp(actors[i].type.c_str(),"io.StandardOut"))
-		{
-			pos = i;
-		}else if(!strcmp(actors[i].type.c_str(),"std.MovementSensor"))
-		{
-			pos = i;
-		}
-	}
+	pos = getActorPos("io.StandardOut",actors);
+
 	allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
 	return allOk;
 }
@@ -211,7 +202,6 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 
 void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t socket)
 {
-  Serial.println("ActorNew");
 	createActor(msg);
 	reply.set("cmd",      "REPLY");
 	reply.set("msg_uuid",   msg.get("msg_uuid"));
@@ -222,7 +212,6 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t sock
 
 void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket)
 {
-  Serial.println("SetupPorts");
 	JsonObject &inports = msg["state"]["prev_connections"]["inports"];
 	JsonObject &outports = msg["state"]["prev_connections"]["outports"];
 
@@ -277,7 +266,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	int8_t pos;
 	if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
 	{
-	    Serial.println("Join");
 		  // JsonObject for replying a join request
 		  StaticJsonBuffer<200> jsonBuffer;
 		  JsonObject &policy = jsonBuffer.createObject();
@@ -294,7 +282,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
 	{
-	  Serial.println("Actor");
 		handleActorNew(msg, reply, socket);
 		handleSetupPorts(msg, request, socket);
 
@@ -322,31 +309,21 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	else if(!strcmp(msg.get("cmd"),"REPLY"))
 	{
 	    for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
-	      {
-	        Serial.println("Before");
-	            if(!strcmp(actors[i].type.c_str(),"std.Counter"))
-	            {
-	                pos = i;
-	            }
-	            if(!strcmp(actors[i].type.c_str(),"std.MovementSensor"))
-	            {
-	                pos = i;
-	            }
-	      }
-	    Serial.println("After");
-	    if(!strcmp(actors[pos].type.c_str(),"std.Counter"))
 	    {
-	        handleTunnelData(msg, reply, request, socket);
-	        uint8_t moreThanOneMsg = 0;
-	        uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-	        return size;
-	    }
-	    else if(!strcmp(actors[pos].type.c_str(),"std.MovementSensor"))
-	    {
-	        handleTunnelData(msg, reply, request, socket);
-	        uint8_t moreThanOneMsg = 0;
-	        uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-	        return size;
+	        if(!strcmp(actors[i].type.c_str(),"std.Counter"))
+	        {
+	            handleTunnelData(msg, reply, request, socket);
+	            uint8_t moreThanOneMsg = 0;
+	            uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+	            return size;
+	        }
+	        else if(!strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	        {
+	            handleTunnelData(msg, reply, request, socket);
+	            uint8_t moreThanOneMsg = 0;
+	            uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+	            return size;
+	        }
 	    }
 	    return 6;
 	}
@@ -392,7 +369,6 @@ uint8_t CalvinMini::addToMessageOut(String reply, uint8_t socket)
 
 void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket)
 {
-  Serial.println("handleJoin");
 	reply["cmd"] = "JOIN_REPLY";
 	reply["id"] = RT_ID;
 	reply["sid"] = msg.get("sid");
@@ -401,7 +377,6 @@ void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket)
 
 void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
-  Serial.println("handleSetup");
 	request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
 	request["from_rt_uuid"] = RT_ID;
 	request["to_rt_uuid"] = msg.get("id");
@@ -458,6 +433,7 @@ void CalvinMini::loop()
 						{
 							if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
 							{
+							    //reply.printTo(Serial); // Will not work without this line ?!
 							    actors[i].fire(&actors[i]);
 							}
 						}
