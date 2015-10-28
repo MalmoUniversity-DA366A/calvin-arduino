@@ -26,6 +26,12 @@ int8_t actorStdOut(actor*);
  */
 int8_t actorCount(actor*);
 
+/**
+ * Receives data from a movement actor and sets
+ * output as high if it receives movement flag.
+ */
+void movementStd(actor *inputActor);
+
 }
 
 

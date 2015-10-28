@@ -36,6 +36,20 @@ int8_t actorStdOut(actor *inputActor)
 	return standardOut(tokenData);
 }
 
+void movementStd(actor *inputActor)
+{
+#ifdef ARDUINO
+	int8_t inFifo;
+	inFifo = lengthOfData(&inputActor->inportsFifo[0]);
+	if(inFifo > 0 && fifoPop(&inputActor->inportsFifo[0]))
+	{
+		digitalWrite(24,HIGH);
+	}else{
+		digitalWrite(24,LOW);
+	}
+#endif
+}
+
 int8_t actorCount(actor *inputActor)
 {
 	int8_t allOk = FAIL;
