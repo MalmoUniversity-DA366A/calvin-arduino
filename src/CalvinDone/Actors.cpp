@@ -73,6 +73,7 @@ int8_t actorMovement(actor *inputActor)
   uint8_t detection;
   char tokenData[16];
   detection = digitalRead(22);
+  delay(50);
   allOk = fifoAdd(&inputActor->inportsFifo[0],detection);
   sprintf(tokenData,"%d",(uint8_t)detection);
 #ifdef ARDUINO
