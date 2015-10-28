@@ -60,9 +60,13 @@ rStatus actorInit(actor *inputActor){
 	{
 		inputActor->fire = &actorStdOut;
 	}
-	else
+	else if(!strcmp(inputActor->type.c_str(),"std.Counter"))
 	{
 		inputActor->fire = &actorCount;
+	}
+	else if(!strcmp(inputActor->type.c_str(),"std.MovementSensor"))
+	{
+	  inputActor->fire = &actorMovement;
 	}
 	/*This sets up the fifo for the actor, not sure
 	 *if it should be done here but for now it works*/

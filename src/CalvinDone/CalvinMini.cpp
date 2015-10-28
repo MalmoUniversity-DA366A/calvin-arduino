@@ -138,7 +138,18 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket, uint8_t nextSequenceNbr)
 {
 	int8_t pos;
-	pos = getActorPos("std.Counter",actors);
+	String str;
+	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
+	{
+	    if(!strcmp(list[i].type.c_str(),"std.Counter"))
+	    {
+	        pos = i;
+	    }
+	    if(!strcmp(list[i].type.c_str(),"std.MovementSensor"))
+	    {
+	        pos = i;
+	    }
+	}
 	actors[pos].ackFlag = nextSequenceNbr;								// Determines if ACK or NACK
 #ifdef _MOCK_
 	pos = 0;
@@ -252,10 +263,10 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 		  uint8_t moreThanOneMsg = 1;
 		  // Print JsonObject and send to Calvin
 		  uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-		  #ifdef ARDUINO
+#ifdef ARDUINO
 		  lcdOutMain.clear();
 		  lcdOutMain.write("JOIN_REQUEST");
-		  #endif
+#endif
 		  return size;
 	}
 	else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
@@ -282,27 +293,26 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
 	{
-		// reply array
 		return 5;
 	}
 	else if(!strcmp(msg.get("cmd"),"REPLY"))
 	{
-	pos = getActorPos("std.Counter",actors);
-	if(!strcmp(actors[pos].type.c_str(),"std.Counter"))
-	{
-		handleTunnelData(msg, reply, request, socket);
-		uint8_t moreThanOneMsg = 0;
-		uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-		return size;
-	}
-		return 6;
+	    pos = getActorPos("std.Counter",actors);
+	    if(!strcmp(actors[pos].type.c_str(),"std.Counter"))
+	    {
+	        handleTunnelData(msg, reply, request, socket);
+	        uint8_t moreThanOneMsg = 0;
+	        uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+	        return size;
+	    }
+	    return 6;
 	}
 	else
 	{
-	#ifdef ARDUINO
+#ifdef ARDUINO
 		Serial.println("UNKNOWN CMD");
 		standardOut("UNKNOWN CMD");
-	#endif
+#endif
 		return 7;
 	}
 }
