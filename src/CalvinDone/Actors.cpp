@@ -53,6 +53,22 @@ int8_t actorCount(actor *inputActor)
 	return allOk;
 }
 
+int8_t actorMovement(actor *inputActor)
+{
+  int8_t allOk = FAIL;
+  uint8_t detection;
+  char tokenData[16];
+  detection = digitalRead(22);
+  allOk = fifoAdd(&inputActor->inportsFifo[0],detection);
+  sprintf(tokenData,"%d",(uint8_t)detection);
+#ifdef ARDUINO
+  Serial.println(tokenData);
+  lcdOut.clear();
+  lcdOut.write(tokenData);
+#endif
+  return allOk;
+}
+
 rStatus actorInit(actor *inputActor){
 	rStatus allOk = FAIL;
 	fifo actorFifo;

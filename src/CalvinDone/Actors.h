@@ -26,6 +26,8 @@ int8_t actorStdOut(actor*);
  */
 int8_t actorCount(actor*);
 
+int8_t actorMovement(actor*);
+
 }
 
 

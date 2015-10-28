@@ -13,6 +13,10 @@
 #define RT_ID "calvin-arduino"
 //#define RT_ID "calvin-Andreas"
 #define tunnel_id "fake-tunnel"
+
+// Sensor calibration time (10-60 secs according to the datasheet)
+#define calibrationTime 10
+
 typedef unsigned char BYTE;
 
 extern "C"{
@@ -233,6 +237,11 @@ public:
    * @return uint8_t Number of Messages
    */
   uint8_t packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg, uint8_t socket);
+
+  /**
+   * Calibrates movement sensor
+   */
+  void calibrateSensor(void);
 
 };
 

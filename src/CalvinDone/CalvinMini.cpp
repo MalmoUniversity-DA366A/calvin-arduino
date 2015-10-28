@@ -141,11 +141,11 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 	String str;
 	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	{
-	    if(!strcmp(list[i].type.c_str(),"std.Counter"))
+	    if(!strcmp(actors[i].type.c_str(),"std.Counter"))
 	    {
 	        pos = i;
 	    }
-	    if(!strcmp(list[i].type.c_str(),"std.MovementSensor"))
+	    if(!strcmp(actors[i].type.c_str(),"std.MovementSensor"))
 	    {
 	        pos = i;
 	    }
@@ -368,8 +368,23 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 
 #ifdef ARDUINO
 
+void CalvinMini::calibrateSensor(void)
+{
+  lcdOutMain.write("Calibrating sensor ");
+  for(int i = 0; i < calibrationTime; i++)
+  {
+      lcdOutMain.write(".");
+      delay(1000);
+  }
+  lcdOutMain.write(" done");
+  lcdOutMain.write("SENSOR ACTIVE");
+  lcdOutMain.clear();
+  delay(50);
+}
+
 void CalvinMini::loop()
 {
+  calibrateSensor();
 	lcdOutMain.write("Hello Calvin");
 	initActorList();
 	//------------This should be set from within the skecth later on:-----------------
