@@ -8,16 +8,12 @@
  */
 
 #include "CalvinMini.h"
-#ifdef ARDUINO
 #include <LiquidCrystal.h>
 #include "Arduino.h"
-#endif
 #include "Actors.h"
 
 extern "C"{
-#ifdef ARDUINO
 LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
-#endif
 
 int8_t actorStdOut(actor *inputActor)
 {
@@ -28,26 +24,10 @@ int8_t actorStdOut(actor *inputActor)
 	{
 		sprintf(tokenData,"%d",(uint32_t)fifoPop(&inputActor->inportsFifo[0]));
 	}
-#ifdef ARDUINO
 	Serial.println(tokenData);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
-#endif
 	return standardOut(tokenData);
-}
-
-void movementStd(actor *inputActor)
-{
-#ifdef ARDUINO
-	int8_t inFifo;
-	inFifo = lengthOfData(&inputActor->inportsFifo[0]);
-	if(inFifo > 0 && fifoPop(&inputActor->inportsFifo[0]))
-	{
-		digitalWrite(24,HIGH);
-	}else{
-		digitalWrite(24,LOW);
-	}
-#endif
 }
 
 int8_t actorCount(actor *inputActor)
@@ -59,28 +39,11 @@ int8_t actorCount(actor *inputActor)
 	count = inputActor->count;
 	allOk = fifoAdd(&inputActor->inportsFifo[0],count);
 	sprintf(tokenData,"%d",(uint32_t)count);
-#ifdef ARDUINO
 	Serial.println(tokenData);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
-#endif
-	return allOk;
-}
 
-int8_t actorMovement(actor *inputActor)
-{
-  int8_t allOk = FAIL;
-  uint8_t detection;
-  char tokenData[16];
-  detection = digitalRead(22);
-  allOk = fifoAdd(&inputActor->inportsFifo[0],detection);
-  sprintf(tokenData,"%d",(uint8_t)detection);
-#ifdef ARDUINO
-  Serial.println(tokenData);
-  lcdOut.clear();
-  lcdOut.write(tokenData);
-#endif
-  return allOk;
+	return allOk;
 }
 
 rStatus actorInit(actor *inputActor){
@@ -90,13 +53,9 @@ rStatus actorInit(actor *inputActor){
 	{
 		inputActor->fire = &actorStdOut;
 	}
-	else if(!strcmp(inputActor->type.c_str(),"std.Counter"))
+	else
 	{
 		inputActor->fire = &actorCount;
-	}
-	else if(!strcmp(inputActor->type.c_str(),"std.MovementSensor"))
-	{
-	  inputActor->fire = &actorMovement;
 	}
 	/*This sets up the fifo for the actor, not sure
 	 *if it should be done here but for now it works*/

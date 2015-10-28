@@ -20,3 +20,7 @@ unmodified.
 -   W5100 Library for Arduino
 
 -   LiquidCrystal Library for Arduino
+
+####Revised BSD License
+
+- Adafruit_NFCShield_I2C Library for Arduino
