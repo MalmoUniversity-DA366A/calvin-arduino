@@ -29,18 +29,18 @@ uint8_t card1[4] = {0xF1, 0x39, 0x7A, 0x0F};
 uint8_t card2[4] = {0xE5, 0xA1, 0xEA, 0x45};
 uint8_t tag1[4]  = {0x0B, 0x4E, 0x2E, 0x3B};
 
-Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
+Adafruit_PN532 nfcTest(PN532_IRQ, PN532_RESET);
 
 
 uint8_t rfidSetup()
 {
-	nfc.begin();
-	nfc.SAMConfig();
+	nfcTest.begin();
+	nfcTest.SAMConfig();
 }
 
 String compareMifareClassicCardUid(uint8_t *uid)
 {
-	String result = "No Card";
+	String result = "Unknown Card";
 	if(uid[0] == card1[0] && uid[1] == card1[1] && uid[2] == card1[2] && uid[3] == card1[3])
 	{
 		result = "Card 1";
@@ -61,8 +61,8 @@ uint8_t readRFID(uint8_t *uid)
 	uint8_t result = 0;
 	uint8_t uidLength;
 	uint32_t cardId;
-	uint8_t success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
-	nfc.PrintHex(uid, uidLength);
+	uint8_t success = nfcTest.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
+	nfcTest.PrintHex(uid, uidLength);
 
 	if (uidLength == 4)	// We probably have a Mifare Classic card ...
 	{

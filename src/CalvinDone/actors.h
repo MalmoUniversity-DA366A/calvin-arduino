@@ -26,6 +26,17 @@ int8_t actorStdOut(actor*);
  */
 int8_t actorCount(actor*);
 
+/**
+ * Reads RFID-cards
+ */
+int8_t actorRFID(actor*);
+
+uint8_t rfidSetup(void);
+
+uint32_t compareMifareClassicCardUid(uint8_t*);
+
+uint8_t readRFID(uint8_t*);
+
 }
 
 
