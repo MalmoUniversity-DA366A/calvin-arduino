@@ -11,5 +11,8 @@
 
 
 uint8_t rfidSetup(void);
+String compareMifareClassicCardUid(uint8_t *uid);
+uint8_t readRFID(uint8_t *uid);
+void rfidTestLoop(void);
 
 #endif /* CALVININPROGRESS_RFIDACTOR_H_ */

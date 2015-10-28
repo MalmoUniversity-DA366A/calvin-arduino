@@ -19,6 +19,7 @@
 #include "uart.h"
 #include "CalvinDone/HandleSockets.h"
 #include "Adafruit_PN532.h"
+#include "CalvinInProgress/rfidActor.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
@@ -56,8 +57,10 @@ int main(void) {
 	init_board();
 	Serial.begin(115200);
 
-	CalvinMini mini;
-	mini.loop();
+	//CalvinMini mini;
+	//mini.loop();
+	rfidTestLoop();
+
 
 }
 #else
