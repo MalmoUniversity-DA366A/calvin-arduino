@@ -458,7 +458,7 @@ void CalvinMini::loop()
 						{
 							if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
 							{
-							    reply.printTo(Serial);
+							    reply.printTo(Serial); // Will not work without this line ?!
 							    actors[i].fire(&actors[i]);
 							}
 						}
