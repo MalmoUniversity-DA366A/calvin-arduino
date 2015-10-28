@@ -90,15 +90,15 @@ uint8_t rfidSetup()
 uint32_t compareMifareClassicCardUid(uint8_t *uid)
 {
 	uint32_t result = 0;
-	if(uid[0] == card1[0] && uid[1] == card1[1] && uid[2] == card1[2] && uid[3] == card1[3])
+	if(uid[0] == card1[0] && uid[1] == card1[1] && uid[2] == card1[2] && uid[3] == card1[3])		// Card 1
 	{
 		result = 1;
 	}
-	else if(uid[0] == card2[0] && uid[1] == card2[1] && uid[2] == card2[2] && uid[3] == card2[3])
+	else if(uid[0] == card2[0] && uid[1] == card2[1] && uid[2] == card2[2] && uid[3] == card2[3])	// Card 2
 	{
 		result = 2;
 	}
-	else if(uid[0] == tag1[0] && uid[1] == tag1[1] && uid[2] == tag1[2] && uid[3] == tag1[3])
+	else if(uid[0] == tag1[0] && uid[1] == tag1[1] && uid[2] == tag1[2] && uid[3] == tag1[3])		// Tag 1
 	{
 		result = 3;
 	}
@@ -143,12 +143,5 @@ rStatus actorInit(actor *inputActor){
 
 	return allOk;
 }
-
-
-
-
-
-
-
 
 }
