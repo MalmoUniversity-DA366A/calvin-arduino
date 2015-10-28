@@ -211,7 +211,7 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 
 void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t socket)
 {
-  Serial.println("In actorNew");
+  Serial.println("ActorNew");
 	createActor(msg);
 	reply.set("cmd",      "REPLY");
 	reply.set("msg_uuid",   msg.get("msg_uuid"));
@@ -222,7 +222,7 @@ void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t sock
 
 void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket)
 {
-  Serial.println("In setupPorts");
+  Serial.println("SetupPorts");
 	JsonObject &inports = msg["state"]["prev_connections"]["inports"];
 	JsonObject &outports = msg["state"]["prev_connections"]["outports"];
 
@@ -321,9 +321,9 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else if(!strcmp(msg.get("cmd"),"REPLY"))
 	{
-	    Serial.println("In Reply");
 	    for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	      {
+	        Serial.println("Before");
 	            if(!strcmp(actors[i].type.c_str(),"std.Counter"))
 	            {
 	                pos = i;
@@ -333,6 +333,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	                pos = i;
 	            }
 	      }
+	    Serial.println("After");
 	    if(!strcmp(actors[pos].type.c_str(),"std.Counter"))
 	    {
 	        handleTunnelData(msg, reply, request, socket);
@@ -340,12 +341,12 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	        uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
 	        return size;
 	    }
-	    if(!strcmp(actors[pos].type.c_str(),"std.MovementSensor"))
+	    else if(!strcmp(actors[pos].type.c_str(),"std.MovementSensor"))
 	    {
-	              handleTunnelData(msg, reply, request, socket);
-	              uint8_t moreThanOneMsg = 0;
-	              uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-	              return size;
+	        handleTunnelData(msg, reply, request, socket);
+	        uint8_t moreThanOneMsg = 0;
+	        uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+	        return size;
 	    }
 	    return 6;
 	}
@@ -455,11 +456,10 @@ void CalvinMini::loop()
 
 						for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)			// 5: Fire actors
 						{
-						    Serial.println("In big loop");
 							if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
 							{
-							  Serial.println("In fireActorLoop");
-								actors[i].fire(&actors[i]);
+							    reply.printTo(Serial);
+							    actors[i].fire(&actors[i]);
 							}
 						}
 					}
