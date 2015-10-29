@@ -19,6 +19,7 @@
 #include "uart.h"
 #include "CalvinDone/HandleSockets.h"
 #include "Adafruit_PN532.h"
+#include "CalvinInProgress/ledActor.h"
 
 //#include "CalvinInProgress/rfidActor.h"
 
@@ -58,9 +59,10 @@ int main(void) {
 	init_board();
 	Serial.begin(115200);
 
-	CalvinMini mini;
-	mini.loop();
+	//CalvinMini mini;
+	//mini.loop();
 	//rfidTestLoop();
+	testLedLoop();
 
 
 }
