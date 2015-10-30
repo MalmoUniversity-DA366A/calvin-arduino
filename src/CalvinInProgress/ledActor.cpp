@@ -12,7 +12,7 @@
 #define LED_YELLOW	24
 #define LED_GREEN	26
 
-uint8_t controlLed(uint8_t id)
+uint32_t controlLed(uint32_t id)
 {
 	switch(id)
 	{

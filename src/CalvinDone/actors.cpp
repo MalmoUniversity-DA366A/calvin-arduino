@@ -24,6 +24,12 @@ Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
 uint8_t card1[4] = {0xF1, 0x39, 0x7A, 0x0F};
 uint8_t card2[4] = {0xE5, 0xA1, 0xEA, 0x45};
 uint8_t tag1[4]  = {0x0B, 0x4E, 0x2E, 0x3B};
+//-------------------------------------------
+//----------PINs used for LEDs: -------------
+#define LED_RED		22
+#define LED_YELLOW	24
+#define LED_GREEN	26
+//-------------------------------------------
 #endif
 
 int8_t actorStdOut(actor *inputActor)
@@ -120,6 +126,36 @@ uint8_t readRFID(uint8_t *uid)
 	return result;
 }
 
+uint32_t controlLed(uint32_t id)
+{
+	switch(id)
+	{
+		case(0):
+			digitalWrite(LED_RED, LOW);
+			digitalWrite(LED_YELLOW, LOW);
+			digitalWrite(LED_GREEN, LOW);
+			return id;
+		case(1):
+			digitalWrite(LED_RED, HIGH);
+			return id;
+		case(2):
+			digitalWrite(LED_YELLOW, HIGH);
+			return id;
+		case(3):
+			digitalWrite(LED_GREEN, HIGH);
+			return id;
+		default:
+			return 255;
+	}
+}
+
+void setupLedOut()
+{
+	pinMode(LED_RED, OUTPUT);
+	pinMode(LED_YELLOW, OUTPUT);
+	pinMode(LED_GREEN, OUTPUT);
+}
+
 rStatus actorInit(actor *inputActor){
 	rStatus allOk = FAIL;
 	fifo actorFifo;
@@ -131,6 +167,11 @@ rStatus actorInit(actor *inputActor){
 	{
 		rfidSetup();
 		inputActor->fire = &actorRFID;
+	}
+	else if(!strcmp(inputActor->type.c_str(),"io.LEDStandardOut"))
+	{
+		setupLedOut();
+		inputActor->fire = &controlLed;
 	}
 	else
 	{

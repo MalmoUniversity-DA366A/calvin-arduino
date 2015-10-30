@@ -9,8 +9,8 @@
 #define CALVININPROGRESS_LEDACTOR_H_
 
 
-uint8_t controlLed(uint8_t);
-void setupLedOut();
+uint32_t controlLed(uint32_t);
+void setupLedOut(void);
 void testLedLoop(void);
 
 #endif /* CALVININPROGRESS_LEDACTOR_H_ */

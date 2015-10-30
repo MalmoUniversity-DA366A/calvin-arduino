@@ -51,6 +51,16 @@ uint32_t compareMifareClassicCardUid(uint8_t*);
  */
 uint8_t readRFID(uint8_t*);
 
+/**
+ *
+ */
+uint32_t controlLed(uint32_t);
+
+/**
+ *
+ */
+void setupLedOut(void);
+
 }
 
 
