@@ -10,7 +10,7 @@
 #define FIFO_SIZE     								8     //Must be a power of two
 #define NUMBER_OF_PORTS     						2
 #define NUMBER_OF_SUPPORTED_ACTORS					2
-#define RT_ID "calvin-arduino"
+#define RT_ID "calvin-disco"
 //#define RT_ID "calvin-Andreas"
 #define tunnel_id "fake-tunnel"
 typedef unsigned char BYTE;

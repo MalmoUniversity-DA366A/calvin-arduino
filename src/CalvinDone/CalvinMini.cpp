@@ -15,7 +15,7 @@
 #include "HandleSockets.h"
 #include "actors.h"
 
-byte mac[] = { 0x00, 0xAA, 0xAB, 0xCC, 0xBE, 0x02 };
+byte mac[] = { 0x00, 0xAA, 0xAB, 0x0C, 0xBE, 0x02 };
 //byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
 IPAddress ip(192,168,0,99);
 //IPAddress ip(192,168,1,146);
@@ -149,7 +149,21 @@ rStatus CalvinMini::process(uint32_t token)
 	rStatus allOk;
 	int8_t pos;
 	allOk = FAIL;
-	pos = getActorPos("io.StandardOut",actors);
+	//pos = getActorPos("io.StandardOut",actors);
+	for(int i = 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
+		{
+			if(!strcmp(actors[i].type.c_str(),"io.StadndardOut"))
+			{
+				pos = i;
+			}else if(!strcmp(actors[i].type.c_str(),"io.MovmentStadndardOut"))
+			{
+				pos = i;
+			}
+			else if(!strcmp(actors[i].type.c_str(),"io.LEDStandardOut"))
+			{
+				pos = i;
+			}
+		}
 	allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
 	return allOk;
 }

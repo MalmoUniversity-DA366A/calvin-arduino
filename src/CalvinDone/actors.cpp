@@ -72,11 +72,16 @@ int8_t actorRFID(actor *inputActor)
 	uint32_t count;
 	char tokenData[16];
 	uint8_t uid[7] = { 0, 0, 0, 0, 0, 0, 0 };
-	if(readRFID(uid))
+	if(readRFID(uid) == 1)
 	{
 		count = compareMifareClassicCardUid(uid);
-		allOk = fifoAdd(&inputActor->inportsFifo[0],count);
 	}
+	else
+	{
+		count = 0;
+	}
+	allOk = fifoAdd(&inputActor->inportsFifo[0],count);
+
 	sprintf(tokenData,"%d",(uint32_t)count);
 #ifdef ARDUINO
 	Serial.println(tokenData);
@@ -95,7 +100,7 @@ uint8_t rfidSetup()
 
 uint32_t compareMifareClassicCardUid(uint8_t *uid)
 {
-	uint32_t result = 0;
+	uint32_t result;
 	if(uid[0] == card1[0] && uid[1] == card1[1] && uid[2] == card1[2] && uid[3] == card1[3])		// Card 1
 	{
 		result = 1;
@@ -108,6 +113,10 @@ uint32_t compareMifareClassicCardUid(uint8_t *uid)
 	{
 		result = 3;
 	}
+	else
+	{
+		result = 4;
+	}
 	return result;
 }
 
@@ -115,7 +124,8 @@ uint8_t readRFID(uint8_t *uid)
 {
 	uint8_t result = 0;
 	uint8_t uidLength;
-	uint8_t success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
+	uint16_t timeout = 500;				//100 millis
+	uint8_t success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, timeout);
 	if(success)
 	{
 		if (uidLength == 4)
@@ -149,9 +159,6 @@ uint32_t controlLed(uint32_t id)
 	switch(id)
 	{
 		case(0):
-			digitalWrite(LED_RED, LOW);
-			digitalWrite(LED_YELLOW, LOW);
-			digitalWrite(LED_GREEN, LOW);
 			return id;
 		case(1):
 			digitalWrite(LED_RED, HIGH);
@@ -161,6 +168,11 @@ uint32_t controlLed(uint32_t id)
 			return id;
 		case(3):
 			digitalWrite(LED_GREEN, HIGH);
+			return id;
+		case(4):
+			digitalWrite(LED_RED, LOW);
+			digitalWrite(LED_YELLOW, LOW);
+			digitalWrite(LED_GREEN, LOW);
 			return id;
 		default:
 			return 255;
@@ -181,7 +193,7 @@ rStatus actorInit(actor *inputActor){
 	{
 		inputActor->fire = &actorStdOut;
 	}
-	else if(!strcmp(inputActor->type.c_str(),"io.RFID"))
+	else if(!strcmp(inputActor->type.c_str(),"std.RFID"))
 	{
 		rfidSetup();
 		inputActor->fire = &actorRFID;
@@ -191,7 +203,7 @@ rStatus actorInit(actor *inputActor){
 		setupLedOut();
 		inputActor->fire = &actorLED;
 	}
-	else
+	else if(!strcmp(inputActor->type.c_str(),"std.Counter"))
 	{
 		inputActor->fire = &actorCount;
 	}
