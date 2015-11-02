@@ -19,6 +19,7 @@
 #include "uart.h"
 #include "CalvinDone/HandleSockets.h"
 #include "Adafruit_PN532.h"
+//not needed later on:
 #include "CalvinInProgress/ledActor.h"
 
 //#include "CalvinInProgress/rfidActor.h"
@@ -61,7 +62,6 @@ int main(void) {
 
 	CalvinMini mini;
 	mini.loop();
-	//rfidTestLoop();
 	//testLedLoop();
 
 
