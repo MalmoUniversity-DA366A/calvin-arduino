@@ -54,6 +54,11 @@ uint8_t readRFID(uint8_t*);
 /**
  *
  */
+int8_t actorLED(actor *inputActor);
+
+/**
+ *
+ */
 uint32_t controlLed(uint32_t);
 
 /**

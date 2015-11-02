@@ -126,6 +126,24 @@ uint8_t readRFID(uint8_t *uid)
 	return result;
 }
 
+int8_t actorLED(actor *inputActor)
+{
+	uint8_t result = 0;
+	uint8_t inFifo;
+	uint32_t tokenData;
+	inFifo = lengthOfData(&inputActor->inportsFifo[0]);
+	if(inFifo > 0)
+	{
+		tokenData = fifoPop(&inputActor->inportsFifo[0]);
+		controlLed(tokenData);
+		result = 1;
+	}
+#ifdef ARDUINO
+	Serial.println(tokenData);
+#endif
+	return result;
+}
+
 uint32_t controlLed(uint32_t id)
 {
 	switch(id)
@@ -171,7 +189,7 @@ rStatus actorInit(actor *inputActor){
 	else if(!strcmp(inputActor->type.c_str(),"io.LEDStandardOut"))
 	{
 		setupLedOut();
-		inputActor->fire = &controlLed;
+		inputActor->fire = &actorLED;
 	}
 	else
 	{

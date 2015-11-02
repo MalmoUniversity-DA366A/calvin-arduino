@@ -15,9 +15,9 @@
 #include "HandleSockets.h"
 #include "actors.h"
 
-byte mac[] = { 0x00, 0xAA, 0xAB, 0xCC, 0x0E, 0x02 };
+byte mac[] = { 0x00, 0xAA, 0xAB, 0xCC, 0xBE, 0x02 };
 //byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,20);
+IPAddress ip(192,168,0,99);
 //IPAddress ip(192,168,1,146);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
@@ -128,7 +128,7 @@ rStatus fifoAdd(fifo *fif, uint32_t element){
 	fif->element[fif->write] = element;
 	fif->write = (fif->write + 1) & (fif->size - 1);
 
-	return SUCCESS;       //all is well
+	return SUCCESS;       	//all is well
 }
 
 uint32_t fifoPop(fifo *fif){
@@ -176,11 +176,19 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket, uint8_t nextSequenceNbr)
 {
 	int8_t pos;
-	pos = getActorPos("std.Counter",actors);
+	String str;
+	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
+	{
+		if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.RFID"))
+		{
+			pos = i;
+		}
+	}
 	actors[pos].ackFlag = nextSequenceNbr;								// Determines if ACK or NACK
 #ifdef _MOCK_
 	pos = 0;
 #endif
+
 
 	if(nextSequenceNbr)					//if ACK
 	{
@@ -242,7 +250,14 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 	JsonObject &outports = msg["state"]["prev_connections"]["outports"];
 
 	int8_t pos;
-	pos = getActorPos("std.Counter",actors);
+	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
+	{
+		  if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.RFID"))
+		  {
+			  pos = i;
+		  }
+	}
+
 #ifdef _MOCK_
 	pos = 0;
 #endif
@@ -325,14 +340,16 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else if(!strcmp(msg.get("cmd"),"REPLY"))
 	{
-	pos = getActorPos("std.Counter",actors);
-	if(!strcmp(actors[pos].type.c_str(),"std.Counter"))
-	{
-		handleTunnelData(msg, reply, request, socket);
-		uint8_t moreThanOneMsg = 0;
-		uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-		return size;
-	}
+		for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
+		{
+			if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.RFID"))
+			{
+				handleTunnelData(msg, reply, request, socket);
+				uint8_t moreThanOneMsg = 0;
+				uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+				return size;
+			}
+		}
 		return 6;
 	}
 	else

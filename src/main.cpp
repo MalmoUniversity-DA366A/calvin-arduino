@@ -59,10 +59,10 @@ int main(void) {
 	init_board();
 	Serial.begin(115200);
 
-	//CalvinMini mini;
-	//mini.loop();
+	CalvinMini mini;
+	mini.loop();
 	//rfidTestLoop();
-	testLedLoop();
+	//testLedLoop();
 
 
 }
