@@ -104,18 +104,18 @@ int8_t actorMovement(actor *inputActor)
 int8_t actorRFID(actor *inputActor)
 {
 	int8_t allOk = FAIL;
-	uint32_t count;
+	uint32_t count = 0;
 	char tokenData[16];
 	uint8_t uid[7] = { 0, 0, 0, 0, 0, 0, 0 };
 	if(readRFID(uid) == 1)
 	{
 		count = compareMifareClassicCardUid(uid);
+		allOk = fifoAdd(&inputActor->inportsFifo[0],count);
 	}
 	else
 	{
-		count = 0;
+		allOk = fifoAdd(&inputActor->inportsFifo[0], 0);
 	}
-	allOk = fifoAdd(&inputActor->inportsFifo[0],count);
 
 	sprintf(tokenData,"%d",(uint32_t)count);
 #ifdef ARDUINO
@@ -159,7 +159,7 @@ uint8_t readRFID(uint8_t *uid)
 {
 	uint8_t result = 0;
 	uint8_t uidLength;
-	uint16_t timeout = 500;				//100 millis
+	uint16_t timeout = 50;				//50 millis
 	uint8_t success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, timeout);
 	if(success)
 	{
@@ -180,14 +180,13 @@ int8_t actorLED(actor *inputActor)
 	inFifo = lengthOfData(&inputActor->inportsFifo[0]);
 	Serial.print("inFIFO= ");
 	Serial.println(inFifo);
-	if(inFifo > 0)
-	{
+
 		count = fifoPop(&inputActor->inportsFifo[0]);
 		Serial.print("if infifo > 0, tokendata:  ");
 		Serial.println(count);
 		controlLed(count);
 		result = 1;
-	}
+
 #ifdef ARDUINO
 	sprintf(tokenData,"%d",(uint32_t)count);
 	Serial.println(tokenData);
@@ -233,6 +232,9 @@ void setupLedOut()
 	pinMode(LED_RED, OUTPUT);
 	pinMode(LED_YELLOW, OUTPUT);
 	pinMode(LED_GREEN, OUTPUT);
+	digitalWrite(LED_RED, LOW);
+	digitalWrite(LED_YELLOW, LOW);
+	digitalWrite(LED_GREEN, LOW);
 }
 
 

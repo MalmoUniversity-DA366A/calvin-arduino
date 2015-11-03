@@ -73,7 +73,8 @@ int8_t actorLED(actor *inputActor);
 uint32_t controlLed(uint32_t);
 
 /**
- *
+ * Sets PIN's for the LED's used.
+ * Initiate PIN's and set to LOW
  */
 void setupLedOut(void);
 
