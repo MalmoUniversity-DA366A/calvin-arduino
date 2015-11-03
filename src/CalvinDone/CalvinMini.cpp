@@ -423,21 +423,24 @@ void CalvinMini::loop()
 			{
 				for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)							// 4: Handle message
 				{
-					String str = socketHandler.getMessagesIn(i);
-					const char* message = str.c_str();
-					if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
+					if(socketHandler.getSocketConnectionStatus(i))
 					{
-						StaticJsonBuffer<4096> jsonBuffer;
-						JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-						JsonObject &reply = jsonBuffer.createObject();
-						JsonObject &request = jsonBuffer.createObject();
-						handleMsg(msg, reply, request, i);
-
-						for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)			// 5: Fire actors
+						String str = socketHandler.getMessagesIn(i);
+						const char* message = str.c_str();
+						if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
 						{
-							if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
+							StaticJsonBuffer<4096> jsonBuffer;
+							JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+							JsonObject &reply = jsonBuffer.createObject();
+							JsonObject &request = jsonBuffer.createObject();
+							handleMsg(msg, reply, request, i);
+
+							for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)			// 5: Fire actors
 							{
-							    actors[i].fire(&actors[i]);
+								if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
+								{
+									actors[i].fire(&actors[i]);
+								}
 							}
 						}
 					}
@@ -446,7 +449,10 @@ void CalvinMini::loop()
 
 			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message
 			{
-				socketHandler.sendAllMsg(i);
+				if(socketHandler.getSocketConnectionStatus(i))
+				{
+					socketHandler.sendAllMsg(i);
+				}
 			}
 		}
 		socketHandler.NextSocket();
