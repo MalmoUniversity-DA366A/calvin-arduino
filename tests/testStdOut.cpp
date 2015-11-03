@@ -52,6 +52,7 @@ TEST(testStdOut, testStandardOut)
     // which it should be after an actor migrate
     EXPECT_STREQ("PORT_CONNECT", request["cmd"]);
 
+    // Test part of actor type name
     const char *p = msg["state"]["actor_type"].asString();
     String str2 = "";
     while(*p != '.')
@@ -60,6 +61,11 @@ TEST(testStdOut, testStandardOut)
         p++;
     }
     EXPECT_STREQ("io", str2.c_str());
+
+    // Test part of actor type name
+    uint8_t actorBool = !strncmp("io", msg["state"]["actor_type"].asString(), 2);
+    EXPECT_EQ(1, actorBool);
+
     delete mini;
 }
 #endif
