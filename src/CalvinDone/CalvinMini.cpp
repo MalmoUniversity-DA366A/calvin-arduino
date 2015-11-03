@@ -19,7 +19,7 @@
 byte mac[] = { 0x00, 0xAA, 0xAB, 0xCC, 0x0E, 0x02 };
 //byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
 IPAddress ip(192,168,0,20);
-//IPAddress ip(192,168,1,146);
+//IPAddress ip(192,168,0,10);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
 EthernetClient client;
@@ -111,7 +111,18 @@ rStatus CalvinMini::process(uint32_t token)
 	rStatus allOk;
 	int8_t pos;
 	allOk = FAIL;
-	pos = getActorPos("io.StandardOut",actors);
+	for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)
+	{
+	    if(!strcmp(actors[i].type.c_str(),"io.StandardOut"))
+	    {
+	        pos = i;
+	    }else if(!strcmp(actors[i].type.c_str(),"io.MovementStandardOut"))
+	    {
+	        pos = i;
+	    }
+	}
+	//pos = getActorPos("io.StandardOut",actors);
+
 	allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
 	return allOk;
 }
@@ -138,7 +149,14 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket, uint8_t nextSequenceNbr)
 {
 	int8_t pos;
-	pos = getActorPos("std.Counter",actors);
+	String str;
+	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
+	{
+	    if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	    {
+	        pos = i;
+	    }
+	}
 	actors[pos].ackFlag = nextSequenceNbr;								// Determines if ACK or NACK
 #ifdef _MOCK_
 	pos = 0;
@@ -204,7 +222,13 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 	JsonObject &outports = msg["state"]["prev_connections"]["outports"];
 
 	int8_t pos;
-	pos = getActorPos("std.Counter",actors);
+	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
+	{
+	      if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	      {
+	          pos = i;
+	      }
+	}
 #ifdef _MOCK_
 	pos = 0;
 #endif
@@ -252,10 +276,10 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 		  uint8_t moreThanOneMsg = 1;
 		  // Print JsonObject and send to Calvin
 		  uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-		  #ifdef ARDUINO
+#ifdef ARDUINO
 		  lcdOutMain.clear();
 		  lcdOutMain.write("JOIN_REQUEST");
-		  #endif
+#endif
 		  return size;
 	}
 	else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
@@ -282,27 +306,28 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
 	{
-		// reply array
 		return 5;
 	}
 	else if(!strcmp(msg.get("cmd"),"REPLY"))
 	{
-	pos = getActorPos("std.Counter",actors);
-	if(!strcmp(actors[pos].type.c_str(),"std.Counter"))
-	{
-		handleTunnelData(msg, reply, request, socket);
-		uint8_t moreThanOneMsg = 0;
-		uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-		return size;
-	}
-		return 6;
+	    for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
+	    {
+	        if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	        {
+	            handleTunnelData(msg, reply, request, socket);
+	            uint8_t moreThanOneMsg = 0;
+	            uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+	            return size;
+	        }
+	    }
+	    return 6;
 	}
 	else
 	{
-	#ifdef ARDUINO
+#ifdef ARDUINO
 		Serial.println("UNKNOWN CMD");
 		standardOut("UNKNOWN CMD");
-	#endif
+#endif
 		return 7;
 	}
 }
@@ -358,8 +383,21 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 
 #ifdef ARDUINO
 
+void CalvinMini::calibrateSensor(void)
+{
+  lcdOutMain.write("Calibrating");
+  for(int i = 0; i < calibrationTime; i++)
+  {
+      lcdOutMain.write(".");
+      delay(1000);
+  }
+  lcdOutMain.clear();
+  delay(50);
+}
+
 void CalvinMini::loop()
 {
+  calibrateSensor();
 	lcdOutMain.write("Hello Calvin");
 	initActorList();
 	//------------This should be set from within the skecth later on:-----------------
@@ -390,7 +428,7 @@ void CalvinMini::loop()
 						{
 							if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
 							{
-								actors[i].fire(&actors[i]);
+							    actors[i].fire(&actors[i]);
 							}
 						}
 					}

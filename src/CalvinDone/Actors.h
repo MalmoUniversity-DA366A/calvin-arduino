@@ -26,6 +26,17 @@ int8_t actorStdOut(actor*);
  */
 int8_t actorCount(actor*);
 
+/**
+ * Handles a movement sensor actor
+ */
+int8_t actorMovement(actor*);
+
+/**
+ * Receives data from a movement actor and sets
+ * output as high if it receives movement flag.
+ */
+int8_t movementStd(actor *inputActor);
+
 }
 
 

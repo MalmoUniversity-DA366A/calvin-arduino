@@ -48,6 +48,13 @@ void init_board(){
 		g_APinDescription[PINS_UART].ulPin,
 		g_APinDescription[PINS_UART].ulPinConfiguration);
 	digitalWrite(0, HIGH); // Enable pullup for RX0
+
+	// Enable movement sensor and speaker/led
+	pinMode(22, INPUT);
+	pinMode(31, OUTPUT);
+	//digitalWrite(22, LOW);
+	digitalWrite(31, LOW);
+
 }
 
 int main(void) {
@@ -59,6 +66,7 @@ int main(void) {
 	mini.loop();
 
 }
+
 #else
 
 #include "gtest/gtest.h"

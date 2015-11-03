@@ -1,7 +1,7 @@
 ##Handle NACK from Calvin-base
 
 Below the program Wireshark
-(<https://www.wireshark.org/\#download>)shows a NACK example from
+(<https://www.wireshark.org/\#download>) shows a NACK example from
 Calvin-base and the code that handles a NACK. When Calvin-base sends a
 NACK, the sequencenbr and token is not incremented in the method
 sendToken. A new json-message is created, with the same content as

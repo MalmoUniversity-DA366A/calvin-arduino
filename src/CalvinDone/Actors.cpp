@@ -36,6 +36,21 @@ int8_t actorStdOut(actor *inputActor)
 	return standardOut(tokenData);
 }
 
+int8_t movementStd(actor *inputActor)
+{
+#ifdef ARDUINO
+	int8_t inFifo;
+	inFifo = lengthOfData(&inputActor->inportsFifo[0]);
+	if(inFifo > 0 && fifoPop(&inputActor->inportsFifo[0]))
+	{
+		digitalWrite(31,HIGH);
+	}else{
+		digitalWrite(31,LOW);
+	}
+#endif
+	return 0;
+}
+
 int8_t actorCount(actor *inputActor)
 {
 	int8_t allOk = FAIL;
@@ -53,6 +68,25 @@ int8_t actorCount(actor *inputActor)
 	return allOk;
 }
 
+int8_t actorMovement(actor *inputActor)
+{
+  int8_t allOk = FAIL;
+  uint8_t detection;
+  char tokenData[16];
+#ifdef ARDUINO
+  detection = digitalRead(22);
+  delay(50);
+#endif
+  allOk = fifoAdd(&inputActor->inportsFifo[0],detection);
+  sprintf(tokenData,"%d",(uint8_t)detection);
+#ifdef ARDUINO
+  Serial.println(tokenData);
+  lcdOut.clear();
+  lcdOut.write(tokenData);
+#endif
+  return allOk;
+}
+
 rStatus actorInit(actor *inputActor){
 	rStatus allOk = FAIL;
 	fifo actorFifo;
@@ -60,9 +94,17 @@ rStatus actorInit(actor *inputActor){
 	{
 		inputActor->fire = &actorStdOut;
 	}
-	else
+	else if(!strcmp(inputActor->type.c_str(),"std.Counter"))
 	{
 		inputActor->fire = &actorCount;
+	}
+	else if(!strcmp(inputActor->type.c_str(),"std.MovementSensor"))
+	{
+	  inputActor->fire = &actorMovement;
+	}
+	else if(!strcmp(inputActor->type.c_str(),"io.MovementStandardOut"))
+	{
+	   inputActor->fire = &movementStd;
 	}
 	/*This sets up the fifo for the actor, not sure
 	 *if it should be done here but for now it works*/
