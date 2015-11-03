@@ -173,23 +173,21 @@ uint8_t readRFID(uint8_t *uid)
 
 int8_t actorLED(actor *inputActor)
 {
+	Serial.println("actorLED");
 	uint8_t result = 0;
 	uint8_t inFifo;
 	uint32_t count = 0;
 	char tokenData[16];
 	inFifo = lengthOfData(&inputActor->inportsFifo[0]);
-	Serial.print("inFIFO= ");
-	Serial.println(inFifo);
-
+	if(inFifo > 0)
+	{
 		count = fifoPop(&inputActor->inportsFifo[0]);
-		Serial.print("if infifo > 0, tokendata:  ");
-		Serial.println(count);
 		controlLed(count);
 		result = 1;
+	}
 
 #ifdef ARDUINO
 	sprintf(tokenData,"%d",(uint32_t)count);
-	Serial.println(tokenData);
 #endif
 	return result;
 }

@@ -16,7 +16,7 @@
 #include "Actors.h"
 #include "Fifo.h"
 
-byte mac[] = { 0x00, 0xAA, 0xAB, 0x0B, 0x0E, 0x02 };
+byte mac[] = { 0x00, 0xAA, 0xAB, 0xCB, 0x0E, 0x02 };
 //byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
 IPAddress ip(192,168,0,99);
 //IPAddress ip(192,168,0,10);
@@ -123,6 +123,8 @@ rStatus CalvinMini::process(uint32_t token)
 	    }
 	    else if(!strcmp(actors[i].type.c_str(),"io.LEDStandardOut"))
 	    {
+	    	Serial.print("process");
+	    	Serial.println(i);
 	        pos = i;
 	    }
 	}
@@ -149,6 +151,7 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 	{
 		reply.set("value",      "NACK");  //Fifo is full, please come again
 	}
+	Serial.println("handleToken is done");
 }
 
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket, uint8_t nextSequenceNbr)
@@ -306,6 +309,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else if(!strcmp(msg.get("cmd"),"TOKEN"))
 	{
+		Serial.println("handleMsg: TOKEN");
 		handleToken(msg,request);
 		return 4;
 	}
