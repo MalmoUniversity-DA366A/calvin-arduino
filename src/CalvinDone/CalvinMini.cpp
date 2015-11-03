@@ -111,7 +111,17 @@ rStatus CalvinMini::process(uint32_t token)
 	rStatus allOk;
 	int8_t pos;
 	allOk = FAIL;
-	pos = getActorPos("io.StandardOut",actors);
+	for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)
+	{
+	    if(!strcmp(actors[i].type.c_str(),"io.StandardOut"))
+	    {
+	        pos = i;
+	    }else if(!strcmp(actors[i].type.c_str(),"io.MovementStandardOut"))
+	    {
+	        pos = i;
+	    }
+	}
+	//pos = getActorPos("io.StandardOut",actors);
 
 	allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
 	return allOk;
