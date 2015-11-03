@@ -4,6 +4,7 @@
  *  Created on: 5 okt. 2015
  *      Author: Jesper
  */
+/*
 #ifdef _MOCK_
 
 #include "gtest/gtest.h"
@@ -78,3 +79,4 @@ TEST(testHandleTunnelData, testValues) {
 	EXPECT_STREQ(NULL, reply.get("value"));
 }
 #endif
+*/
