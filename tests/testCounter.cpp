@@ -56,6 +56,15 @@ TEST(testCounter, testReceiveCounter)
     // Test if PORT_CONNECT is returned cmd
     // which it should be after an actor migrate
     EXPECT_STREQ("PORT_CONNECT", request["cmd"]);
+
+    const char *p = msg["state"]["actor_type"].asString();
+    String str2 = "";
+    while(*p != '.')
+    {
+       str2 += *p;
+       p++;
+    }
+    EXPECT_STREQ("std", str2.c_str());
 }
 
 TEST(testCounter, testCounterACK)
