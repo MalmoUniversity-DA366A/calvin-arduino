@@ -117,9 +117,9 @@ public:
 	/**
 	 * Determines if a specific socket is connected or not
 	 * @Param uint8_t socketNbr, the socket to control.
-	 * @Return uint8_t status, 1 if connected, else 0.
+	 * @Return int status, 1 if connected, else 0.
 	 */
-	uint8_t getSocketConnectionStatus(uint8_t socketNbr);
+	uint8_t getSocketConnectionStatus(int);
 
 };
 

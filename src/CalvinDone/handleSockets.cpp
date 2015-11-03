@@ -52,9 +52,14 @@ uint8_t HandleSockets::setupConnection(BYTE *macAdr)
 	return status;
 }
 
-uint8_t getSocketConnectionStatus(uint8_t socketNbr)
+uint8_t HandleSockets::getSocketConnectionStatus(int socketNbr)
 {
-	return !(socketConnectionList==SOCKET_NOT_CONNECTED);
+	uint8_t result = 1;
+	if(socketConnectionList[socketNbr] == SOCKET_NOT_CONNECTED)
+	{
+		result = 0;
+	}
+	return result;
 }
 
 void HandleSockets::prepareMessagesLists()
