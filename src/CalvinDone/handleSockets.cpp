@@ -14,9 +14,6 @@
 #include "HandleSockets.h"
 #ifdef ARDUINO
 // ------------- This should be set from the sketch: ---------------------
-BYTE testMac[] = { 0xAA, 0xBB, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress testIp(192,168,0,10);
-
 uint16_t testPort = 5002;
 EthernetServer testServer(testPort);
 //------------------------------------------------------------------------
