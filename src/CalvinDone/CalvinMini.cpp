@@ -116,7 +116,12 @@ rStatus CalvinMini::process(uint32_t token)
 	    if(!strcmp(actors[i].type.c_str(),"io.StandardOut"))
 	    {
 	        pos = i;
-	    }else if(!strcmp(actors[i].type.c_str(),"io.MovementStandardOut"))
+	    }
+	    else if(!strcmp(actors[i].type.c_str(),"io.MovementStandardOut"))
+	    {
+	        pos = i;
+	    }
+	    else if(!strcmp(actors[i].type.c_str(),"io.LEDStandardOut"))
 	    {
 	        pos = i;
 	    }
@@ -152,7 +157,7 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 	String str;
 	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	{
-	    if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	    if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor") || !strcmp(actors[i].type.c_str(),"std.RFID"))
 	    {
 	        pos = i;
 	    }
@@ -224,7 +229,7 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 	int8_t pos;
 	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	{
-	      if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	      if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor") || !strcmp(actors[i].type.c_str(),"std.RFID"))
 	      {
 	          pos = i;
 	      }
@@ -312,7 +317,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	{
 	    for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	    {
-	        if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	        if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor") || !strcmp(actors[i].type.c_str(),"std.RFID"))
 	        {
 	            handleTunnelData(msg, reply, request, socket);
 	            uint8_t moreThanOneMsg = 0;
