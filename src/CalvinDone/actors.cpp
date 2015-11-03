@@ -140,15 +140,21 @@ int8_t actorLED(actor *inputActor)
 {
 	uint8_t result = 0;
 	uint8_t inFifo;
-	uint32_t tokenData;
+	uint32_t count = 0;
+	char tokenData[16];
 	inFifo = lengthOfData(&inputActor->inportsFifo[0]);
+	Serial.print("inFIFO= ");
+	Serial.println(inFifo);
 	if(inFifo > 0)
 	{
-		tokenData = fifoPop(&inputActor->inportsFifo[0]);
-		controlLed(tokenData);
+		count = fifoPop(&inputActor->inportsFifo[0]);
+		Serial.print("if infifo > 0, tokendata:  ");
+		Serial.println(count);
+		controlLed(count);
 		result = 1;
 	}
 #ifdef ARDUINO
+	sprintf(tokenData,"%d",(uint32_t)count);
 	Serial.println(tokenData);
 #endif
 	return result;
@@ -156,25 +162,33 @@ int8_t actorLED(actor *inputActor)
 
 uint32_t controlLed(uint32_t id)
 {
+	Serial.print("controlLED():  ");
 	switch(id)
 	{
+		Serial.print("SWITCH-  ");
 		case(0):
+				Serial.println("Case 0");
 			return id;
 		case(1):
+						Serial.println("Case 1");
 			digitalWrite(LED_RED, HIGH);
 			return id;
 		case(2):
+						Serial.println("Case 2");
 			digitalWrite(LED_YELLOW, HIGH);
 			return id;
 		case(3):
+						Serial.println("Case 3");
 			digitalWrite(LED_GREEN, HIGH);
 			return id;
 		case(4):
+						Serial.println("Case 4");
 			digitalWrite(LED_RED, LOW);
 			digitalWrite(LED_YELLOW, LOW);
 			digitalWrite(LED_GREEN, LOW);
 			return id;
 		default:
+			Serial.println("DEFAULT");
 			return 255;
 	}
 }
@@ -200,6 +214,7 @@ rStatus actorInit(actor *inputActor){
 	}
 	else if(!strcmp(inputActor->type.c_str(),"io.LEDStandardOut"))
 	{
+		Serial.println("init actor LED :)");
 		setupLedOut();
 		inputActor->fire = &actorLED;
 	}
