@@ -399,13 +399,10 @@ void CalvinMini::loop()
 							JsonObject &request = jsonBuffer.createObject();
 							handleMsg(msg, reply, request, i);
 
-							/*for(int j = 0; j < NUMBER_OF_SUPPORTED_ACTORS; j++)		// 5: Fire actors
-							{*/
-								if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
-								{
-									actors[i].fire(&actors[i]);
-								}
-							//}
+							if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
+							{
+								actors[i].fire(&actors[i]);
+							}
 						}
 					}
 				}
