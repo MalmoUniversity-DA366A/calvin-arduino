@@ -61,8 +61,32 @@ int main(void) {
 
 	init_board();
 	Serial.begin(115200);
+	uint16_t port = 5002;
 
-	CalvinMini mini;
+	/*byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x01 };
+	IPAddress ip(192,168,0,10);
+	String rtID = "Calvin1";*/
+
+	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x02 };
+	IPAddress ip(192,168,0,20);
+	String rtID = "Calvin2";
+
+/*	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x03 };
+	IPAddress ip(192,168,0,30);
+	String rtID = "Calvin3";*/
+	/*
+	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x04 };
+	IPAddress ip(192,168,0,40);
+	String rtID = "Calvin4";
+
+	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x05 };
+	IPAddress ip(192,168,0,50);
+	String rtID = "Calvin5";
+	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x06 };
+	IPAddress ip(192,168,0,60);
+	String rtID = "Calvin6";
+	*/
+	CalvinMini mini(rtID, macAdr, ip, port);
 	mini.loop();
 
 }

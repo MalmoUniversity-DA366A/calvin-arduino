@@ -14,9 +14,6 @@
 #include "HandleSockets.h"
 #ifdef ARDUINO
 // ------------- This should be set from the sketch: ---------------------
-BYTE testMac[] = { 0xAA, 0xBB, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress testIp(192,168,0,10);
-
 uint16_t testPort = 5002;
 EthernetServer testServer(testPort);
 //------------------------------------------------------------------------
@@ -53,6 +50,16 @@ uint8_t HandleSockets::setupConnection(BYTE *macAdr)
 	    }
 	status = 1;
 	return status;
+}
+
+uint8_t HandleSockets::getSocketConnectionStatus(int socketNbr)
+{
+	uint8_t result = 1;
+	if(socketConnectionList[socketNbr] == SOCKET_NOT_CONNECTED)
+	{
+		result = 0;
+	}
+	return result;
 }
 
 void HandleSockets::prepareMessagesLists()
@@ -251,6 +258,17 @@ void HandleSockets::NextSocket()
 			{
 				socket(i,SnMR::TCP,testPort,0);
 				listen(i);
+				Serial.print(i);
+				Serial.print(" IP: ");
+				uint8_t dip[4];
+				W5100.readSnDIPR(i, dip);
+				for(int i = 0; i<4; i++)
+				{
+					Serial.print(dip[i]);
+					Serial.print(".");
+				}
+				Serial.print("  Destport: ");
+				Serial.print(W5100.readSnDPORT(i));
 				break;
 			}
 		}

@@ -2,20 +2,18 @@
 #define CALVINDONE_CALVINMINI_H_
 #include <stdio.h>
 #include "ArduinoJson.h"
-
+#ifdef ARDUINO
+#include <Ethernet.h>
+#endif
 #define MAX_LENGTH 									1
 #define standardOut(x)    							strlen(x)
 #define ACTOR_SIZE      							5
-#define QUEUE_SIZE      							10
 #define FIFO_SIZE     								8     //Must be a power of two
-#define NUMBER_OF_PORTS     						2
-#define NUMBER_OF_SUPPORTED_ACTORS					2
-#define RT_ID "calvin-arduino"
-//#define RT_ID "calvin-stdOut"
+#define NUMBER_OF_PORTS     						4
+#define NUMBER_OF_SUPPORTED_ACTORS					4
 #define tunnel_id "fake-tunnel"
-
-// Sensor calibration time (10-60 secs according to the datasheet)
-#define calibrationTime 10
+// Sensor calibration time (10-60 sec according to the data sheet)
+#define CALIBRATION_TIME 							10
 
 typedef unsigned char BYTE;
 
@@ -28,17 +26,6 @@ typedef enum{
   SUCCESS,
   FAIL
 }rStatus;
-
-/**
- * These are actor types used to keep
- * track of different actors in the global
- * actor array.
- */
-typedef enum{
-	STD_ACTOR,
-	COUNT_ACTOR,
-	UNKNOWN_ACTOR
-}actorType;
 
 /**
  * This is the buffert for a actor. To use an actors port fifo
@@ -89,13 +76,17 @@ using namespace std;
 class CalvinMini
 {
 public:
-	CalvinMini(void);
+#ifdef ARDUINO
+	CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port);
+#else
+	CalvinMini();
+#endif
 	/**
 	 * Create an new actor.
 	 * @param msg json list
 	 * @return return 1 if successful.
 	 */
-	rStatus createActor(JsonObject &msg);
+	rStatus createActor(JsonObject &msg, uint8_t socket);
 
   /**
    * Process an incomming token and add the token data to
@@ -104,7 +95,7 @@ public:
    * @return if data vas added to fifo this function returns
    * 1, if something went wrong it returns 0.
    */
-  rStatus process(uint32_t);
+  rStatus process(uint32_t token, uint8_t socket);
 
   /**
    * Function for setting the Json reply back to Calvin-Base when the request message from
@@ -115,7 +106,7 @@ public:
    * @param msg is the JsonObject that is message from Calvin-Base
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
    */
-  void handleToken(JsonObject &msg, JsonObject &reply);
+  void handleToken(JsonObject &msg, JsonObject &reply, uint8_t socket);
 
   /**
    * Function for set values to Json reply. Json reply sends back to Calvin-Base when the
@@ -193,11 +184,6 @@ public:
    * @param socket is the socket which the ports belongs to
    */
   void handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket);
-
-  /**
-   * Returns the type of the actor.
-   */
-  actorType getActorType(actor *);
 
   /**
    * In current implementation the actorlist has to be initiated

@@ -16,31 +16,45 @@
 #include "Actors.h"
 #include "Fifo.h"
 
-byte mac[] = { 0x00, 0xAA, 0xAB, 0xCC, 0x0E, 0x02 };
-//byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,20);
-//IPAddress ip(192,168,0,10);
-uint16_t slaveport = 5002;
+IPAddress ip;
+byte mac[6];
+uint16_t slaveport;
 EthernetServer server(slaveport);
 EthernetClient client;
 LiquidCrystal lcdOutMain(52, 50, 48, 46, 44, 42);
 HandleSockets socketHandler;
 #endif
+String RT_ID = "";
 uint32_t lastPop[4];
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
 uint8_t activeActors;
-uint8_t nextMessage;
-uint32_t sequenceNbr;
+uint8_t nextMessage[NUMBER_OF_SUPPORTED_ACTORS] = {0,0,0,0};
+uint32_t sequenceNbr[NUMBER_OF_SUPPORTED_ACTORS] = {0,0,0,0};
 
-
-CalvinMini::CalvinMini()
+#ifdef ARDUINO
+CalvinMini::CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port)
 {
-	nextMessage = 0;
-	sequenceNbr = 0;
+	RT_ID = rtID;
+	mac[0] = macAdr[0];
+	mac[1] = macAdr[1];
+	mac[2] = macAdr[2];
+	mac[3] = macAdr[3];
+	mac[4] = macAdr[4];
+	mac[5] = macAdr[5];
+	mac[6] = macAdr[6];
+	ip = ipAdr;
+	slaveport = port;
+	activeActors = 0;
+	Serial.println(ip);
+}
+#else
+CalvinMini::CalvinMini(){
+	RT_ID = "Calvin-arduino";
 	activeActors = 0;
 }
+#endif
 
-rStatus CalvinMini::createActor(JsonObject &msg){
+rStatus CalvinMini::createActor(JsonObject &msg, uint8_t socket){
 	rStatus allOk = FAIL;
 	actor newActor;
 	JsonObject &state = msg.get("state");
@@ -54,34 +68,16 @@ rStatus CalvinMini::createActor(JsonObject &msg){
 	newActor.count = (uint32_t)count.get("data");
 	if( (activeActors < NUMBER_OF_SUPPORTED_ACTORS))
 	{
-		actors[activeActors] = newActor;
+		actors[socket] = newActor;
 	}
 	else
 	{
 		return FAIL;
 	}
-	actorInit(&actors[activeActors]);
+	actorInit(&actors[socket]);
 	++activeActors;
 	allOk = SUCCESS;
 	return allOk;
-}
-
-actorType CalvinMini::getActorType(actor *inputActor)
-{
-	actorType ret;
-	if(!strcmp(inputActor->type.c_str(),"io.StandardOut"))
-	{
-		ret = STD_ACTOR;
-	}
-	else if(!strcmp(inputActor->type.c_str(),"std.Counter"))
-	{
-		ret = COUNT_ACTOR;
-	}
-	else
-	{
-		ret = UNKNOWN_ACTOR;
-	}
-	return ret;
 }
 
 int8_t CalvinMini::getActorPos(const char* actorName,actor *list)
@@ -106,29 +102,24 @@ void CalvinMini::initActorList()
 	}
 }
 
-rStatus CalvinMini::process(uint32_t token)
+rStatus CalvinMini::process(uint32_t token, uint8_t socket)
 {
 	rStatus allOk;
 	int8_t pos;
 	allOk = FAIL;
-	for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)
+	if(!strncmp(actors[socket].type.c_str(),"io.",3))
 	{
-	    if(!strncmp(actors[i].type.c_str(),"io",2))
-	    {
-	        pos = i;
-	    }
+		pos = socket;
+		allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
 	}
-	//pos = getActorPos("io.StandardOut",actors);
-
-	allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
 	return allOk;
 }
 
-void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
+void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply, uint8_t socket)
 {
 	rStatus fifoStatus;
 	JsonObject &token = msg.get("token");
-	fifoStatus = process((uint32_t)token.get("data"));
+	fifoStatus = process((uint32_t)token.get("data"), socket);
 	reply.set("cmd",      "TOKEN_REPLY");
 	reply.set("sequencenbr",  msg.get("sequencenbr"));
 	reply.set("port_id",    msg.get("port_id"));
@@ -147,21 +138,19 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 {
 	int8_t pos;
 	String str;
-	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
+	if(!strncmp(actors[socket].type.c_str(),"std.",4))
 	{
-	    if(!strncmp(actors[i].type.c_str(),"std",3))
-	    {
-	        pos = i;
-	    }
+		pos = socket;
 	}
-	actors[pos].ackFlag = nextSequenceNbr;								// Determines if ACK or NACK
+
 #ifdef _MOCK_
 	pos = 0;
 #endif
+	actors[pos].ackFlag = nextSequenceNbr;								// Determines if ACK or NACK
 
 	if(nextSequenceNbr)					//if ACK
 	{
-		sequenceNbr++;
+		sequenceNbr[socket]++;
 		lastPop[socket] = fifoPop(&actors[pos].inportsFifo[0]);
 		request.set("data", lastPop[socket]);
 	}
@@ -170,7 +159,7 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 		request.set("data", lastPop[socket]);
 	}
 	request.set("type", "Token");
-	reply.set("sequencenbr", sequenceNbr);
+	reply.set("sequencenbr", sequenceNbr[socket]);
 	reply.set("token", request);
 	reply.set("cmd", "TOKEN");
 	reply.set("port_id", actors[pos].port_id);
@@ -205,7 +194,7 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 
 void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t socket)
 {
-	createActor(msg);
+	createActor(msg,socket);
 	reply.set("cmd",      "REPLY");
 	reply.set("msg_uuid",   msg.get("msg_uuid"));
 	reply.set("value",      "ACK");
@@ -217,15 +206,8 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 {
 	JsonObject &inports = msg["state"]["prev_connections"]["inports"];
 	JsonObject &outports = msg["state"]["prev_connections"]["outports"];
-
-	int8_t pos;
-	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
-	{
-	      if(!strncmp(actors[i].type.c_str(),"std", 3))
-	      {
-	          pos = i;
-	      }
-	}
+	int8_t pos = socket;
+	
 #ifdef _MOCK_
 	pos = 0;
 #endif
@@ -262,7 +244,7 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 
 int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket)
 {
-	int8_t pos;
+	int8_t pos = socket;
 	if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
 	{
 		  // JsonObject for replying a join request
@@ -291,14 +273,13 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
 	{
 		handleTunnelData(msg, reply, request, socket);
-
 		uint8_t moreThanOneMsg = 0;
 		uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
 		return size;
 	}
 	else if(!strcmp(msg.get("cmd"),"TOKEN"))
 	{
-		handleToken(msg,request);
+		handleToken(msg,request,socket);
 		return 4;
 	}
 	else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
@@ -307,18 +288,14 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else if(!strcmp(msg.get("cmd"),"REPLY"))
 	{
-	    for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
-	    {
-	        if(!strncmp(actors[i].type.c_str(),"std",3))
-	        {
-	            handleTunnelData(msg, reply, request, socket);
-	            uint8_t moreThanOneMsg = 0;
-	            uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-	            return size;
-	        }
-	    }
-	    return 6;
-	}
+		if(!strncmp(actors[pos].type.c_str(),"std.",4))
+		{
+			handleTunnelData(msg, reply, request, socket);
+			uint8_t moreThanOneMsg = 0;
+			uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+			return size;
+		}
+		return 6;
 	else
 	{
 #ifdef ARDUINO
@@ -332,7 +309,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 uint8_t CalvinMini::packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg, uint8_t socket)
 {
 #ifdef _MOCK_
-  nextMessage = 0;
+  nextMessage[socket] = 0;
 #endif
 	char replyTemp[2048] = {};
 	reply.printTo(replyTemp,2048);
@@ -351,12 +328,12 @@ uint8_t CalvinMini::packMsg(JsonObject &reply, JsonObject &request, uint8_t more
 uint8_t CalvinMini::addToMessageOut(String reply, uint8_t socket)
 {
 #ifdef ARDUINO
-	nextMessage = socketHandler.addToMessagesOut(reply, socket);
+	nextMessage[socket] = socketHandler.addToMessagesOut(reply, socket);
 #endif
 #ifdef _MOCK_
-	nextMessage++;
+	nextMessage[socket]++;
 #endif
-	return nextMessage;
+	return nextMessage[socket];
 }
 
 void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket)
@@ -383,7 +360,7 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 void CalvinMini::calibrateSensor(void)
 {
   lcdOutMain.write("Calibrating");
-  for(int i = 0; i < calibrationTime; i++)
+  for(int i = 0; i < CALIBRATION_TIME; i++)
   {
       lcdOutMain.write(".");
       delay(1000);
@@ -394,12 +371,10 @@ void CalvinMini::calibrateSensor(void)
 
 void CalvinMini::loop()
 {
-  calibrateSensor();
+	calibrateSensor();
 	lcdOutMain.write("Hello Calvin");
 	initActorList();
-	//------------This should be set from within the skecth later on:-----------------
 	socketHandler.setupConnection(mac, ip);
-	//--------------------------------------------------------------------------------
 	socketHandler.prepareMessagesLists();
 	delay(500);
 	while(1)
@@ -411,30 +386,33 @@ void CalvinMini::loop()
 			{
 				for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)							// 4: Handle message
 				{
-					String str = socketHandler.getMessagesIn(i);
-					const char* message = str.c_str();
-					if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
+					if(socketHandler.getSocketConnectionStatus(i))					// active socket?
 					{
-						StaticJsonBuffer<4096> jsonBuffer;
-						JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-						JsonObject &reply = jsonBuffer.createObject();
-						JsonObject &request = jsonBuffer.createObject();
-						handleMsg(msg, reply, request, i);
-
-						for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)			// 5: Fire actors
+						String str = socketHandler.getMessagesIn(i);
+						const char* message = str.c_str();
+						if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
 						{
+							StaticJsonBuffer<4096> jsonBuffer;
+							JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+							JsonObject &reply = jsonBuffer.createObject();
+							JsonObject &request = jsonBuffer.createObject();
+							handleMsg(msg, reply, request, i);
+
 							if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
 							{
-							    actors[i].fire(&actors[i]);
+								actors[i].fire(&actors[i]);
 							}
 						}
 					}
 				}
 			}
 
-			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message
+			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message(s)
 			{
-				socketHandler.sendAllMsg(i);
+				if(socketHandler.getSocketConnectionStatus(i))						// active socket?
+				{
+					socketHandler.sendAllMsg(i);
+				}
 			}
 		}
 		socketHandler.NextSocket();
