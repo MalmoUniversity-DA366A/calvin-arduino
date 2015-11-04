@@ -161,7 +161,7 @@ uint8_t readRFID(uint8_t *uid)
 	uint8_t success = 0;
 	uint8_t result = 0;
 	uint8_t uidLength;
-	uint16_t timeout = 50;				//50 millis
+	uint16_t timeout = 50;				//50 millis, to ensure fast reading from RFID shield
 #ifdef ARDUINO
 	success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, timeout);
 #else
@@ -169,6 +169,7 @@ uint8_t readRFID(uint8_t *uid)
 #endif
 	if(success)
 	{
+		delay(timeout);					//to minimize multiple reads of the same card.
 		if (uidLength == 4)
 		{
 			result = 1;
@@ -199,28 +200,26 @@ int8_t actorLED(actor *inputActor)
 	return result;
 }
 #ifdef ARDUINO
-uint32_t controlLed(uint32_t id)
+void controlLed(uint32_t id)
 {
 	switch(id)
 	{
-		case(0):
-			return id;
 		case(1):
 			digitalWrite(LED_RED, HIGH);
-			return id;
+			break;
 		case(2):
 			digitalWrite(LED_YELLOW, HIGH);
-			return id;
+			break;
 		case(3):
 			digitalWrite(LED_GREEN, HIGH);
-			return id;
+			break;
 		case(4):
 			digitalWrite(LED_RED, LOW);
 			digitalWrite(LED_YELLOW, LOW);
 			digitalWrite(LED_GREEN, LOW);
-			return id;
+			break;
 		default:
-			return 255;
+			break;
 	}
 }
 

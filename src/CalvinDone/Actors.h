@@ -74,7 +74,7 @@ int8_t actorLED(actor *inputActor);
  *	Determines which LED to turn ON/OFF
  *	@Param uint32_t id the id corresponding to different LED commands
  */
-uint32_t controlLed(uint32_t);
+void controlLed(uint32_t);
 
 /**
  * Sets PIN's for the LED's used.
