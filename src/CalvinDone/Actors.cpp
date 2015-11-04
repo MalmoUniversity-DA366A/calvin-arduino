@@ -12,6 +12,7 @@
 #include <LiquidCrystal.h>
 #include "Adafruit_PN532.h"
 #include "Arduino.h"
+#include "pulseAnalys.h"
 #endif
 #include "Actors.h"
 
@@ -32,7 +33,10 @@ uint8_t tag1[4]  = {0x0B, 0x4E, 0x2E, 0x3B};
 #define LED_YELLOW	24
 #define LED_GREEN	26
 //-------------------------------------------
-
+// ---------PINs used by Range sensor -------
+#define echoPin 28
+#define trigPin 30
+//-------------------------------------------
 
 int8_t actorStdOut(actor *inputActor)
 {
@@ -126,7 +130,55 @@ int8_t actorRFID(actor *inputActor)
 #endif
 	return allOk;
 }
+int8_t actorSonicRange(actor *inputActor)
+{
+	int8_t allOk = FAIL;
+	uint32_t distance;
+	uint32_t result;
+	char tokenData[16];
+
 #ifdef ARDUINO
+	digitalWrite(trigPin, LOW);
+	delay(5);
+	digitalWrite(trigPin, HIGH);
+	delay(10);
+	digitalWrite(trigPin, LOW);
+
+	distance = pulseIn(echoPin, HIGH, 1000000); //Read ultrasonic reflection
+	distance = (distance/58);
+#else
+	distance = 100;
+#endif
+
+	if(distance>150)
+	{
+		result = 4;
+
+	}
+	else if(distance<150 && distance>100)
+	{
+		result = 1;
+	}
+	else if(distance<100 && distance>50)
+	{
+		result = 2;
+	}
+	else
+	{
+		result = 3;
+	}
+
+	allOk = fifoAdd(&inputActor->inportsFifo[0],result);
+	sprintf(tokenData,"%d",(uint32_t)result);
+	return allOk;
+}
+#ifdef ARDUINO
+void setupSonicRange()
+{
+	pinMode(echoPin, INPUT);
+	pinMode(trigPin, OUTPUT);
+}
+
 uint8_t rfidSetup()
 {
 	nfc.begin();
@@ -260,6 +312,13 @@ rStatus actorInit(actor *inputActor){
 		rfidSetup();
 #endif
 		inputActor->fire = &actorRFID;
+	}
+	else if(!strcmp(inputActor->type.c_str(),"std.SonicRangeSensor"))
+	{
+#ifdef ARDUINO
+		setupSonicRange();
+#endif
+		inputActor->fire = &actorSonicRange;
 	}
 	else if(!strcmp(inputActor->type.c_str(),"io.LEDStandardOut"))
 	{

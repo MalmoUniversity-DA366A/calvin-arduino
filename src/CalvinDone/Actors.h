@@ -43,6 +43,16 @@ int8_t movementStd(actor *inputActor);
 int8_t actorRFID(actor*);
 
 /**
+ * 	Sonic range sensor actor
+ */
+int8_t actorSonicRange(actor*);
+
+/**
+ * 	Setting up Sonic range pins
+ */
+void setupSonicRange(void);
+
+/**
  * Setup the RFID reader
  * @Return uint8_t 1 if success, else 0.
  */
