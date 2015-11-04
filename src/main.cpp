@@ -61,9 +61,9 @@ int main(void) {
 
 	init_board();
 	Serial.begin(115200);
-	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x01 };
 	uint16_t port = 5002;
 
+	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x01 };
 	IPAddress ip(192,168,0,10);
 	String rtID = "Calvin1";
 	/*
