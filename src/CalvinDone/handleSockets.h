@@ -11,10 +11,10 @@
 #include <inttypes.h>
 #include "ArduinoJson.h"
 typedef unsigned char BYTE;
-#define MAX_LENGTH 1
-#define MAX_NBR_OF_SOCKETS MAX_SOCK_NUM
-#define NBR_OF_OUTGOING_MSG 10
-#define SOCKET_NOT_CONNECTED 255
+#define MAX_LENGTH 				1
+#define MAX_NBR_OF_SOCKETS 		MAX_SOCK_NUM
+#define NBR_OF_OUTGOING_MSG 	4
+#define SOCKET_NOT_CONNECTED 	255
 
 using namespace std;
 class HandleSockets

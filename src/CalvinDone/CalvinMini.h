@@ -10,12 +10,12 @@
 #define FIFO_SIZE     								8     //Must be a power of two
 #define NUMBER_OF_PORTS     						2
 #define NUMBER_OF_SUPPORTED_ACTORS					2
-//#define RT_ID "calvin-rfid"
-#define RT_ID "calvin-stdOut"
+#define RT_ID "calvin-rfid"
+//#define RT_ID "calvin-stdOut"
 #define tunnel_id "fake-tunnel"
 
-// Sensor calibration time (10-60 secs according to the datasheet)
-#define calibrationTime 10
+// Sensor calibration time (10-60 sec according to the data sheet)
+#define calibrationTime 							10
 
 typedef unsigned char BYTE;
 

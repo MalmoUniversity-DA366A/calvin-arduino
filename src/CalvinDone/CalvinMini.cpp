@@ -16,9 +16,9 @@
 #include "Actors.h"
 #include "Fifo.h"
 
-byte mac[] = { 0x00, 0xAA, 0xAB, 0xCB, 0x0E, 0x02 };
+byte mac[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x02 };
 //byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,99);
+IPAddress ip(192,168,0,199);
 //IPAddress ip(192,168,0,10);
 uint16_t slaveport = 5002;
 EthernetServer server(slaveport);
@@ -123,8 +123,6 @@ rStatus CalvinMini::process(uint32_t token)
 	    }
 	    else if(!strcmp(actors[i].type.c_str(),"io.LEDStandardOut"))
 	    {
-	    	Serial.print("process");
-	    	Serial.println(i);
 	        pos = i;
 	    }
 	}
@@ -151,7 +149,6 @@ void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
 	{
 		reply.set("value",      "NACK");  //Fifo is full, please come again
 	}
-	Serial.println("handleToken is done");
 }
 
 void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket, uint8_t nextSequenceNbr)
@@ -309,7 +306,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else if(!strcmp(msg.get("cmd"),"TOKEN"))
 	{
-		Serial.println("handleMsg: TOKEN");
 		handleToken(msg,request);
 		return 4;
 	}
@@ -406,10 +402,10 @@ void CalvinMini::calibrateSensor(void)
 
 void CalvinMini::loop()
 {
-  calibrateSensor();
+	calibrateSensor();
 	lcdOutMain.write("Hello Calvin");
 	initActorList();
-	//------------This should be set from within the skecth later on:-----------------
+	//------------This should be set from within the sketch later on:-----------------
 	socketHandler.setupConnection(mac, ip);
 	//--------------------------------------------------------------------------------
 	socketHandler.prepareMessagesLists();
@@ -423,7 +419,7 @@ void CalvinMini::loop()
 			{
 				for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)							// 4: Handle message
 				{
-					if(socketHandler.getSocketConnectionStatus(i))
+					if(socketHandler.getSocketConnectionStatus(i))					// active socket?
 					{
 						String str = socketHandler.getMessagesIn(i);
 						const char* message = str.c_str();
@@ -435,11 +431,11 @@ void CalvinMini::loop()
 							JsonObject &request = jsonBuffer.createObject();
 							handleMsg(msg, reply, request, i);
 
-							for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)			// 5: Fire actors
+							for(int j = 0; j < NUMBER_OF_SUPPORTED_ACTORS; j++)		// 5: Fire actors
 							{
-								if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
+								if(strcmp(actors[j].type.c_str(),"empty") && actors[j].ackFlag)
 								{
-									actors[i].fire(&actors[i]);
+									actors[j].fire(&actors[j]);
 								}
 							}
 						}
@@ -447,9 +443,9 @@ void CalvinMini::loop()
 				}
 			}
 
-			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message
+			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message(s)
 			{
-				if(socketHandler.getSocketConnectionStatus(i))
+				if(socketHandler.getSocketConnectionStatus(i))						// active socket?
 				{
 					socketHandler.sendAllMsg(i);
 				}
