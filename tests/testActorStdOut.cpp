@@ -75,7 +75,7 @@ TEST(ActorTest,createActor)
                    ", \"id\": \"6bc4b467-a2d2-4254-ad84-bf918231c68e\"}}, \"cmd\": \"AdCTOR\", \"msg_uuid\": \"fd71b46d-0e44-4298-9bb3-61aa0420bc45\"}";
 
   JsonObject &root = jsonBuffer.parseObject(str2.c_str());
-  EXPECT_EQ(SUCCESS,actorstd->createActor(root));
+  EXPECT_EQ(SUCCESS,actorstd->createActor(root,0));
   delete actorstd;
 }
 
@@ -93,10 +93,12 @@ TEST(ActorTest,actorTypeTest){
 	                  	  	 ", \"id\": \"6bc4b467-a2d2-4254-ad84-bf918231c68e\"}}, \"cmd\": \"AdCTOR\", \"msg_uuid\": \"fd71b46d-0e44-4298-9bb3-61aa0420bc45\"}";
 
 	JsonObject &root = jsonBuffer.parseObject(validActorType.c_str());
-	EXPECT_EQ(SUCCESS,actorstd->createActor(root));
-	EXPECT_EQ(SUCCESS,actorstd->createActor(root));
+	EXPECT_EQ(SUCCESS,actorstd->createActor(root,0));
+	EXPECT_EQ(SUCCESS,actorstd->createActor(root,0));
+	EXPECT_EQ(SUCCESS,actorstd->createActor(root,0));
+	EXPECT_EQ(SUCCESS,actorstd->createActor(root,0));
 	/*No more actors supported*/
-	EXPECT_EQ(FAIL,actorstd->createActor(root));
+	EXPECT_EQ(FAIL,actorstd->createActor(root,0));
 	delete actorstd;
 }
 

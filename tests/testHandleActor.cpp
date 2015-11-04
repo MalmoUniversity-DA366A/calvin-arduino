@@ -35,7 +35,7 @@ TEST(HandleTest,TestCreateActor){
 	name.set("name","Jsper");
 	state.set("name",name);
 	msg.set("state", state);
-	mini->createActor(msg);
+	mini->createActor(msg,0);
 
 
 	EXPECT_STREQ("Jsper",name.get("name"));
