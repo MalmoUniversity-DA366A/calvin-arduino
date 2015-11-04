@@ -107,15 +107,11 @@ rStatus CalvinMini::process(uint32_t token, uint8_t socket)
 	rStatus allOk;
 	int8_t pos;
 	allOk = FAIL;
-	/*for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)
-	{*/
-	    if(!strncmp(actors[socket].type.c_str(),"io.",3))
-	    {
-	        pos = socket;
-	        allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
-	    }
-	//}
-
+	if(!strncmp(actors[socket].type.c_str(),"io.",3))
+	{
+		pos = socket;
+		allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
+	}
 	return allOk;
 }
 
@@ -142,13 +138,10 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 {
 	int8_t pos;
 	String str;
-	/*for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
-	{*/
-	    if(!strncmp(actors[socket].type.c_str(),"std.",4))
-	    {
-	        pos = socket;
-	    }
-	//}
+	if(!strncmp(actors[socket].type.c_str(),"std.",4))
+	{
+		pos = socket;
+	}
 
 #ifdef _MOCK_
 	pos = 0;
@@ -213,15 +206,8 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 {
 	JsonObject &inports = msg["state"]["prev_connections"]["inports"];
 	JsonObject &outports = msg["state"]["prev_connections"]["outports"];
-
 	int8_t pos = socket;
-	/*for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
-	{
-	      if(!strncmp(actors[socket].type.c_str(),"std.",4))
-	      {
-	          pos = socket;
-	      }
-	}*/
+
 #ifdef _MOCK_
 	pos = 0;
 #endif
@@ -302,17 +288,14 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else if(!strcmp(msg.get("cmd"),"REPLY"))
 	{
-	    /*for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
-	    {*/
-	        if(!strncmp(actors[pos].type.c_str(),"std.",4))
-	        {
-	            handleTunnelData(msg, reply, request, socket);
-	            uint8_t moreThanOneMsg = 0;
-	            uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-	            return size;
-	        }
-	   // }
-	    return 6;
+		if(!strncmp(actors[pos].type.c_str(),"std.",4))
+		{
+			handleTunnelData(msg, reply, request, socket);
+			uint8_t moreThanOneMsg = 0;
+			uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+			return size;
+		}
+		return 6;
 	}
 	else
 	{
@@ -392,9 +375,7 @@ void CalvinMini::loop()
 	calibrateSensor();
 	lcdOutMain.write("Hello Calvin");
 	initActorList();
-	//------------This should be set from within the sketch later on:-----------------
 	socketHandler.setupConnection(mac, ip);
-	//--------------------------------------------------------------------------------
 	socketHandler.prepareMessagesLists();
 	delay(500);
 	while(1)
