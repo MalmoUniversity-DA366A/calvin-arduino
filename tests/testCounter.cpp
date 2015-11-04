@@ -12,8 +12,8 @@
 
 class testCounter : public ::testing::Test {
 protected:
-	virtual void SetUp() {}
-	virtual void TearDown() {}
+  virtual void SetUp() {}
+  virtual void TearDown() {}
 };
 
 TEST(testCounter, testReceiveCounter)
@@ -57,6 +57,8 @@ TEST(testCounter, testReceiveCounter)
     // which it should be after an actor migrate
     EXPECT_STREQ("PORT_CONNECT", request["cmd"]);
 
+    // Test code that searches for a '.' and
+    // builds a string of the actor type name
     const char *p = msg["state"]["actor_type"].asString();
     String str2 = "";
     while(*p != '.')
@@ -65,6 +67,10 @@ TEST(testCounter, testReceiveCounter)
        p++;
     }
     EXPECT_STREQ("std", str2.c_str());
+
+    // Test code that compares part of actor type name
+    uint8_t actorBool = !strncmp("std", msg["state"]["actor_type"].asString(), 3);
+    EXPECT_EQ(1, actorBool);
 }
 
 TEST(testCounter, testCounterACK)
@@ -117,23 +123,23 @@ TEST(testCounter, testCounterNACK)
 
 TEST(testCounter,testCounting)
 {
-	CalvinMini mini;
-	actor testActor;
-	fifo testFifo;
-	initFifo(&testFifo);
-	testActor.inportsFifo[0] = testFifo;
-	fifoPop(&testActor.inportsFifo[0]);
-	testActor.count = 0;
-	EXPECT_EQ(0,testActor.count);
-	EXPECT_EQ(0,actorCount(&testActor));
-	EXPECT_EQ(1,testActor.count);
-	fifoPop(&testActor.inportsFifo[0]);
-	testActor.count = 0;
-	for(int i = 0; i < 1000; i++){
-		actorCount(&testActor);
-		EXPECT_EQ(i+1,fifoPop(&testActor.inportsFifo[0]));
-	}
-	EXPECT_EQ(1000,testActor.count);
+  CalvinMini mini;
+  actor testActor;
+  fifo testFifo;
+  initFifo(&testFifo);
+  testActor.inportsFifo[0] = testFifo;
+  fifoPop(&testActor.inportsFifo[0]);
+  testActor.count = 0;
+  EXPECT_EQ(0,testActor.count);
+  EXPECT_EQ(0,actorCount(&testActor));
+  EXPECT_EQ(1,testActor.count);
+  fifoPop(&testActor.inportsFifo[0]);
+  testActor.count = 0;
+  for(int i = 0; i < 1000; i++){
+    actorCount(&testActor);
+    EXPECT_EQ(i+1,fifoPop(&testActor.inportsFifo[0]));
+  }
+  EXPECT_EQ(1000,testActor.count);
 
 }
 

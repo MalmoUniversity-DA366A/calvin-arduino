@@ -52,14 +52,20 @@ TEST(testStdOut, testStandardOut)
     // which it should be after an actor migrate
     EXPECT_STREQ("PORT_CONNECT", request["cmd"]);
 
+    // Test code that searches for a '.' and
+    // builds a string of the actor type name
     const char *p = msg["state"]["actor_type"].asString();
     String str2 = "";
     while(*p != '.')
     {
-        str2 += *p;
-        p++;
+       str2 += *p;
+       p++;
     }
     EXPECT_STREQ("io", str2.c_str());
+
+    // Test code that compares part of actor type name
+    uint8_t actorBool = !strncmp("io", msg["state"]["actor_type"].asString(), 2);
+    EXPECT_EQ(1, actorBool);
     delete mini;
 }
 #endif
