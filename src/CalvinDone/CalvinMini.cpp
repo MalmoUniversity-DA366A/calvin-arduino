@@ -16,11 +16,10 @@
 #include "Actors.h"
 #include "Fifo.h"
 
-byte mac[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x02 };
-//byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,199);
-//IPAddress ip(192,168,0,10);
-uint16_t slaveport = 5002;
+IPAddress ip;
+byte mac[6];
+String RT_ID = "";
+uint16_t slaveport;
 EthernetServer server(slaveport);
 EthernetClient client;
 LiquidCrystal lcdOutMain(52, 50, 48, 46, 44, 42);
@@ -33,8 +32,18 @@ uint8_t nextMessage;
 uint32_t sequenceNbr;
 
 
-CalvinMini::CalvinMini()
+CalvinMini::CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port)
 {
+	RT_ID = rtID;
+	mac[0] = macAdr[0];
+	mac[1] = macAdr[1];
+	mac[2] = macAdr[2];
+	mac[3] = macAdr[3];
+	mac[4] = macAdr[4];
+	mac[5] = macAdr[5];
+	mac[6] = macAdr[6];
+	ip = ipAdr;
+	slaveport = port;
 	nextMessage = 0;
 	sequenceNbr = 0;
 	activeActors = 0;
@@ -126,8 +135,6 @@ rStatus CalvinMini::process(uint32_t token)
 	        pos = i;
 	    }
 	}
-	//pos = getActorPos("io.StandardOut",actors);
-
 	allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
 	return allOk;
 }
@@ -299,7 +306,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
 	{
 		handleTunnelData(msg, reply, request, socket);
-
 		uint8_t moreThanOneMsg = 0;
 		uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
 		return size;

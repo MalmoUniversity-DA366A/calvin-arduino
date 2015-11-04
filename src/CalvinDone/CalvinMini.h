@@ -2,6 +2,7 @@
 #define CALVINDONE_CALVINMINI_H_
 #include <stdio.h>
 #include "ArduinoJson.h"
+#include <Ethernet.h>
 
 #define MAX_LENGTH 									1
 #define standardOut(x)    							strlen(x)
@@ -10,8 +11,6 @@
 #define FIFO_SIZE     								8     //Must be a power of two
 #define NUMBER_OF_PORTS     						2
 #define NUMBER_OF_SUPPORTED_ACTORS					2
-#define RT_ID "calvin-rfid"
-//#define RT_ID "calvin-stdOut"
 #define tunnel_id "fake-tunnel"
 
 // Sensor calibration time (10-60 sec according to the data sheet)
@@ -89,7 +88,7 @@ using namespace std;
 class CalvinMini
 {
 public:
-	CalvinMini(void);
+	CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port);
 	/**
 	 * Create an new actor.
 	 * @param msg json list
