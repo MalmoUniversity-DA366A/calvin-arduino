@@ -44,6 +44,7 @@ int8_t actorStdOut(actor *inputActor)
 		sprintf(tokenData,"%d",(uint32_t)fifoPop(&inputActor->inportsFifo[0]));
 	}
 #ifdef ARDUINO
+	Serial.print("Std:   ");
 	Serial.println(tokenData);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
@@ -76,9 +77,8 @@ int8_t actorCount(actor *inputActor)
 	allOk = fifoAdd(&inputActor->inportsFifo[0],count);
 	sprintf(tokenData,"%d",(uint32_t)count);
 #ifdef ARDUINO
+	Serial.print("Count:   ");
 	Serial.println(tokenData);
-	lcdOut.clear();
-	lcdOut.write(tokenData);
 #endif
 	return allOk;
 }

@@ -111,8 +111,8 @@ TEST(testCounter, testCounterNACK)
     JsonObject &value = reply.get("value");
     int sequencenbr = value.get("sequencenbr");
 
-    // Test if sequencenbr is unchanged from 0 when NACK from base
-    EXPECT_EQ(0, sequencenbr);
+    // Test if sequencenbr is unchanged from 1 when NACK from base
+    EXPECT_EQ(1, sequencenbr);
 }
 
 TEST(testCounter,testCounting)
