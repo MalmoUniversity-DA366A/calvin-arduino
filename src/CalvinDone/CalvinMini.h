@@ -3,15 +3,15 @@
 #include <stdio.h>
 #include "ArduinoJson.h"
 
-#define MAX_LENGTH 									1
-#define standardOut(x)    							strlen(x)
-#define ACTOR_SIZE      							5
-#define QUEUE_SIZE      							10
-#define FIFO_SIZE     								8     //Must be a power of two
-#define NUMBER_OF_PORTS     						2
-#define NUMBER_OF_SUPPORTED_ACTORS					2
-//#define RT_ID "calvin-arduino"
-#define RT_ID "calvin-stdOut"
+#define MAX_LENGTH                  1
+#define standardOut(x)                  strlen(x)
+#define ACTOR_SIZE                    5
+#define QUEUE_SIZE                    10
+#define FIFO_SIZE                     8     //Must be a power of two
+#define NUMBER_OF_PORTS                 2
+#define NUMBER_OF_SUPPORTED_ACTORS          2
+#define RT_ID "calvin-arduino"
+//#define RT_ID "calvin-stdOut"
 #define tunnel_id "fake-tunnel"
 
 // Sensor calibration time (10-60 secs according to the datasheet)
@@ -35,9 +35,9 @@ typedef enum{
  * actor array.
  */
 typedef enum{
-	STD_ACTOR,
-	COUNT_ACTOR,
-	UNKNOWN_ACTOR
+  STD_ACTOR,
+  COUNT_ACTOR,
+  UNKNOWN_ACTOR
 }actorType;
 
 /**
@@ -78,24 +78,24 @@ typedef struct actors{
   uint8_t ackFlag;
 }actor;
 
-extern 	rStatus actorInit(actor*);
+extern  rStatus actorInit(actor*);
 extern  int8_t lengthOfData(fifo*);
-extern	uint32_t fifoPop(fifo*);
-extern	rStatus fifoAdd(fifo*, uint32_t);
-extern	rStatus initFifo(fifo*);
+extern  uint32_t fifoPop(fifo*);
+extern  rStatus fifoAdd(fifo*, uint32_t);
+extern  rStatus initFifo(fifo*);
 }
 
 using namespace std;
 class CalvinMini
 {
 public:
-	CalvinMini(void);
-	/**
-	 * Create an new actor.
-	 * @param msg json list
-	 * @return return 1 if successful.
-	 */
-	rStatus createActor(JsonObject &msg);
+  CalvinMini(void);
+  /**
+   * Create an new actor.
+   * @param msg json list
+   * @return return 1 if successful.
+   */
+  rStatus createActor(JsonObject &msg);
 
   /**
    * Process an incomming token and add the token data to
