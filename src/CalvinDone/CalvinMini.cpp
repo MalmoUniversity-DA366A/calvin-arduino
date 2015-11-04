@@ -16,11 +16,10 @@
 #include "Actors.h"
 #include "Fifo.h"
 
-byte mac[] = { 0x00, 0xAA, 0xAB, 0xCC, 0x0E, 0x02 };
-//byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,20);
-//IPAddress ip(192,168,0,10);
-uint16_t slaveport = 5002;
+IPAddress ip;
+byte mac[6];
+String RT_ID = "";
+uint16_t slaveport;
 EthernetServer server(slaveport);
 EthernetClient client;
 LiquidCrystal lcdOutMain(52, 50, 48, 46, 44, 42);
@@ -33,8 +32,18 @@ uint8_t nextMessage;
 uint32_t sequenceNbr;
 
 
-CalvinMini::CalvinMini()
+CalvinMini::CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port)
 {
+	RT_ID = rtID;
+	mac[0] = macAdr[0];
+	mac[1] = macAdr[1];
+	mac[2] = macAdr[2];
+	mac[3] = macAdr[3];
+	mac[4] = macAdr[4];
+	mac[5] = macAdr[5];
+	mac[6] = macAdr[6];
+	ip = ipAdr;
+	slaveport = port;
 	nextMessage = 0;
 	sequenceNbr = 0;
 	activeActors = 0;
@@ -116,13 +125,16 @@ rStatus CalvinMini::process(uint32_t token)
 	    if(!strcmp(actors[i].type.c_str(),"io.StandardOut"))
 	    {
 	        pos = i;
-	    }else if(!strcmp(actors[i].type.c_str(),"io.MovementStandardOut"))
+	    }
+	    else if(!strcmp(actors[i].type.c_str(),"io.MovementStandardOut"))
+	    {
+	        pos = i;
+	    }
+	    else if(!strcmp(actors[i].type.c_str(),"io.LEDStandardOut"))
 	    {
 	        pos = i;
 	    }
 	}
-	//pos = getActorPos("io.StandardOut",actors);
-
 	allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
 	return allOk;
 }
@@ -152,7 +164,7 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 	String str;
 	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	{
-	    if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	    if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor") || !strcmp(actors[i].type.c_str(),"std.RFID"))
 	    {
 	        pos = i;
 	    }
@@ -224,7 +236,7 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 	int8_t pos;
 	for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	{
-	      if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	      if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor") || !strcmp(actors[i].type.c_str(),"std.RFID"))
 	      {
 	          pos = i;
 	      }
@@ -294,7 +306,6 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
 	{
 		handleTunnelData(msg, reply, request, socket);
-
 		uint8_t moreThanOneMsg = 0;
 		uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
 		return size;
@@ -312,7 +323,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	{
 	    for(int i= 0; i < NUMBER_OF_SUPPORTED_ACTORS; i++)
 	    {
-	        if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor"))
+	        if(!strcmp(actors[i].type.c_str(),"std.Counter") || !strcmp(actors[i].type.c_str(),"std.MovementSensor") || !strcmp(actors[i].type.c_str(),"std.RFID"))
 	        {
 	            handleTunnelData(msg, reply, request, socket);
 	            uint8_t moreThanOneMsg = 0;
@@ -397,10 +408,10 @@ void CalvinMini::calibrateSensor(void)
 
 void CalvinMini::loop()
 {
-  calibrateSensor();
+	calibrateSensor();
 	lcdOutMain.write("Hello Calvin");
 	initActorList();
-	//------------This should be set from within the skecth later on:-----------------
+	//------------This should be set from within the sketch later on:-----------------
 	socketHandler.setupConnection(mac, ip);
 	//--------------------------------------------------------------------------------
 	socketHandler.prepareMessagesLists();
@@ -414,30 +425,36 @@ void CalvinMini::loop()
 			{
 				for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)							// 4: Handle message
 				{
-					String str = socketHandler.getMessagesIn(i);
-					const char* message = str.c_str();
-					if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
+					if(socketHandler.getSocketConnectionStatus(i))					// active socket?
 					{
-						StaticJsonBuffer<4096> jsonBuffer;
-						JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-						JsonObject &reply = jsonBuffer.createObject();
-						JsonObject &request = jsonBuffer.createObject();
-						handleMsg(msg, reply, request, i);
-
-						for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)			// 5: Fire actors
+						String str = socketHandler.getMessagesIn(i);
+						const char* message = str.c_str();
+						if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
 						{
-							if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
+							StaticJsonBuffer<4096> jsonBuffer;
+							JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+							JsonObject &reply = jsonBuffer.createObject();
+							JsonObject &request = jsonBuffer.createObject();
+							handleMsg(msg, reply, request, i);
+
+							for(int j = 0; j < NUMBER_OF_SUPPORTED_ACTORS; j++)		// 5: Fire actors
 							{
-							    actors[i].fire(&actors[i]);
+								if(strcmp(actors[j].type.c_str(),"empty") && actors[j].ackFlag)
+								{
+									actors[j].fire(&actors[j]);
+								}
 							}
 						}
 					}
 				}
 			}
 
-			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message
+			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message(s)
 			{
-				socketHandler.sendAllMsg(i);
+				if(socketHandler.getSocketConnectionStatus(i))						// active socket?
+				{
+					socketHandler.sendAllMsg(i);
+				}
 			}
 		}
 		socketHandler.NextSocket();

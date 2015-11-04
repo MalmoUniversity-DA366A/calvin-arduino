@@ -11,10 +11,10 @@
 #include <inttypes.h>
 #include "ArduinoJson.h"
 typedef unsigned char BYTE;
-#define MAX_LENGTH 1
-#define MAX_NBR_OF_SOCKETS MAX_SOCK_NUM
-#define NBR_OF_OUTGOING_MSG 10
-#define SOCKET_NOT_CONNECTED 255
+#define MAX_LENGTH 				1
+#define MAX_NBR_OF_SOCKETS 		MAX_SOCK_NUM
+#define NBR_OF_OUTGOING_MSG 	4
+#define SOCKET_NOT_CONNECTED 	255
 
 using namespace std;
 class HandleSockets
@@ -113,6 +113,13 @@ public:
 	 * Simply chooses the next available socket with the lowest number.
 	 */
 	void NextSocket(void);
+
+	/**
+	 * Determines if a specific socket is connected or not
+	 * @Param uint8_t socketNbr, the socket to control.
+	 * @Return int status, 1 if connected, else 0.
+	 */
+	uint8_t getSocketConnectionStatus(int);
 
 };
 

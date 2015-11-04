@@ -14,9 +14,6 @@
 #include "HandleSockets.h"
 #ifdef ARDUINO
 // ------------- This should be set from the sketch: ---------------------
-BYTE testMac[] = { 0xAA, 0xBB, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress testIp(192,168,0,10);
-
 uint16_t testPort = 5002;
 EthernetServer testServer(testPort);
 //------------------------------------------------------------------------
@@ -53,6 +50,16 @@ uint8_t HandleSockets::setupConnection(BYTE *macAdr)
 	    }
 	status = 1;
 	return status;
+}
+
+uint8_t HandleSockets::getSocketConnectionStatus(int socketNbr)
+{
+	uint8_t result = 1;
+	if(socketConnectionList[socketNbr] == SOCKET_NOT_CONNECTED)
+	{
+		result = 0;
+	}
+	return result;
 }
 
 void HandleSockets::prepareMessagesLists()
