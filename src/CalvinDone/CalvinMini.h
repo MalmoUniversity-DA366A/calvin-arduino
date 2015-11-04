@@ -2,8 +2,9 @@
 #define CALVINDONE_CALVINMINI_H_
 #include <stdio.h>
 #include "ArduinoJson.h"
+#ifdef ARDUINO
 #include <Ethernet.h>
-
+#endif
 #define MAX_LENGTH 									1
 #define standardOut(x)    							strlen(x)
 #define ACTOR_SIZE      							5
@@ -88,7 +89,11 @@ using namespace std;
 class CalvinMini
 {
 public:
+#ifdef ARDUINO
 	CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port);
+#else
+	CalvinMini();
+#endif
 	/**
 	 * Create an new actor.
 	 * @param msg json list

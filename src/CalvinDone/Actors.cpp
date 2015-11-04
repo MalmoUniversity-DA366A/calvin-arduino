@@ -21,6 +21,7 @@ LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
 #define PN532_IRQ   (2)
 #define PN532_RESET (3)
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
+#endif
 //---------RFID cards/tags used: ------------
 uint8_t card1[4] = {0xF1, 0x39, 0x7A, 0x0F};
 uint8_t card2[4] = {0xE5, 0xA1, 0xEA, 0x45};
@@ -31,7 +32,7 @@ uint8_t tag1[4]  = {0x0B, 0x4E, 0x2E, 0x3B};
 #define LED_YELLOW	24
 #define LED_GREEN	26
 //-------------------------------------------
-#endif
+
 
 int8_t actorStdOut(actor *inputActor)
 {
@@ -125,14 +126,14 @@ int8_t actorRFID(actor *inputActor)
 #endif
 	return allOk;
 }
-
+#ifdef ARDUINO
 uint8_t rfidSetup()
 {
 	nfc.begin();
 	uint8_t result = nfc.SAMConfig();
 	return result;
 }
-
+#endif
 uint32_t compareMifareClassicCardUid(uint8_t *uid)
 {
 	uint32_t result;
@@ -157,10 +158,15 @@ uint32_t compareMifareClassicCardUid(uint8_t *uid)
 
 uint8_t readRFID(uint8_t *uid)
 {
+	uint8_t success = 0;
 	uint8_t result = 0;
 	uint8_t uidLength;
 	uint16_t timeout = 50;				//50 millis
-	uint8_t success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, timeout);
+#ifdef ARDUINO
+	success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, timeout);
+#else
+	success = 1;
+#endif
 	if(success)
 	{
 		if (uidLength == 4)
@@ -181,7 +187,9 @@ int8_t actorLED(actor *inputActor)
 	if(inFifo > 0)
 	{
 		count = fifoPop(&inputActor->inportsFifo[0]);
+#ifdef ARDUINO
 		controlLed(count);
+#endif
 		result = 1;
 	}
 
@@ -190,7 +198,7 @@ int8_t actorLED(actor *inputActor)
 #endif
 	return result;
 }
-
+#ifdef ARDUINO
 uint32_t controlLed(uint32_t id)
 {
 	switch(id)
@@ -225,7 +233,7 @@ void setupLedOut()
 	digitalWrite(LED_YELLOW, LOW);
 	digitalWrite(LED_GREEN, LOW);
 }
-
+#endif
 
 rStatus actorInit(actor *inputActor){
 	rStatus allOk = FAIL;
@@ -248,12 +256,16 @@ rStatus actorInit(actor *inputActor){
 	}
 	else if(!strcmp(inputActor->type.c_str(),"std.RFID"))
 	{
+#ifdef ARDUINO
 		rfidSetup();
+#endif
 		inputActor->fire = &actorRFID;
 	}
 	else if(!strcmp(inputActor->type.c_str(),"io.LEDStandardOut"))
 	{
+#ifdef ARDUINO
 		setupLedOut();
+#endif
 		inputActor->fire = &actorLED;
 	}
 	/*This sets up the fifo for the actor, not sure

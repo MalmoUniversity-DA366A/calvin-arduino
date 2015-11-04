@@ -28,7 +28,7 @@ TEST(testHandleJoin, testReplyObject)
     EXPECT_TRUE(reply.containsKey("sid"));
     EXPECT_TRUE(reply.containsKey("serializer"));
     EXPECT_STREQ("JOIN_REPLY", reply.get("cmd"));
-    EXPECT_STREQ("calvin-arduino", reply.get("id"));
+    EXPECT_STREQ("Calvin-arduino", reply.get("id"));
     EXPECT_STREQ("json", reply.get("serializer"));
 }
 

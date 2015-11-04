@@ -18,20 +18,20 @@
 
 IPAddress ip;
 byte mac[6];
-String RT_ID = "";
 uint16_t slaveport;
 EthernetServer server(slaveport);
 EthernetClient client;
 LiquidCrystal lcdOutMain(52, 50, 48, 46, 44, 42);
 HandleSockets socketHandler;
 #endif
+String RT_ID = "";
 uint32_t lastPop[4];
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
 uint8_t activeActors;
 uint8_t nextMessage;
 uint32_t sequenceNbr;
 
-
+#ifdef ARDUINO
 CalvinMini::CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port)
 {
 	RT_ID = rtID;
@@ -48,6 +48,14 @@ CalvinMini::CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port
 	sequenceNbr = 0;
 	activeActors = 0;
 }
+#else
+CalvinMini::CalvinMini(){
+	RT_ID = "Calvin-arduino";
+	nextMessage = 0;
+	sequenceNbr = 0;
+	activeActors = 0;
+}
+#endif
 
 rStatus CalvinMini::createActor(JsonObject &msg){
 	rStatus allOk = FAIL;
