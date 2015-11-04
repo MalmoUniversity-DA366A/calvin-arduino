@@ -83,24 +83,6 @@ rStatus CalvinMini::createActor(JsonObject &msg){
 	return allOk;
 }
 
-actorType CalvinMini::getActorType(actor *inputActor)
-{
-	actorType ret;
-	if(!strcmp(inputActor->type.c_str(),"io.StandardOut"))
-	{
-		ret = STD_ACTOR;
-	}
-	else if(!strcmp(inputActor->type.c_str(),"std.Counter"))
-	{
-		ret = COUNT_ACTOR;
-	}
-	else
-	{
-		ret = UNKNOWN_ACTOR;
-	}
-	return ret;
-}
-
 int8_t CalvinMini::getActorPos(const char* actorName,actor *list)
 {
 	for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)
@@ -405,7 +387,7 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 void CalvinMini::calibrateSensor(void)
 {
   lcdOutMain.write("Calibrating");
-  for(int i = 0; i < calibrationTime; i++)
+  for(int i = 0; i < CALIBRATION_TIME; i++)
   {
       lcdOutMain.write(".");
       delay(1000);

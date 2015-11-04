@@ -8,14 +8,13 @@
 #define MAX_LENGTH 									1
 #define standardOut(x)    							strlen(x)
 #define ACTOR_SIZE      							5
-#define QUEUE_SIZE      							10
 #define FIFO_SIZE     								8     //Must be a power of two
 #define NUMBER_OF_PORTS     						2
 #define NUMBER_OF_SUPPORTED_ACTORS					2
 #define tunnel_id "fake-tunnel"
 
 // Sensor calibration time (10-60 sec according to the data sheet)
-#define calibrationTime 							10
+#define CALIBRATION_TIME 							10
 
 typedef unsigned char BYTE;
 
@@ -28,17 +27,6 @@ typedef enum{
   SUCCESS,
   FAIL
 }rStatus;
-
-/**
- * These are actor types used to keep
- * track of different actors in the global
- * actor array.
- */
-typedef enum{
-	STD_ACTOR,
-	COUNT_ACTOR,
-	UNKNOWN_ACTOR
-}actorType;
 
 /**
  * This is the buffert for a actor. To use an actors port fifo
@@ -197,11 +185,6 @@ public:
    * @param socket is the socket which the ports belongs to
    */
   void handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket);
-
-  /**
-   * Returns the type of the actor.
-   */
-  actorType getActorType(actor *);
 
   /**
    * In current implementation the actorlist has to be initiated
