@@ -2,29 +2,41 @@
 
 ###Terminal commands
 
--   source \~/.virtualenvs/test-calvin/bin/activate (activate Calvin
-    virtual enviroment)
+-   Activate Calvin virtual enviroment:
 
--   csruntime --host localhost --controlport 5001 --port 5000
-    --keep-alive (start a runtime)
+	`source \~/.virtualenvs/test-calvin/bin/activate` 
 
--   ctrl+Z (stop current process)
+-   Start a runtime
+   
+	`csruntime --host localhost --controlport 5001 --port 5000 --keep-alive` 
 
--   bg (resume process in background)
+-   Stop current process:
 
--   cscontrol http://localhost:5001 nodes add
-    calvinip://&lt;ip-address&gt;:&lt;port&gt; (invite arduino runtime
-    to join a mesh)
+	`ctrl+Z`
+
+-   Resume process in background
+
+	`bg`
+
+-	Invite arduino runtime to join a mesh:
+
+	`cscontrol http://localhost:5001 nodes add calvinip://<ip-address>:<port>`
+
     
--   Step into calvin-base folder
+-   Step into the calvin-base folder
     
--   cscontrol http://localhost:5001 deploy &lt;scriptname.calvin&gt;
+	`cscontrol http://localhost:5001 deploy <scriptname.calvin>`
 
 -   Start a new command window and repeat step 1
 
--   cscontrol http://localhost:5001 actor list (list all active actors)
+-   List all active actors
 
--   cscontrol http://localhost:5001 actor info &lt;actor-id&gt; (info about actor)
+	`cscontrol http://localhost:5001 actor list` 
 
--   cscontrol http://localhost:5001 actor migrate
-    &lt;actor-id&gt; &lt;arduino-id&gt;
+-	Info about actor _(used to find out which actor id corresponds to which type of actor)_
+
+	`cscontrol http://localhost:5001 actor info <actor-id>` 
+
+-	Migrate actor to remote Calvin runtime:
+
+	`cscontrol http://localhost:5001 actor migrate <actor-id> <arduino-id>`
