@@ -1,4 +1,4 @@
-# Fifo Referens
+#Fifo Referens
 ##Includes
 Includes CalvinMini.h
 
@@ -14,7 +14,6 @@ int8_t **lengthOfData** (fifo*)
 
 ##Function Documention
 
-	/**
  	This Function initiate the fifo must be
  	called prior to using the fifo.
  
