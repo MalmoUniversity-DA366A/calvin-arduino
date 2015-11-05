@@ -258,17 +258,6 @@ void HandleSockets::NextSocket()
 			{
 				socket(i,SnMR::TCP,testPort,0);
 				listen(i);
-				Serial.print(i);
-				Serial.print(" IP: ");
-				uint8_t dip[4];
-				W5100.readSnDIPR(i, dip);
-				for(int i = 0; i<4; i++)
-				{
-					Serial.print(dip[i]);
-					Serial.print(".");
-				}
-				Serial.print("  Destport: ");
-				Serial.print(W5100.readSnDPORT(i));
 				break;
 			}
 		}

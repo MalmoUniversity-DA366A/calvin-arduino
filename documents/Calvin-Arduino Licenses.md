@@ -1,26 +1,29 @@
-##Calvin-Arduino Software Licenses
+#Calvin-Arduino Software Licenses
 
-All reused software in Calvin-Arduino, with following licenses, are
+All reused software in Calvin-Arduino, with corresponding licenses, are
 unmodified.
 
-####MIT License
+##MIT License
 
--   Json Arduino Copyright Benoit Blanchon
+-   Json Arduino, Copyright Benoit Blanchon
 
-####Copyright Elicia White 2012
+##Copyright Elicia White 2012
 
 -   Fifo
 
-####GNU Lesser General Public License version 2.1
+##GNU Lesser General Public License version 2.1
 
--   Ethernet Library for Arduino
+#### Arduino licenses:
+-   Ethernet Library
 
--   SPI Library for Arduino
+-   SPI Library
 
--   W5100 Library for Arduino
+-   Wire Library
 
--   LiquidCrystal Library for Arduino
+-   W5100 Library
 
-####Revised BSD License
+-   LiquidCrystal Library
+
+##Revised BSD License
 
 - Adafruit_NFCShield_I2C Library for Arduino
