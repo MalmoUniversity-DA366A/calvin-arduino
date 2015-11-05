@@ -81,11 +81,15 @@ The command git clone which gives the user a full copy of the data from the remo
 
 `defaults write com.apple.finder AppleShowAllFiles -bool YES`
 
-- Add the line: `.DS_Store` to the hidden `.gitignore` file in the repository
+- Add this line to the hidden .gitignore file in the repository
+
+`.DS_Store`
 
 - Remove .DS_Store file if already committed
 
 `find . -name .DS_Store -print0 | xargs -0 git rm -f --ignore-unmatch`
+
+- Add changes to .gitignore file and commit
 
 `git add .gitignore` 
 
