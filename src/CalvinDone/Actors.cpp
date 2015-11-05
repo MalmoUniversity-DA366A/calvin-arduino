@@ -169,6 +169,7 @@ uint8_t readRFID(uint8_t *uid)
 #endif
 	if(success)
 	{
+	  delay(timeout);
 		if (uidLength == 4)
 		{
 			result = 1;

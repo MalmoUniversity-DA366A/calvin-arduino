@@ -68,13 +68,13 @@ rStatus CalvinMini::createActor(JsonObject &msg, uint8_t socket){
 	newActor.count = (uint32_t)count.get("data");
 	if( (activeActors < NUMBER_OF_SUPPORTED_ACTORS))
 	{
-		actors[socket] = newActor;
+		actors[activeActors] = newActor;
 	}
 	else
 	{
 		return FAIL;
 	}
-	actorInit(&actors[socket]);
+	actorInit(&actors[activeActors]);
 	++activeActors;
 	allOk = SUCCESS;
 	return allOk;
@@ -296,6 +296,7 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 			return size;
 		}
 		return 6;
+	}
 	else
 	{
 #ifdef ARDUINO
@@ -402,18 +403,19 @@ void CalvinMini::loop()
 							{
 								actors[i].fire(&actors[i]);
 							}
+							socketHandler.sendAllMsg(i);
 						}
 					}
 				}
 			}
 
-			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message(s)
+			/*for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message(s)
 			{
 				if(socketHandler.getSocketConnectionStatus(i))						// active socket?
 				{
 					socketHandler.sendAllMsg(i);
 				}
-			}
+			}*/
 		}
 		socketHandler.NextSocket();
 	}
