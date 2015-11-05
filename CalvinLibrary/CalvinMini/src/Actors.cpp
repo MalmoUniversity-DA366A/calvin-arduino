@@ -11,7 +11,6 @@
 #include <LiquidCrystal.h>
 #include "Adafruit_PN532.h"
 #include "Arduino.h"
-#include "pulseAnalys.h"
 #include "Actors.h"
 
 extern "C"{
