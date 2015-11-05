@@ -30,7 +30,20 @@ Consists of 3 leds connected to the Arduino. Each led is mapped against a number
 Simply increments a number by one and sends the number as token data.
 
 #### std.MovementSensor
-Detects movement and sends 1 as token data if movement is detected. Sends 0 as token data if no movement is detected. The [movement sensor](https://learn.adafruit.com/pir-passive-infrared-proximity-motion-sensor/overview) is connected to **PIN 22**.
+Detects movement and sends 1 as token data if movement is detected. Sends 0 as token data if no movement is detected. The movement sensor is connected to **PIN 22**.
+
+According to the [datasheet](http://learn.adafruit.com/downloads/pdf/pir-passive-infrared-proximity-motion-sensor.pdf) the movement sensor needs 30 – 60 sec to calibrate. We locked the
+Arduino 10 sec to guarantee a minimal successful calibration. The calibration is nothing more than a 10 sec loop in Arduino, so that the movement sensor can stabilize.
+
+The movement sensor actor needs a calvin script and an actor class to
+run from base. We modified a calvin script and an actor class, but if a
+new script and class is necessary, the actor is a `std` actor and the class is namned `MovementSensor`. In a calvin script it is called with
+`std.MovementSensor()`.
+
+According to the datasheet the movement sensor needs 30 – 60 sec to calibrate. We locked the
+Arduino 10 sec to guarantee a minimal successful calibration. The
+calibration is nothing more than a 10 sec loop in Arduino, so that the
+movement sensor can stabilize.
 
 #### std.RFID
 RFID reader that maps three differentMiFare Classic cards's UID to an integer 1, 2 and 3 and sends the number as token data. If the RFID reader reads an unknown UID it sends 4 as token data. The RFID reader shield used in the included example is [Adafruit PN532](http://www.adafruit.com/products/789) with the **I2C** protocol enabled.
