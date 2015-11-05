@@ -8,20 +8,17 @@
  */
 
 #include "CalvinMini.h"
-#ifdef ARDUINO
 #include <LiquidCrystal.h>
 #include "Adafruit_PN532.h"
 #include "Arduino.h"
-#endif
+#include "pulseAnalys.h"
 #include "Actors.h"
 
 extern "C"{
-#ifdef ARDUINO
 LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
 #define PN532_IRQ   (2)
 #define PN532_RESET (3)
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
-#endif
 //---------RFID cards/tags used: ------------
 uint8_t card1[4] = {0xF1, 0x39, 0x7A, 0x0F};
 uint8_t card2[4] = {0xE5, 0xA1, 0xEA, 0x45};
@@ -32,7 +29,10 @@ uint8_t tag1[4]  = {0x0B, 0x4E, 0x2E, 0x3B};
 #define LED_YELLOW	24
 #define LED_GREEN	26
 //-------------------------------------------
-
+// ---------PINs used by Range sensor -------
+#define echoPin 28
+#define trigPin 30
+//-------------------------------------------
 
 int8_t actorStdOut(actor *inputActor)
 {
@@ -43,18 +43,15 @@ int8_t actorStdOut(actor *inputActor)
 	{
 		sprintf(tokenData,"%d",(uint32_t)fifoPop(&inputActor->inportsFifo[0]));
 	}
-#ifdef ARDUINO
 	Serial.print("Std:   ");
 	Serial.println(tokenData);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
-#endif
 	return standardOut(tokenData);
 }
 
 int8_t movementStd(actor *inputActor)
 {
-#ifdef ARDUINO
 	int8_t inFifo;
 	inFifo = lengthOfData(&inputActor->inportsFifo[0]);
 	if(inFifo > 0 && fifoPop(&inputActor->inportsFifo[0]))
@@ -63,7 +60,6 @@ int8_t movementStd(actor *inputActor)
 	}else{
 		digitalWrite(31,LOW);
 	}
-#endif
 	return 0;
 }
 
@@ -76,10 +72,8 @@ int8_t actorCount(actor *inputActor)
 	count = inputActor->count;
 	allOk = fifoAdd(&inputActor->inportsFifo[0],count);
 	sprintf(tokenData,"%d",(uint32_t)count);
-#ifdef ARDUINO
 	Serial.print("Count:   ");
 	Serial.println(tokenData);
-#endif
 	return allOk;
 }
 
@@ -88,17 +82,14 @@ int8_t actorMovement(actor *inputActor)
   int8_t allOk = FAIL;
   uint8_t detection;
   char tokenData[16];
-#ifdef ARDUINO
   detection = digitalRead(22);
   delay(50);
-#endif
   allOk = fifoAdd(&inputActor->inportsFifo[0],detection);
   sprintf(tokenData,"%d",(uint8_t)detection);
-#ifdef ARDUINO
   Serial.println(tokenData);
   lcdOut.clear();
   lcdOut.write(tokenData);
-#endif
+
   return allOk;
 }
 
@@ -119,21 +110,70 @@ int8_t actorRFID(actor *inputActor)
 	}
 
 	sprintf(tokenData,"%d",(uint32_t)count);
-#ifdef ARDUINO
+
 	Serial.println(tokenData);
 	lcdOut.clear();
 	lcdOut.write(tokenData);
-#endif
+
 	return allOk;
 }
-#ifdef ARDUINO
+int8_t actorSonicRange(actor *inputActor)
+{
+	int8_t allOk = FAIL;
+	uint32_t distance;
+	uint32_t result;
+	char tokenData[16];
+
+
+	digitalWrite(trigPin, LOW);
+	delay(5);
+	digitalWrite(trigPin, HIGH);
+	delay(10);
+	digitalWrite(trigPin, LOW);
+
+	distance = pulseIn(echoPin, HIGH, 1000000L); //Read ultrasonic reflection
+	delay(50);
+	distance = (distance/58);
+
+
+	if(distance<=120 && distance>=80)
+	{
+		result = 1;
+	}
+	else if(distance<=70 && distance>=50)
+	{
+		result = 2;
+	}
+	else if(distance<40 && distance>=10)
+	{
+		result = 3;
+	}else if(distance>150 && distance <200)
+	{
+		result = 4;
+	}
+	else
+	{
+		result = 0;
+	}
+
+	allOk = fifoAdd(&inputActor->inportsFifo[0],result);
+	sprintf(tokenData,"%d",(uint32_t)result);
+	return allOk;
+}
+
+void setupSonicRange()
+{
+	pinMode(echoPin, INPUT);
+	pinMode(trigPin, OUTPUT);
+}
+
 uint8_t rfidSetup()
 {
 	nfc.begin();
 	uint8_t result = nfc.SAMConfig();
 	return result;
 }
-#endif
+
 uint32_t compareMifareClassicCardUid(uint8_t *uid)
 {
 	uint32_t result;
@@ -162,11 +202,9 @@ uint8_t readRFID(uint8_t *uid)
 	uint8_t result = 0;
 	uint8_t uidLength;
 	uint16_t timeout = 50;				//50 millis, to ensure fast reading from RFID shield
-#ifdef ARDUINO
+
 	success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, timeout);
-#else
-	success = 1;
-#endif
+
 	if(success)
 	{
 		delay(timeout);					//to minimize multiple reads of the same card.
@@ -188,18 +226,15 @@ int8_t actorLED(actor *inputActor)
 	if(inFifo > 0)
 	{
 		count = fifoPop(&inputActor->inportsFifo[0]);
-#ifdef ARDUINO
 		controlLed(count);
-#endif
+
 		result = 1;
 	}
-
-#ifdef ARDUINO
 	sprintf(tokenData,"%d",(uint32_t)count);
-#endif
+
 	return result;
 }
-#ifdef ARDUINO
+
 void controlLed(uint32_t id)
 {
 	switch(id)
@@ -232,7 +267,7 @@ void setupLedOut()
 	digitalWrite(LED_YELLOW, LOW);
 	digitalWrite(LED_GREEN, LOW);
 }
-#endif
+
 
 rStatus actorInit(actor *inputActor){
 	rStatus allOk = FAIL;
@@ -255,16 +290,19 @@ rStatus actorInit(actor *inputActor){
 	}
 	else if(!strcmp(inputActor->type.c_str(),"std.RFID"))
 	{
-#ifdef ARDUINO
+
 		rfidSetup();
-#endif
+
 		inputActor->fire = &actorRFID;
+	}
+	else if(!strcmp(inputActor->type.c_str(),"std.SonicRangeSensor"))
+	{
+		setupSonicRange();
+		inputActor->fire = &actorSonicRange;
 	}
 	else if(!strcmp(inputActor->type.c_str(),"io.LEDStandardOut"))
 	{
-#ifdef ARDUINO
 		setupLedOut();
-#endif
 		inputActor->fire = &actorLED;
 	}
 	/*This sets up the fifo for the actor, not sure

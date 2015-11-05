@@ -5,14 +5,11 @@
  *  Created on: 13 okt. 2015
  *      Author: Andreas
  */
-#ifdef ARDUINO
 #include <SPI.h>
 #include <Ethernet.h>
 #include <utility/w5100.h>
 #include <utility/socket.h>
-#endif
 #include "HandleSockets.h"
-#ifdef ARDUINO
 // ------------- This should be set from the sketch: ---------------------
 uint16_t testPort = 5002;
 EthernetServer testServer(testPort);
@@ -73,7 +70,6 @@ void HandleSockets::prepareMessagesLists()
 		messagesIn[i] = EMPTY_STR;
 	}
 }
-#endif
 
 uint8_t HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 {
@@ -82,17 +78,14 @@ uint8_t HandleSockets::sendMsg(uint8_t socket, const char *str, uint16_t length)
 	hex[1] = (length & 0x00FF0000);
 	hex[2] = (length & 0x0000FF00) / 0x000000FF;
 	hex[3] = (length & 0x000000FF);
-#ifdef ARDUINO
 	send(socket,(unsigned char*)hex, 4);						// send length of message
 	send(socket,(unsigned char*)str, length);					// send actual message
-#endif
 	if(length == (hex[2]*256 + hex[3]))
 	    return 1;
 	  else
 	    return 0;
 }
 
-#ifdef ARDUINO
 void HandleSockets::sendAllMsg(uint8_t socket)
 {
 	uint8_t startingPoint = socket * NBR_OF_OUTGOING_MSG;
@@ -263,4 +256,3 @@ void HandleSockets::NextSocket()
 		}
 	}
 }
-#endif

@@ -224,7 +224,9 @@ uint8_t readRFID(uint8_t *uid)
 #endif
 	if(success)
 	{
+#ifdef ARDUINO
 		delay(timeout);					//to minimize multiple reads of the same card.
+#endif
 		if (uidLength == 4)
 		{
 			result = 1;

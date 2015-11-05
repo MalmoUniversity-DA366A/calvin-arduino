@@ -68,13 +68,13 @@ rStatus CalvinMini::createActor(JsonObject &msg, uint8_t socket){
 	newActor.count = (uint32_t)count.get("data");
 	if( (activeActors < NUMBER_OF_SUPPORTED_ACTORS))
 	{
-		actors[socket] = newActor;
+		actors[activeActors] = newActor;
 	}
 	else
 	{
 		return FAIL;
 	}
-	actorInit(&actors[socket]);
+	actorInit(&actors[activeActors]);
 	++activeActors;
 	allOk = SUCCESS;
 	return allOk;
@@ -207,7 +207,7 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 	JsonObject &inports = msg["state"]["prev_connections"]["inports"];
 	JsonObject &outports = msg["state"]["prev_connections"]["outports"];
 	int8_t pos = socket;
-
+	
 #ifdef _MOCK_
 	pos = 0;
 #endif
@@ -403,18 +403,19 @@ void CalvinMini::loop()
 							{
 								actors[i].fire(&actors[i]);
 							}
+							socketHandler.sendAllMsg(i);
 						}
 					}
 				}
 			}
 
-			for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message(s)
+			/*for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message(s)
 			{
 				if(socketHandler.getSocketConnectionStatus(i))						// active socket?
 				{
 					socketHandler.sendAllMsg(i);
 				}
-			}
+			}*/
 		}
 		socketHandler.NextSocket();
 	}
