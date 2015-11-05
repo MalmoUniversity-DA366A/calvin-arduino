@@ -26,8 +26,8 @@ The following lines should be added to the `actorInit()` function. Where **`"io.
 
 There are **two** types of supported actors in calvin-arduino these are defined by their prefix. **Source actors** that is used to interact with sensors and produce tokens should have the **std prefix**. **Output actors** should recive tokens from an source actor and do something with them, thier prefix should be **io**. Example:
 
-`io.StandardOut` - Source actor
+`io.StandardOut` - Output actor
 
-`std.Counter` - Output actor
+`std.Counter` - Source actor
 
 Where the io.StandardOut prints tokens from the std.Counter actor.
