@@ -2,8 +2,7 @@
 
 Doxygen can automate the documenting export process from source code to
 a Markdown document. To make this possible the comments must follow
-Javadoc standard
-(<http://www.stack.nl/~dimitri/doxygen/manual/docblocks.html>).
+[Javadoc standard](http://www.stack.nl/~dimitri/doxygen/manual/docblocks.html).
 Following is an example of how the comments should be made above a
 function:
 
@@ -21,7 +20,7 @@ comments. This is done by choosing *Mode -&gt; all entities*. Doxygen
 ignores comments done with // some comment here, and /\* some comment
 here \*/. A plain HTML **(.html)** document is constructed and the completed
 document is then converted to Markdown **(.md)** with a program called
-PanDoc (<https://github.com/jgm/pandoc/releases/tag/1.15.0.6>). PanDoc
+[PanDoc](https://github.com/jgm/pandoc/releases/tag/1.15.0.6). PanDoc
 uses cmd/terminal code.
 
 To convert from .html to .md, write:
