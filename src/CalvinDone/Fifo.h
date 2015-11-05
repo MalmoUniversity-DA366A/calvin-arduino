@@ -1,8 +1,12 @@
 /*
- * Fifo.h
+ * This fifo implementation is based upon a circular
+ * buffert written by Elcia White found in the book
+ * "Making Embedded Systems by Elecia White(O'Reilly).
+ *
+ * Copyright 2012 Elecia White,978-1-449-30214-6"
  *
  *  Created on: 27 okt. 2015
- *      Author: Daniel
+ *      Author: Daniel Nordahl
  */
 #include "CalvinMini.h"
 #ifndef CALVINDONE_FIFO_H_

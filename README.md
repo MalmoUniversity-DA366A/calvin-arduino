@@ -3,10 +3,12 @@
 This is a port to Arduino of a minimal implementaion of [Ericsson's Calvin platform](http://www.ericsson.com/research-blog/cloud/open-source-calvin/).
 The port is implemented as an arduino library and should be called during `setup()` within the sketch.
 
-###Repository
+##	Installation
 
-We decided to setup our Github repository with 3 infinite lifetime branches, develop, release and master. Which is based upon "A successful Git branching model" (http://nvie.com/posts/a-successful-git-branching-model/) by Vincent Driessen.
+In order to use this library the library folder must be placed inside your Arduino libraries.
 
-There are also several temporary feature branches named with appropriate names created from the develop branch. These feature branches are created for each new feature set and killed upon the completion of the task. The progress from the feature task is merged to the develop branch once the code has passed testing. Finished code from the develop branch is merged with the release branch after full system testing and documentation. The branches are accessed through MalmoUniversity-DA366A/calvin-arduino repository.
+1. Clone the repo or download as zip-archive. 
+2. Navigate to `.../arduino-1.x/libraries/` and add the Calvin Arduino library folder. _(If the folder does not exist, simply add the folder)._
+3. Restart the Arduino application and the Calvin Arduino will be available to include to your sketch.
 
-The branches are then divided into several folders. More information about the repository can be found in the documents folder.
+For further information please browse the Documents folder.
