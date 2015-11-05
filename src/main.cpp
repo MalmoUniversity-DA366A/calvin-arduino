@@ -70,10 +70,14 @@ int main(void) {
 /*	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x02 };
 	IPAddress ip(192,168,0,20);
 	String rtID = "Calvin2";
+<<<<<<< HEAD
 
+=======
+	/*
+>>>>>>> 2054e29f560755b87469cea5463164832d922d96
 	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x03 };
 	IPAddress ip(192,168,0,30);
-	String rtID = "Calvin3";*/
+	String rtID = "Calvin3";
 	/*
 	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x04 };
 	IPAddress ip(192,168,0,40);
