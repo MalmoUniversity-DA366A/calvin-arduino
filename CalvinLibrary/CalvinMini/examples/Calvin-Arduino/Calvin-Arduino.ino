@@ -14,7 +14,9 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <LiquidCrystal.h>
-CalvinMini mini;
+#include <Adafruit_PN532.h>
+#include <Wire.h>
+
 
 void setup() {
   byte macAdr[] = { 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xFF };  // MAC address for the Ethernet shield
@@ -24,9 +26,10 @@ void setup() {
   
   Serial.begin(115200);                                    // Setup serial communication
   Serial.println("On"); 
-  mini(rtID, macAdr, ip, port);                            // Setup Calvin mini
+  CalvinMini mini(rtID, macAdr, ip, port);                 // Setup Calvin mini
+  mini.loop();                                             // Run the calvin mini loop indefinitely
 }
 
 void loop() {
-  mini.loop();    // Run the calvin mini loop indefinitely
+  
 }
