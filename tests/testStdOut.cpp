@@ -1,5 +1,5 @@
 /*
- * testSendMsg.cpp
+ * testStdOut.cpp
  *
  *      Author: Peter Johansson
  */
@@ -16,7 +16,7 @@ protected:
 
 TEST(testStdOut, testStandardOut)
 {
-    CalvinMini mini;
+    CalvinMini *mini = new CalvinMini;
     String str = "{\"to_rt_uuid\": \"calvin-arduino\", \"from_rt_uuid\": \"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"state\": {\"prev_connections\": {\"actor_name\": \"test3:snk\""
                  ", \"inports\": {\"eca87eb7-ffde-4207-b363-31f0ab760050\": [\"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"fa46a0e5-388e-45fc-b615-b8e3ed3d9594\"]}"
                  ", \"actor_id\": \"551cdc91-633e-4f70-954d-8e28589a8e44\", \"outports\": {}}, \"actor_type\": \"io.StandardOut\", \"actor_state\": {\"store_tokens\": false"
@@ -31,49 +31,41 @@ TEST(testStdOut, testStandardOut)
     JsonObject &reply = jsonBuffer.createObject();
     JsonObject &request = jsonBuffer.createObject();
 
-    mini.handleMsg(msg, reply, request);
+
+    mini->handleMsg(msg, reply, request, 0);
+
+    int8_t size = mini->handleMsg(msg, reply, request, 0);
+
     JsonObject &actor_state = msg["state"]["actor_state"];
+
+    // Test if number of outgoing messages is 2
+    EXPECT_EQ(size,2);
 
     // Test if actor_type stdOut is triggered
     EXPECT_STREQ("io.StandardOut", msg["state"]["actor_type"]);
 
-    // Test if actor_state is store tokens
-    // which should be false when actor is stdOut
-    EXPECT_FALSE(actor_state.get("store_tokens"));
+    // Test if actor_state contains store tokens
+    // which should be true when actor is stdOut
+    EXPECT_TRUE(actor_state.containsKey("store_tokens"));
 
     // Test if PORT_CONNECT is returned cmd
     // which it should be after an actor migrate
     EXPECT_STREQ("PORT_CONNECT", request["cmd"]);
+
+    // Test part of actor type name
+    const char *p = msg["state"]["actor_type"].asString();
+    String str2 = "";
+    while(*p != '.')
+    {
+        str2 += *p;
+        p++;
+    }
+    EXPECT_STREQ("io", str2.c_str());
+
+    // Test part of actor type name
+    uint8_t actorBool = !strncmp("io", msg["state"]["actor_type"].asString(), 2);
+    EXPECT_EQ(1, actorBool);
+
+    delete mini;
 }
-
-TEST(testStdOut, testStandardOutToken)
-{
-    CalvinMini mini;
-    String str = "{\"to_rt_uuid\": \"calvin-arduino\", \"from_rt_uuid\": \"02fbd30d-c8a6-4cf6-b224-ea4ebdb3634b\", \"cmd\": \"TUNNEL_DATA\", \"value\": {\"sequencenbr\": 13, \"token\": {\"data\": 105"
-                 ", \"type\": \"Token\"}, \"cmd\": \"TOKEN\", \"port_id\": \"fa46a0e5-388e-45fc-b615-b8e3ed3d9594\", \"peer_port_id\": \"eca87eb7-ffde-4207-b363-31f0ab760050\"}, \"tunnel_id\": \"fake-tunnel\"}";
-
-    StaticJsonBuffer<4096> jsonBuffer;
-    JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-    JsonObject &reply = jsonBuffer.createObject();
-    JsonObject &request = jsonBuffer.createObject();
-
-    mini.handleMsg(msg, reply, request);
-    JsonObject &value = msg.get("value");
-    mini.handleMsg(value,reply,request);
-
-    JsonObject &tokenFromBase = msg.get("token");
-    JsonObject &tokenInArduino = request.get("token");
-    int dataFromBase = tokenFromBase.get("data");
-    int dataInArduino = tokenInArduino.get("data");
-
-    // Test if token is handled right
-    EXPECT_EQ(dataFromBase, dataInArduino);
-
-    // Test if TUNNEL_DATA is returned as cmd
-    EXPECT_STREQ("TUNNEL_DATA",reply.get("cmd"));
-
-    // Test if nested TOKEN_REPLY is returned as cmd
-    EXPECT_STREQ("TOKEN_REPLY", request.get("cmd"));
-}
-
 #endif

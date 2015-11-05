@@ -20,7 +20,7 @@ TEST(testHandleJoin, testReplyObject)
     StaticJsonBuffer<500> jsonBuffer;
     JsonObject &msg = jsonBuffer.createObject();
     JsonObject &reply = jsonBuffer.createObject();
-    mini.handleJoin(msg, reply);
+    mini.handleJoin(msg, reply, 0);
 
     // Test content of object
     EXPECT_TRUE(reply.containsKey("cmd"));
@@ -28,7 +28,7 @@ TEST(testHandleJoin, testReplyObject)
     EXPECT_TRUE(reply.containsKey("sid"));
     EXPECT_TRUE(reply.containsKey("serializer"));
     EXPECT_STREQ("JOIN_REPLY", reply.get("cmd"));
-    EXPECT_STREQ("calvin-arduino", reply.get("id"));
+    EXPECT_STREQ("Calvin-arduino", reply.get("id"));
     EXPECT_STREQ("json", reply.get("serializer"));
 }
 
@@ -38,7 +38,7 @@ TEST(testHandleJoin, testSize)
     StaticJsonBuffer<500> jsonBuffer;
     JsonObject &msg = jsonBuffer.createObject();
     JsonObject &reply = jsonBuffer.createObject();
-    mini.handleJoin(msg, reply);
+    mini.handleJoin(msg, reply, 0);
 
     // Test size of object
     EXPECT_EQ(4, reply.size());

@@ -1,5 +1,5 @@
 #ifdef ARDUINO
-/*
+/**
  * Template project for arduino due. This project
  * includes the standard functions from the Arduino
  * library.
@@ -17,7 +17,7 @@
 #include "CalvinDone/CalvinMini.h"
 #include "blinkLED.h"
 #include "uart.h"
-
+#include "CalvinDone/HandleSockets.h"
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
@@ -48,15 +48,49 @@ void init_board(){
 		g_APinDescription[PINS_UART].ulPin,
 		g_APinDescription[PINS_UART].ulPinConfiguration);
 	digitalWrite(0, HIGH); // Enable pullup for RX0
+
+	// Enable movement sensor and speaker/led
+	pinMode(22, INPUT);
+	pinMode(31, OUTPUT);
+	//digitalWrite(22, LOW);
+	digitalWrite(31, LOW);
+
 }
 
 int main(void) {
 
 	init_board();
 	Serial.begin(115200);
-	CalvinMini mini;
+	uint16_t port = 5002;
+
+	byte macAdr[] = { 0xC0, 0xAA, 0xCB, 0xAB, 0x0E, 0x01 };
+	IPAddress ip(192,168,0,60);
+	String rtID = "Calvin6";
+
+/*	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x02 };
+	IPAddress ip(192,168,0,20);
+	String rtID = "Calvin2";
+
+	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x03 };
+	IPAddress ip(192,168,0,30);
+	String rtID = "Calvin3";
+	/*
+	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x04 };
+	IPAddress ip(192,168,0,40);
+	String rtID = "Calvin4";
+
+	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x05 };
+	IPAddress ip(192,168,0,50);
+	String rtID = "Calvin5";
+	byte macAdr[] = { 0xC0, 0xAA, 0xAB, 0xCB, 0x0E, 0x06 };
+	IPAddress ip(192,168,0,60);
+	String rtID = "Calvin6";
+	*/
+	CalvinMini mini(rtID, macAdr, ip, port);
 	mini.loop();
+
 }
+
 #else
 
 #include "gtest/gtest.h"

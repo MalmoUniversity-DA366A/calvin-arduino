@@ -1,22 +1,25 @@
 #ifndef CALVINDONE_CALVINMINI_H_
 #define CALVINDONE_CALVINMINI_H_
-
-#define MAX_LENGTH 1
 #include <stdio.h>
-#include <string>
 #include "ArduinoJson.h"
-#define standardOut(x)    strlen(x)
-#define ACTOR_SIZE      5
-#define QUEUE_SIZE      10
-#define FIFO_SIZE     8     //Must be a power of two
-#define NUMBER_OF_PORTS     2
-#define RT_ID "calvin-arduino"
+#ifdef ARDUINO
+#include <Ethernet.h>
+#endif
+#define MAX_LENGTH 									1
+#define standardOut(x)    							strlen(x)
+#define ACTOR_SIZE      							5
+#define FIFO_SIZE     								8     //Must be a power of two
+#define NUMBER_OF_PORTS     						4
+#define NUMBER_OF_SUPPORTED_ACTORS					4
 #define tunnel_id "fake-tunnel"
+// Sensor calibration time (10-60 sec according to the data sheet)
+#define CALIBRATION_TIME 							10
+
 typedef unsigned char BYTE;
 
 extern "C"{
-/*
- * Enum for testing functions SUCCESS indicates
+/**
+ * Enumerator for testing functions SUCCESS indicates
  * operation success and FAIL for operation faield.
  */
 typedef enum{
@@ -24,6 +27,12 @@ typedef enum{
   FAIL
 }rStatus;
 
+/**
+ * This is the buffert for a actor. To use an actors port fifo
+ * a buffert struct must be created and assigned to the actor
+ * port fifo. Before this fifo can be used it must be initiated
+ * by the initFifo function.
+ */
 typedef struct buffert{
   uint32_t element[FIFO_SIZE];
   int size;
@@ -31,96 +40,53 @@ typedef struct buffert{
   int write;
 }fifo;
 
+/**
+ * This struct contains actor data. References to the actors
+ * fifo is stored in a array of pointers to fifo bufferts.
+ * The actor can have multiple fifos on outports and inports,
+ * in order to use the they must first be assigned a buffert
+ * reference. To execute an actor the actor fire function must
+ * be called. Prior to this a reference to the fire function must
+ * assigned to the actor. This depends on the actor type.
+ * Currently supported actors are:
+ * io.actorStandardOut
+ * io.actorCounter
+ */
 typedef struct actors{
-  const char* type;
+  String type;
   const char* name;
   const char* id;
-  const char* fifo;
+  String peer_port_id;
+  String port_id;
   uint32_t count;
-  int8_t (*fireActor)();
-  struct buffert *inportsFifo[NUMBER_OF_PORTS];
-  struct buffert *outportsFifo[NUMBER_OF_PORTS];
+  int8_t (*fire)(struct actors*);
+  struct buffert inportsFifo[NUMBER_OF_PORTS];
+  struct buffert outportsFifo[NUMBER_OF_PORTS];
+  uint8_t ackFlag;
 }actor;
 
-/**
- * This Function initiate the fifo must be
- * called prior to using the fifo.
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- *
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- */
-rStatus initFifo(fifo*);
-
-/**
- * Adds a new element to the fifo
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- *
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- * @return returns 0 if the fifo is full
- */
-rStatus fifoAdd(fifo*, uint32_t);
-
-/**
- * Return and removes the oldest element in the fifo.
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- *
- * @Return Returns fifo element, returns NULL if fifo is
- * empty.
- */
-uint32_t fifoPop(fifo*);
-
-/**
- * Used by Add and Pop to determine fifo length.
- *
- * This fifo implementation is based upon a circular
- * buffert written by Elcia White found in the book
- * "Making Embedded Systems by Elecia White(O'Reilly).
- * Copyright 2012 Elecia White,978-1-449-30214-6"
- *
- * @return Fifo length
- */
-int8_t lengthOfData(fifo*);
-
-/**
- *  What's up with the external C you might wonder,
- *  well thats the only way i could ad a function pointer to a strut,
- *  Apparently c++ handles this different from c.
- */
-rStatus actorInit();
-rStatus actorInitTest();
-
-/**
- * Current standard out is the lcd screen connected to arduino due
- */
-int8_t StdOut();
-
-/**
- * Increment the count each time the actor fires
- */
-int8_t actorCount();
-
+extern 	rStatus actorInit(actor*);
+extern  int8_t lengthOfData(fifo*);
+extern	uint32_t fifoPop(fifo*);
+extern	rStatus fifoAdd(fifo*, uint32_t);
+extern	rStatus initFifo(fifo*);
 }
 
 using namespace std;
 class CalvinMini
 {
 public:
+#ifdef ARDUINO
+	CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port);
+#else
+	CalvinMini();
+#endif
 	/**
 	 * Create an new actor.
 	 * @param msg json list
 	 * @return return 1 if successful.
 	 */
-	rStatus createActor(JsonObject &msg);
+	rStatus createActor(JsonObject &msg, uint8_t socket);
 
   /**
    * Process an incomming token and add the token data to
@@ -129,7 +95,7 @@ public:
    * @return if data vas added to fifo this function returns
    * 1, if something went wrong it returns 0.
    */
-  rStatus process(uint32_t);
+  rStatus process(uint32_t token, uint8_t socket);
 
   /**
    * Function for setting the Json reply back to Calvin-Base when the request message from
@@ -140,7 +106,20 @@ public:
    * @param msg is the JsonObject that is message from Calvin-Base
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
    */
-  void handleToken(JsonObject &msg, JsonObject &reply);
+  void handleToken(JsonObject &msg, JsonObject &reply, uint8_t socket);
+
+  /**
+   * Function for set values to Json reply. Json reply sends back to Calvin-Base when the
+   * request message from Calvin-Base is "TOKEN_REPLY", and when Calvin-Base also sends an
+   * ACK that indicates that Calvin-Base is ready to receive a new Token. Replys "value" contains an JsonObject
+   * that holds the keyword "TOKEN" and the the data at the first position on the FIFO back to Calvin-Base.
+   * @param msg is JsonObject that is the message from Calvin-Base
+   * @param reply is the JsonObject with the reply message from Calvin-Arduino
+   * @param request is the JsonObject that is the nested JsonObject in the reply
+   * @param socket is the socket which the token is to be sent to
+   * @param nextSequensNbr flags if an ACK or NACK was received. 1 for ACK, 0 for NACK
+   */
+  void sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket, uint8_t nextSequenceNbr);
 
   /**
    * This function is used to determine the length of FIFO
@@ -152,8 +131,9 @@ public:
    * Create a reply message for handle a join
    * @param msg JsonObject
    * @param reply JsonObject
+   * @param socket is the socket which is trying to join
    */
-  void handleJoin(JsonObject &msg, JsonObject &reply);
+  void handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket);
 
   /**
    * Method for setting up a tunnel using JSON message back to Calvin-Base,
@@ -168,18 +148,18 @@ public:
    * Function for handle the tunnel data using JSON, JSON is added to the JsonObject reference reply
    * @param &msg JsonObject received from Calvin-Base
    * @param &reply JsonObject that is added to the "reply" list
-   *
-   * Author: Jesper Hansen
+   * @param socket is the socket which the tunnel belongs to
    */
-  void handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request);
+  void handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request, uint8_t socket);
 
   /**
    * Handle all different messages
    * @param msg JsonObject
    * @param reply JsonObject
    * @param request JsonObject
+   * @param socket is the socket which the message belongs to
    */
-  int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request);
+  int8_t handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket);
 
   /**
    * The main loop for Calvin Arduino
@@ -190,8 +170,9 @@ public:
    * Function for handle a new Actor
    * @param msg is the JsonObject that is message from Calvin-Base
    * @param reply is the JsonObject with the reply message from Calvin-Arduino
+   * @param socket is the socket which the actor belongs to
    */
-  void handleActorNew(JsonObject &msg, JsonObject &reply);
+  void handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t socket);
 
   /**
    * Setup ports. The current version of calvin arduino only uses
@@ -200,44 +181,54 @@ public:
    * @param msg input message
    * @param reply Calvin base reply list
    * @param request Calvin base reply list
+   * @param socket is the socket which the ports belongs to
    */
-  void handleSetupPorts(JsonObject &msg,JsonObject &request);
+  void handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket);
 
   /**
-   * Reply message to calvin base
-   * @param str char pointer of String
-   * @param length size of String
+   * In current implementation the actorlist has to be initiated
+   * with empty actors.
    */
-  int sendMsg(const char *str, uint32_t length);
+  void initActorList();
+
+  /**
+   * This function returns the position of a specified actor
+   * int the actorlist.
+   * Currently supported actors are:
+   * io.StandardOut
+   * std.Counter
+   * @param const char* should be the name of the actor needed.
+   * @param actor *list pointer to the actor list.
+   * @return if the actor is found in the list the return value
+   * will be the actor position in the list. Returns -1 if the actor
+   * Isn't found in the list.
+   */
+  int8_t getActorPos(const char*,actor *list);
 
   /**
    * Adds messages to a global array and
    * creates the array size for sending
    * @param reply String
+   * @return uint8_t Number of Messages
+   * @param socket is the socket which the message is to be sent to
    */
-  void addToMessageOut(String reply);
-#ifdef ARDUINO
-  /**
-   * Prints the IP-address assigned to the Ethernet shield.
-   */
-  void printIp(void);
+  uint8_t addToMessageOut(String reply, uint8_t socket);
 
   /**
-   * Assign an IP-address to the Ethernet shield.
+   * Creates an outmessage to Calvin base
+   * @param reply JsonObject
+   * @param request JsonObject
+   * @param moreThanOneMsg Returns two messages if 1
+   * @param socket is the socket which the message is to be sent to
+   * @return uint8_t Number of Messages
    */
-  void getIPFromRouter(void);
+  uint8_t packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg, uint8_t socket);
 
   /**
-   * Start a server connection
+   * Calibrates movement sensor
    */
-  void setupServer(void);
+  void calibrateSensor(void);
 
-  /**
-   * Receive message from calvin base
-   * @return String
-   */
-  String recvMsg(void);
-#endif
 };
 
 

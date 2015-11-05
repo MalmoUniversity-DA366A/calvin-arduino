@@ -36,7 +36,7 @@ TEST(testHandleSetupTunnel, testSetStringInMethod) {
 
 	// Test for checking if the string value in the JsonObject is equal to the set string
 	EXPECT_STREQ("MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6", request.get("msg_uuid"));
-	EXPECT_STREQ("calvin-arduino", request.get("from_rt_uuid"));
+	EXPECT_STREQ("Calvin-arduino", request.get("from_rt_uuid"));
 	EXPECT_STREQ(msg.get("id"), request.get("to_rt_uuid"));
 	EXPECT_STREQ("TUNNEL_NEW", request.get("cmd"));
 	EXPECT_STREQ("fake-tunnel", request.get("tunnel_id"));

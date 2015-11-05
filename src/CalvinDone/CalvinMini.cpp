@@ -7,450 +7,417 @@
 #include <stdio.h>
 #include "CalvinMini.h"
 #include <inttypes.h>
-#include <string>
 
 #ifdef ARDUINO
 #include <SPI.h>
 #include <Ethernet.h>
-#include <util.h>
 #include <LiquidCrystal.h>
+#include "HandleSockets.h"
+#include "Actors.h"
+#include "Fifo.h"
 
-//byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xF5, 0x93 };
-IPAddress ip(192,168,0,5);
-//IPAddress ip(192,168,1,146);
-uint16_t slaveport = 5002;
+IPAddress ip;
+byte mac[6];
+uint16_t slaveport;
 EthernetServer server(slaveport);
 EthernetClient client;
-LiquidCrystal lcdOut(52, 50, 48, 46, 44, 42);
+LiquidCrystal lcdOutMain(52, 50, 48, 46, 44, 42);
+HandleSockets socketHandler;
 #endif
+String RT_ID = "";
+uint32_t lastPop[4];
+actor actors[NUMBER_OF_SUPPORTED_ACTORS];
+uint8_t activeActors;
+uint8_t nextMessage[NUMBER_OF_SUPPORTED_ACTORS] = {0,0,0,0};
+uint32_t sequenceNbr[NUMBER_OF_SUPPORTED_ACTORS] = {0,0,0,0};
 
-const int messageOutLength = 4;
-String messageOut[messageOutLength] = {};
-int nextMessage = 0;
-
-actor globalActor;
-fifo actorFifo;
-
-int8_t StdOut(){
-  uint8_t inFifo;
-  char tokenData[16];
-  inFifo = lengthOfData(globalActor.inportsFifo[0]);
-  if(inFifo > 0)
-  {
-	sprintf(tokenData,"%d",(uint32_t)fifoPop(globalActor.inportsFifo[0]));
-  }
 #ifdef ARDUINO
-  lcdOut.clear();
-  lcdOut.write(tokenData);
-#endif
-  return standardOut(tokenData);
-}
-
-int8_t actorCount()
+CalvinMini::CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port)
 {
-	int8_t allOk = FAIL;
-	uint32_t count;
-	++(globalActor.count);
-	count = globalActor.count;
-	allOk = fifoAdd(globalActor.inportsFifo[0],count);
-#ifdef ARDUINO
-	lcdOut.clear();
-	lcdOut.write("Raknar");
+	RT_ID = rtID;
+	mac[0] = macAdr[0];
+	mac[1] = macAdr[1];
+	mac[2] = macAdr[2];
+	mac[3] = macAdr[3];
+	mac[4] = macAdr[4];
+	mac[5] = macAdr[5];
+	mac[6] = macAdr[6];
+	ip = ipAdr;
+	slaveport = port;
+	activeActors = 0;
+	Serial.println(ip);
+}
+#else
+CalvinMini::CalvinMini(){
+	RT_ID = "Calvin-arduino";
+	activeActors = 0;
+}
 #endif
 
+rStatus CalvinMini::createActor(JsonObject &msg, uint8_t socket){
+	rStatus allOk = FAIL;
+	actor newActor;
+	JsonObject &state = msg.get("state");
+	JsonObject &name = state.get("actor_state");
+	newActor.type = state.get("actor_type").asString();
+	newActor.name = name.get("name");
+	newActor.id = name.get("id");
+	JsonObject &fifoObject = name["outports"]["integer"]["fifo"];
+	JsonArray &fifoArray = fifoObject.get("fifo");
+	JsonObject &count = fifoArray.get(0);
+	newActor.count = (uint32_t)count.get("data");
+	if( (activeActors < NUMBER_OF_SUPPORTED_ACTORS))
+	{
+		actors[activeActors] = newActor;
+	}
+	else
+	{
+		return FAIL;
+	}
+	actorInit(&actors[activeActors]);
+	++activeActors;
+	allOk = SUCCESS;
 	return allOk;
 }
 
-extern "C"{
-rStatus actorInit(){
-  rStatus allOk = FAIL;
-#ifdef ARDUINO
-  if(!strcmp(globalActor.type,"io.StandardOut"))
-  {
-	  globalActor.fireActor = &StdOut;
-  }else
-  {
-	  globalActor.fireActor = &actorCount;
-  }
-#else
-  globalActor.fireActor = &StdOut;
+int8_t CalvinMini::getActorPos(const char* actorName,actor *list)
+{
+	for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)
+	{
+		if(!strcmp(list[i].type.c_str(),actorName))
+		{
+			return i;
+		}
+	}
+	return -1;					//Not found
+}
+
+void CalvinMini::initActorList()
+{
+	for(int i = 0;i < NUMBER_OF_SUPPORTED_ACTORS;i++)
+	{
+		actor emptyActor;
+		emptyActor.type = "empty";
+		actors[i] = emptyActor;
+	}
+}
+
+rStatus CalvinMini::process(uint32_t token, uint8_t socket)
+{
+	rStatus allOk;
+	int8_t pos;
+	allOk = FAIL;
+	if(!strncmp(actors[socket].type.c_str(),"io.",3))
+	{
+		pos = socket;
+		allOk = fifoAdd(&actors[pos].inportsFifo[0],token);
+	}
+	return allOk;
+}
+
+void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply, uint8_t socket)
+{
+	rStatus fifoStatus;
+	JsonObject &token = msg.get("token");
+	fifoStatus = process((uint32_t)token.get("data"), socket);
+	reply.set("cmd",      "TOKEN_REPLY");
+	reply.set("sequencenbr",  msg.get("sequencenbr"));
+	reply.set("port_id",    msg.get("port_id"));
+	reply.set("peer_port_id",   msg.get("peer_port_id"));
+	if(fifoStatus == SUCCESS)
+	{
+		reply.set("value",      "ACK");
+	}
+	else
+	{
+		reply.set("value",      "NACK");  //Fifo is full, please come again
+	}
+}
+
+void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket, uint8_t nextSequenceNbr)
+{
+	int8_t pos;
+	String str;
+	if(!strncmp(actors[socket].type.c_str(),"std.",4))
+	{
+		pos = socket;
+	}
+
+#ifdef _MOCK_
+	pos = 0;
 #endif
-  /*This sets up the fifo for the actor, not sure
-   *if it should be done here but for now it works*/
- globalActor.inportsFifo[0] = &actorFifo;
-  allOk = initFifo(&actorFifo);
-  //globalActor.inportsFifo[0] = &actorFifo;
+	actors[pos].ackFlag = nextSequenceNbr;								// Determines if ACK or NACK
 
-  return allOk;
-}
-rStatus actorInitTest(){
-	rStatus allOk = FAIL;
-
-
-	globalActor.fireActor = &StdOut;
-	/*This sets up the fifo for the actor, not sure
-	 *if it should be done here but for now it works*/
-	allOk = initFifo(&actorFifo);
-	globalActor.inportsFifo[0] = &actorFifo;
-
-	  return allOk;
-}
+	if(nextSequenceNbr)					//if ACK
+	{
+		sequenceNbr[socket]++;
+		lastPop[socket] = fifoPop(&actors[pos].inportsFifo[0]);
+		request.set("data", lastPop[socket]);
+	}
+	else if(!nextSequenceNbr)			// if NACK
+	{
+		request.set("data", lastPop[socket]);
+	}
+	request.set("type", "Token");
+	reply.set("sequencenbr", sequenceNbr[socket]);
+	reply.set("token", request);
+	reply.set("cmd", "TOKEN");
+	reply.set("port_id", actors[pos].port_id);
+	reply.set("peer_port_id", actors[pos].peer_port_id);
 }
 
-rStatus CalvinMini::createActor(JsonObject &msg){
-  rStatus allOk = FAIL;
-  JsonObject &state = msg.get("state");
-  JsonObject &name = state.get("actor_state");
-  globalActor.type = state.get("actor_type");
-  globalActor.name = name.get("name");
-  globalActor.id = name.get("id");
-
-  allOk = SUCCESS;
-  actorInit();
-  return allOk;
-}
-
-extern "C"{
-rStatus initFifo(fifo *fif)
+void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request, uint8_t socket)
 {
-  fif->size = FIFO_SIZE;
-  fif->read = 0;
-  fif->write = 0;
-  return SUCCESS;
-}
-
-int8_t lengthOfData(fifo *fif)
-{
-  return ((fif->write - fif->read) & (fif->size -1));
-}
-
-rStatus fifoAdd(fifo *fif, uint32_t element){
-
-  if(lengthOfData(fif) == (fif->size-1))
-  {
-    return FAIL;      //fifo full;
-  }
-  fif->element[fif->write] = element;
-  fif->write = (fif->write + 1) & (fif->size - 1);
-
-  return SUCCESS;       //all is well
-}
-
-uint32_t fifoPop(fifo *fif){
-
-	uint32_t ret;
-
-  if(lengthOfData(fif) == 0)
-  {
-    return FAIL;    //fifo empty
-  }
-
-  ret = fif->element[fif->read];
-  fif->read = (fif->read + 1) & (fif->size - 1);
-
-  return ret;
-}
-
-}
-
-rStatus CalvinMini::process(uint32_t token){
-  rStatus allOk;
-  allOk = FAIL;
-  allOk = fifoAdd(globalActor.inportsFifo[0],token);
-  return allOk;
-}
-
-void CalvinMini::handleToken(JsonObject &msg, JsonObject &reply)
-{
-  rStatus fifoStatus;
-  JsonObject &token = msg.get("token");
-  fifoStatus = process((uint32_t)token.get("data"));
-  reply.set("cmd",      "TOKEN_REPLY");
-  reply.set("sequencenbr",  msg.get("sequencenbr"));
-  reply.set("port_id",    msg.get("port_id"));
-  reply.set("peer_port_id",   msg.get("peer_port_id"));
-  if(fifoStatus == SUCCESS)
-  {
-    reply.set("value",      "ACK");
-  }else
-  {
-    reply.set("value",      "NACK");  //Fifo is full, please come again
-  }
-}
-
-void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject &request)
-{
-  JsonObject &value = msg.get("value");
-  reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
-  reply.set("from_rt_uuid",   RT_ID);
-  reply.set("cmd",      "TUNNEL_DATA");
-  reply.set("tunnel_id",    tunnel_id); // None in python
+	JsonObject &value = msg.get("value");
+	StaticJsonBuffer<200> jsonBuffer;
+	JsonObject &token = jsonBuffer.createObject();
+	reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
+	reply.set("from_rt_uuid",   RT_ID);
+	reply.set("cmd",      "TUNNEL_DATA");
+	reply.set("tunnel_id",    tunnel_id); // None in python
+	if(!strcmp(value.get("cmd"), "TOKEN_REPLY") && !strcmp(value.get("value"), "NACK"))
+	{
+		sendToken(value, request, token, socket, 0);
+	}
+	else if(!strcmp(value.get("cmd"), "TOKEN"))
+	{
 #ifdef ARDUINO
-  handleMsg(value,reply,request);
+		handleMsg(value,reply,request, socket);
 #endif
-  reply.set("value",      request);
+	}
+	else
+	{
+		sendToken(value, request, token, socket, 1);
+	}
+	reply.set("value", request);
 }
 
-void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply)
+void CalvinMini::handleActorNew(JsonObject &msg, JsonObject &reply, uint8_t socket)
 {
-  createActor(msg);
-
-  reply.set("cmd",      "REPLY");
-  reply.set("msg_uuid",   msg.get("msg_uuid"));
-  reply.set("value",      "ACK");
-  reply.set("from_rt_uuid", RT_ID);
-  reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
+	createActor(msg,socket);
+	reply.set("cmd",      "REPLY");
+	reply.set("msg_uuid",   msg.get("msg_uuid"));
+	reply.set("value",      "ACK");
+	reply.set("from_rt_uuid", RT_ID);
+	reply.set("to_rt_uuid",   msg.get("from_rt_uuid"));
 }
 
-void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request)
+void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t socket)
 {
-  JsonObject &token = msg["state"]["actor_state"]["inports"]["token"];
-  String port_id = token.get("id");
-  JsonObject &inports = msg["state"]["prev_connections"]["inports"];
-  JsonArray &array = inports[port_id];
-  String peer_port_id = array.get(1);
-  request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
-  request.set("from_rt_uuid", RT_ID);
-  request.set("to_rt_uuid",msg.get("from_rt_uuid"));
-  request.set("port_id", port_id);
-  request.set("peer_port_id", peer_port_id);
-  request.set("peer_actor_id", NULL);
-  request.set("peer_port_name", NULL);
-  request.set("peer_port_dir", NULL);
-  request.set("tunnel_id", tunnel_id);
-  request.set("cmd", "PORT_CONNECT");
+	JsonObject &inports = msg["state"]["prev_connections"]["inports"];
+	JsonObject &outports = msg["state"]["prev_connections"]["outports"];
+	int8_t pos = socket;
+	
+#ifdef _MOCK_
+	pos = 0;
+#endif
+	String port_id;
+	String peer_port_id;
+	if(outports.size() == 0)
+	{
+		JsonObject &token = msg["state"]["actor_state"]["inports"]["token"];
+		port_id = token.get("id").asString();
+		JsonArray &array = inports[port_id];
+		peer_port_id = array.get(1).asString();
+	}
+	if(inports.size() == 0)
+	{
+		JsonObject &integer = msg["state"]["actor_state"]["outports"]["integer"];
+		port_id = integer.get("id").asString();
+		JsonArray &outerarray = outports[port_id];
+		JsonArray &innerarray = outerarray.get(0);  // Inception
+		peer_port_id = innerarray.get(1).asString();
+	}
+	request.set("msg_uuid","MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb7");
+	request.set("from_rt_uuid", RT_ID);
+	request.set("to_rt_uuid",msg.get("from_rt_uuid"));
+	request.set("port_id", port_id);
+	request.set("peer_port_id", peer_port_id);
+	request.set("peer_actor_id", 0);
+	request.set("peer_port_name", 0);
+	request.set("peer_port_dir", 0);
+	request.set("tunnel_id", tunnel_id);
+	request.set("cmd", "PORT_CONNECT");
+	actors[pos].peer_port_id = peer_port_id;
+	actors[pos].port_id = port_id;
 }
 
-int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request)
+int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &request, uint8_t socket)
 {
-  char replyTemp[2048] = {};
-  char requestTemp[2048] = {};
-  if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
-  {
-      // JsonObject for replying a join request
-      StaticJsonBuffer<200> jsonBuffer;
-      JsonObject &policy = jsonBuffer.createObject();
-      handleJoin(msg,reply);
-      handleSetupTunnel(msg, request, policy);
-
-      // Print JsonObject and send to Calvin
-      reply.printTo(replyTemp,2048);
-      request.printTo(requestTemp,2048);
-
-      String str(replyTemp);
-      String str2(requestTemp);
-      addToMessageOut(str);
-      addToMessageOut(str2);
-      #ifdef ARDUINO
-      lcdOut.clear();
-      lcdOut.write("JOIN_REQUEST");
-      #endif
-      return 1;
-  }
-  else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
-  {
-      handleActorNew(msg, reply);
-      handleSetupPorts(msg,request);
-
-      reply.printTo(replyTemp,2048);
-      request.printTo(requestTemp,2048);
-
-      String str(replyTemp);
-      String str2(requestTemp);
-      addToMessageOut(str);
-      addToMessageOut(str2);
-      #ifdef ARDUINO
-      lcdOut.clear();
-      lcdOut.write("ACTOR_NEW");
-      #endif
-      return 2;
-  }
-  else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
-  {
-      handleTunnelData(msg, reply, request);
-
-      reply.printTo(replyTemp,2048);
-      String str(replyTemp);
-      addToMessageOut(str);
-      return 3;
-  }
-  else if(!strcmp(msg.get("cmd"),"TOKEN"))
-  {
-      handleToken(msg,request);
-      #ifdef ARDUINO
-      lcdOut.clear();
-      lcdOut.write("TOKEN");
-      #endif
-      return 4;
-  }
-  else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
-  {
-      // reply array
-      return 5;
-  }
-  else if(!strcmp(msg.get("cmd"),"REPLY"))
-  {
-      #ifdef ARDUINO
-      JsonObject &value = msg["value"];
-      if(!strcmp(value.get("status"),"ACK"))
-      {
-          String test = value.get("status");
-          Serial.println(test.c_str());
-      }
-      else
-      {
-          Serial.println("NACK");
-      }
-      #endif
-      return 6;
-  }
-  else
-  {
-      standardOut("UNKNOWN CMD");
-      return 7;
-  }
-}
-
-void CalvinMini::addToMessageOut(String reply)
-{
-  messageOut[nextMessage] = reply;
-  if(nextMessage < messageOutLength)
-    nextMessage = nextMessage+1;
-}
-
+	int8_t pos = socket;
+	if(!strcmp(msg.get("cmd"),"JOIN_REQUEST"))
+	{
+		  // JsonObject for replying a join request
+		  StaticJsonBuffer<200> jsonBuffer;
+		  JsonObject &policy = jsonBuffer.createObject();
+		  handleJoin(msg,reply, socket);
+		  handleSetupTunnel(msg, request, policy);
+		  uint8_t moreThanOneMsg = 1;
+		  // Print JsonObject and send to Calvin
+		  uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
 #ifdef ARDUINO
-String CalvinMini::recvMsg()
-{
-  Serial.println("Reading...");
-  char temp[MAX_LENGTH+1] = {};
-  String str = "";
-  BYTE data[4];
-  int found = 0;
-  int count = 0;
-  int sizeOfMsg;
-  while(!found)
-  {
-        client.readBytes(temp, MAX_LENGTH);
-        data[count] = *temp;
-        count++;
-        if(*temp == '{')
-        {
-            str += temp;
-            found = 1;
-        }
-  }
-  sizeOfMsg = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
-  for(int i = 0;i < sizeOfMsg-1;i++)
-  {
-      int size = client.readBytes(temp, MAX_LENGTH);
-      temp[size] = '\0';  // Null terminate char
-      str += temp;
-  }
-  return str;
-}
+		  lcdOutMain.clear();
+		  lcdOutMain.write("JOIN_REQUEST");
 #endif
+		  return size;
+	}
+	else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
+	{
+		handleActorNew(msg, reply, socket);
+		handleSetupPorts(msg, request, socket);
 
-int CalvinMini::sendMsg(const char *str, uint32_t length)
-{
-  BYTE hex[4] = {};
-  hex[0] = (length & 0xFF000000);
-  hex[1] = (length & 0x00FF0000);
-  hex[2] = (length & 0x0000FF00) / 0x000000FF;
-  hex[3] = (length & 0x000000FF);
+		uint8_t moreThanOneMsg = 1;
+		uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+		return size;
+	}
+	else if(!strcmp(msg.get("cmd"),"TUNNEL_DATA"))
+	{
+		handleTunnelData(msg, reply, request, socket);
+		uint8_t moreThanOneMsg = 0;
+		uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+		return size;
+	}
+	else if(!strcmp(msg.get("cmd"),"TOKEN"))
+	{
+		handleToken(msg,request,socket);
+		return 4;
+	}
+	else if(!strcmp(msg.get("cmd"),"TOKEN_REPLY"))
+	{
+		return 5;
+	}
+	else if(!strcmp(msg.get("cmd"),"REPLY"))
+	{
+		if(!strncmp(actors[pos].type.c_str(),"std.",4))
+		{
+			handleTunnelData(msg, reply, request, socket);
+			uint8_t moreThanOneMsg = 0;
+			uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
+			return size;
+		}
+		return 6;
+	}
+	else
+	{
 #ifdef ARDUINO
-  server.write(hex,4);
-  server.write(str);
+		Serial.println("UNKNOWN CMD");
+		standardOut("UNKNOWN CMD");
 #endif
-  if(length == (hex[2]*256 + hex[3]))
-    return 1;
-  else
-    return 0;
+		return 7;
+	}
 }
 
-void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply)
+uint8_t CalvinMini::packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg, uint8_t socket)
 {
-  reply["cmd"] = "JOIN_REPLY";
-  reply["id"] = RT_ID;
-  reply["sid"] = msg.get("sid");
-  reply["serializer"] = "json";
+#ifdef _MOCK_
+  nextMessage[socket] = 0;
+#endif
+	char replyTemp[2048] = {};
+	reply.printTo(replyTemp,2048);
+	String str(replyTemp);
+	uint8_t size = addToMessageOut(str, socket);
+	if(moreThanOneMsg)
+	{
+		char requestTemp[2048] = {};
+		request.printTo(requestTemp,2048);
+		String str2(requestTemp);
+		size = addToMessageOut(str2, socket);
+	}
+	return size;
+}
+
+uint8_t CalvinMini::addToMessageOut(String reply, uint8_t socket)
+{
+#ifdef ARDUINO
+	nextMessage[socket] = socketHandler.addToMessagesOut(reply, socket);
+#endif
+#ifdef _MOCK_
+	nextMessage[socket]++;
+#endif
+	return nextMessage[socket];
+}
+
+void CalvinMini::handleJoin(JsonObject &msg, JsonObject &reply, uint8_t socket)
+{
+	reply["cmd"] = "JOIN_REPLY";
+	reply["id"] = RT_ID;
+	reply["sid"] = msg.get("sid");
+	reply["serializer"] = "json";
 }
 
 void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObject &policy)
 {
-  request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
-  request["from_rt_uuid"] = RT_ID;
-  request["to_rt_uuid"] = msg.get("id");
-  request["cmd"] = "TUNNEL_NEW";
-  request["tunnel_id"] = tunnel_id;
-  request["policy"] = policy; // Unused
-  request["type"] = "token";
+	request["msg_uuid"] = "MSG-00531ac3-1d2d-454d-964a-7e9573f6ebb6"; // Should be a unique id
+	request["from_rt_uuid"] = RT_ID;
+	request["to_rt_uuid"] = msg.get("id");
+	request["cmd"] = "TUNNEL_NEW";
+	request["tunnel_id"] = tunnel_id;
+	request["policy"] = policy; // Unused
+	request["type"] = "token";
 }
 
 #ifdef ARDUINO
-void CalvinMini::setupServer()
-{
-  //getIPFromRouter(); // Doesn't work with shield
-  Ethernet.begin(mac, ip);
-  printIp();
-  server.begin();
-}
 
-void CalvinMini::printIp()
+void CalvinMini::calibrateSensor(void)
 {
-    Serial.println(Ethernet.localIP());
-}
-
-void CalvinMini::getIPFromRouter()
-{
-    // Disable SD
-    pinMode(4,OUTPUT);
-    digitalWrite(4,HIGH);
-    if (Ethernet.begin(mac) == 0)
-    {
-        Serial.println("Failed to configure Ethernet using DHCP");
-        // Set static IP-address if fail
-        Ethernet.begin(mac, ip);
-    }
+  lcdOutMain.write("Calibrating");
+  for(int i = 0; i < CALIBRATION_TIME; i++)
+  {
+      lcdOutMain.write(".");
+      delay(1000);
+  }
+  lcdOutMain.clear();
+  delay(50);
 }
 
 void CalvinMini::loop()
 {
-  lcdOut.write("Hello Calvin");
-  globalActor.fireActor = &StdOut;
-  setupServer();
-  while(1)
-  {
-      // 1: Check connected sockets
-      client = server.available();
-      // 2: Fix connection
-      if(client) // Wait for client
-      {
-    	  lcdOut.clear();
-          // 3: Read message
-          Serial.println("Connected...");
-          String str = recvMsg();
+	calibrateSensor();
+	lcdOutMain.write("Hello Calvin");
+	initActorList();
+	socketHandler.setupConnection(mac, ip);
+	socketHandler.prepareMessagesLists();
+	delay(500);
+	while(1)
+	{
+		socketHandler.determineSocketStatus();										// 1: Check connected sockets
+		if(socketHandler.anyoneConnected() == 1)									// Anyone connected?
+		{
+			if(socketHandler.recvAllMsg() == 1)										// 3: Read message
+			{
+				for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)							// 4: Handle message
+				{
+					if(socketHandler.getSocketConnectionStatus(i))					// active socket?
+					{
+						String str = socketHandler.getMessagesIn(i);
+						const char* message = str.c_str();
+						if(strncmp(socketHandler.EMPTY_STR, message, 9)!= 0)
+						{
+							StaticJsonBuffer<4096> jsonBuffer;
+							JsonObject &msg = jsonBuffer.parseObject(str.c_str());
+							JsonObject &reply = jsonBuffer.createObject();
+							JsonObject &request = jsonBuffer.createObject();
+							handleMsg(msg, reply, request, i);
 
-          StaticJsonBuffer<4096> jsonBuffer;
-          JsonObject &msg = jsonBuffer.parseObject(str.c_str());
-          JsonObject &reply = jsonBuffer.createObject();
-          JsonObject &request = jsonBuffer.createObject();
+							if(strcmp(actors[i].type.c_str(),"empty") && actors[i].ackFlag)
+							{
+								actors[i].fire(&actors[i]);
+							}
+							socketHandler.sendAllMsg(i);
+						}
+					}
+				}
+			}
 
-          // 4: Handle message
-          handleMsg(msg, reply, request);
-
-          // 5: Fire Actors
-          globalActor.fireActor();
-
-          // 6: Read outgoing message
-          for(int i = 0;i < nextMessage;i++)
-          {
-              // 7: Send outgoing message
-              sendMsg(messageOut[i].c_str(),messageOut[i].length());
-              messageOut[i] = "";
-          }
-          nextMessage = 0;
-      }
-  }
+			/*for(int i = 0; i < MAX_NBR_OF_SOCKETS; i++)								// 6: Send outgoing message(s)
+			{
+				if(socketHandler.getSocketConnectionStatus(i))						// active socket?
+				{
+					socketHandler.sendAllMsg(i);
+				}
+			}*/
+		}
+		socketHandler.NextSocket();
+	}
 }
 #endif
