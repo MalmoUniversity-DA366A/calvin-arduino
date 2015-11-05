@@ -144,28 +144,31 @@ int8_t actorSonicRange(actor *inputActor)
 	delay(10);
 	digitalWrite(trigPin, LOW);
 
-	distance = pulseIn(echoPin, HIGH, 1000000); //Read ultrasonic reflection
+	distance = pulseIn(echoPin, HIGH, 1000000L); //Read ultrasonic reflection
+	delay(50);
 	distance = (distance/58);
 #else
 	distance = 100;
 #endif
 
-	if(distance>150)
-	{
-		result = 4;
-
-	}
-	else if(distance<150 && distance>100)
+	if(distance<=120 && distance>=80)
 	{
 		result = 1;
 	}
-	else if(distance<100 && distance>50)
+	else if(distance<=70 && distance>=50)
 	{
 		result = 2;
 	}
-	else
+	else if(distance<40 && distance>=10)
 	{
 		result = 3;
+	}else if(distance>150 && distance <200)
+	{
+		result = 4;
+	}
+	else
+	{
+		result = 0;
 	}
 
 	allOk = fifoAdd(&inputActor->inportsFifo[0],result);

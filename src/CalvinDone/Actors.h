@@ -43,7 +43,9 @@ int8_t movementStd(actor *inputActor);
 int8_t actorRFID(actor*);
 
 /**
- * 	Sonic range sensor actor
+ * 	Sonic range sensor actor, reads the distance
+ * 	and convert it to a number from 0 to 4 for the
+ * 	ledActor.
  */
 int8_t actorSonicRange(actor*);
 
