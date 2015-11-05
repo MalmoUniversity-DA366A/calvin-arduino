@@ -1,7 +1,6 @@
 ##How to install Json for Arduino
 
--   Download Json for Arduino
-    (<https://github.com/bblanchon/ArduinoJson.git>)
+-   Download [Json for Arduino](https://github.com/bblanchon/ArduinoJson.git)
 
 -   After downloading the Json repo, either throw away the *test* folder
     and the *third-party* folder or delete them from the Eclipse
@@ -29,9 +28,10 @@
 
 Json will be used as communication between Arduino and Calvin-base. A
 Json object contains strings and numbers as identifiers and values
-(<https://github.com/bblanchon/ArduinoJson/wiki>). Identifiers and
+([wiki](https://github.com/bblanchon/ArduinoJson/wiki)). Identifiers and
 values are separated by a colon ( : ) and Json pairs are separated by a
 comma ( , ). Values can be nested with an array of values that are
 separated by a comma ( , ). An exampel of the Json syntax:
 
-*{\\"time\\":\\"flies\\",\\"numbers\\":123,\\"arraynumbers\\":\[456,789\]}*
+	{"time":"flies","numbers":123,
+	"arraynumbers":[456,789]}
