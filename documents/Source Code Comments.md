@@ -24,7 +24,6 @@ document is then converted to Markdown **(.md)** with a program called
 uses cmd/terminal code.
 
 To convert from .html to .md, write:
-
 `pandoc -f html -t markdown\_strict filenameToReadFrom.html -s -o
 fileNameToWriteTo.md`
 
@@ -34,6 +33,5 @@ Pandoc supports a wide variety of formats and can even be used to
 convert a Word file to Markdown.
 
 To convert from .docx to .md, write:
-
 `pandoc -f docx -t markdown filenameToReadFrom.docx -s -o
 fileNameToWriteTo.md`
