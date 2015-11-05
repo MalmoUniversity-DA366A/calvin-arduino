@@ -3,7 +3,7 @@
 ### Common denominator
 All actors needs to be able to connect to the internet via TCP/IP. This, by default, is accomplished through an **Ethernet shield** using the **W5100** hardware. At this point there are no additional suport for other ethernet shields. However, one could fairly easy replace the Ethernet library with a more suitable one for other hardware configurations. 
 
-## Source actors
+## Sink actors
 
 #### io.StandardOut
 
@@ -24,7 +24,7 @@ Consists of 3 leds connected to the Arduino. Each led is mapped against a number
 	Green - PIN 26
 
 
-##Sink actors
+## Source actors
 
 #### std.Counter
 Simply increments a number by one and sends the number as token data.
