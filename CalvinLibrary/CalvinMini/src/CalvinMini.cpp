@@ -7,8 +7,6 @@
 #include <stdio.h>
 #include "CalvinMini.h"
 #include <inttypes.h>
-
-#ifdef ARDUINO
 #include <SPI.h>
 #include <Ethernet.h>
 #include <LiquidCrystal.h>
@@ -23,7 +21,6 @@ EthernetServer server(slaveport);
 EthernetClient client;
 LiquidCrystal lcdOutMain(52, 50, 48, 46, 44, 42);
 HandleSockets socketHandler;
-#endif
 String RT_ID = "";
 uint32_t lastPop[4];
 actor actors[NUMBER_OF_SUPPORTED_ACTORS];
@@ -31,7 +28,6 @@ uint8_t activeActors;
 uint8_t nextMessage[NUMBER_OF_SUPPORTED_ACTORS] = {0,0,0,0};
 uint32_t sequenceNbr[NUMBER_OF_SUPPORTED_ACTORS] = {0,0,0,0};
 
-#ifdef ARDUINO
 CalvinMini::CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port)
 {
 	RT_ID = rtID;
@@ -47,12 +43,6 @@ CalvinMini::CalvinMini(String rtID, byte* macAdr, IPAddress ipAdr, uint16_t port
 	activeActors = 0;
 	Serial.println(ip);
 }
-#else
-CalvinMini::CalvinMini(){
-	RT_ID = "Calvin-arduino";
-	activeActors = 0;
-}
-#endif
 
 rStatus CalvinMini::createActor(JsonObject &msg, uint8_t socket){
 	rStatus allOk = FAIL;
@@ -143,9 +133,6 @@ void CalvinMini::sendToken(JsonObject &msg, JsonObject &reply, JsonObject &reque
 		pos = socket;
 	}
 
-#ifdef _MOCK_
-	pos = 0;
-#endif
 	actors[pos].ackFlag = nextSequenceNbr;								// Determines if ACK or NACK
 
 	if(nextSequenceNbr)					//if ACK
@@ -181,9 +168,7 @@ void CalvinMini::handleTunnelData(JsonObject &msg, JsonObject &reply,JsonObject 
 	}
 	else if(!strcmp(value.get("cmd"), "TOKEN"))
 	{
-#ifdef ARDUINO
 		handleMsg(value,reply,request, socket);
-#endif
 	}
 	else
 	{
@@ -207,10 +192,6 @@ void CalvinMini::handleSetupPorts(JsonObject &msg,JsonObject &request, uint8_t s
 	JsonObject &inports = msg["state"]["prev_connections"]["inports"];
 	JsonObject &outports = msg["state"]["prev_connections"]["outports"];
 	int8_t pos = socket;
-
-#ifdef _MOCK_
-	pos = 0;
-#endif
 	String port_id;
 	String peer_port_id;
 	if(outports.size() == 0)
@@ -255,10 +236,8 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 		  uint8_t moreThanOneMsg = 1;
 		  // Print JsonObject and send to Calvin
 		  uint8_t size = packMsg(reply, request, moreThanOneMsg, socket);
-#ifdef ARDUINO
 		  lcdOutMain.clear();
-		  lcdOutMain.write("JOIN_REQUEST");
-#endif
+		  lcdOutMain.write("On node");
 		  return size;
 	}
 	else if(!strcmp(msg.get("cmd"),"ACTOR_NEW"))
@@ -299,19 +278,14 @@ int8_t CalvinMini::handleMsg(JsonObject &msg, JsonObject &reply, JsonObject &req
 	}
 	else
 	{
-#ifdef ARDUINO
 		Serial.println("UNKNOWN CMD");
 		standardOut("UNKNOWN CMD");
-#endif
 		return 7;
 	}
 }
 
 uint8_t CalvinMini::packMsg(JsonObject &reply, JsonObject &request, uint8_t moreThanOneMsg, uint8_t socket)
 {
-#ifdef _MOCK_
-  nextMessage[socket] = 0;
-#endif
 	char replyTemp[2048] = {};
 	reply.printTo(replyTemp,2048);
 	String str(replyTemp);
@@ -328,12 +302,7 @@ uint8_t CalvinMini::packMsg(JsonObject &reply, JsonObject &request, uint8_t more
 
 uint8_t CalvinMini::addToMessageOut(String reply, uint8_t socket)
 {
-#ifdef ARDUINO
 	nextMessage[socket] = socketHandler.addToMessagesOut(reply, socket);
-#endif
-#ifdef _MOCK_
-	nextMessage[socket]++;
-#endif
 	return nextMessage[socket];
 }
 
@@ -355,8 +324,6 @@ void CalvinMini::handleSetupTunnel(JsonObject &msg, JsonObject &request, JsonObj
 	request["policy"] = policy; // Unused
 	request["type"] = "token";
 }
-
-#ifdef ARDUINO
 
 void CalvinMini::calibrateSensor(void)
 {
@@ -419,4 +386,3 @@ void CalvinMini::loop()
 		socketHandler.NextSocket();
 	}
 }
-#endif
